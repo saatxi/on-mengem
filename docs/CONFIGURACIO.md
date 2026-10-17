@@ -131,3 +131,13 @@ Quan tinguis una URL de producció (Cloudflare Pages, Netlify, GitHub Pages…):
 ## Nota sobre el pla gratuït
 
 Supabase pausa els projectes gratuïts després d'aproximadament una setmana sense activitat. Es reactiven des del panell.
+
+## Entorn local amb Docker (opcional)
+
+Permet provar sense tocar el projecte de Supabase al núvol. Cal Docker.
+
+1. A Google Cloud (part C), afegeix com a *Authorized redirect URI*: `http://127.0.0.1:54321/auth/v1/callback`.
+2. Omple `supabase/.env` amb `SUPABASE_AUTH_GOOGLE_CLIENT_ID` i `SUPABASE_AUTH_GOOGLE_SECRET` (el fitxer està ignorat per git).
+3. `make local`: arrenca Supabase (aplica les migracions), genera `.env.localdb` i engega l'app a `http://localhost:3000`.
+
+Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades), `make db-test`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
