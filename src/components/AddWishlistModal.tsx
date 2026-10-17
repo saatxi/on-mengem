@@ -17,7 +17,6 @@ interface Props {
 export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
   const [restaurantName, setRestaurantName] = useState('');
   const [cuisine, setCuisine] = useState('Mediterrània');
-  const [customCuisine, setCustomCuisine] = useState('');
   const [priceRange, setPriceRange] = useState('€€');
   const [recommendedBy, setRecommendedBy] = useState('');
   const [notes, setNotes] = useState('');
@@ -33,10 +32,9 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
 
     setIsSubmitting(true);
     try {
-      const finalCuisine = cuisine === 'Altra' ? customCuisine.trim() || 'Variada' : cuisine;
       await onAdd({
         restaurantName: restaurantName.trim().slice(0, 100),
-        cuisine: finalCuisine.slice(0, 60),
+        cuisine,
         priceRange,
         recommendedBy: recommendedBy.trim().slice(0, 80),
         notes: notes.trim().slice(0, 500),
@@ -99,16 +97,6 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              {cuisine === 'Altra' && (
-                <input
-                  type="text"
-                  value={customCuisine}
-                  onChange={(e) => setCustomCuisine(e.target.value)}
-                  placeholder="Especifica la cuina..."
-                  maxLength={60}
-                  className="mt-2 w-full px-3 py-2 rounded-xl border border-stone-300 text-xs text-stone-800 focus:border-amber-500 outline-hidden"
-                />
-              )}
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">

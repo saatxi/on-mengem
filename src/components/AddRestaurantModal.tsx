@@ -18,12 +18,11 @@ interface Props {
 
 export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant }) => {
   const isEditing = !!restaurant;
-  const initialCuisine = restaurant?.cuisine;
-  const isKnownCuisine = !initialCuisine || CUISINES.includes(initialCuisine);
+  // Una cuina que ja no és a la llista obliga a triar-ne una de nova
+  const initialCuisine = isEditing ? restaurant.cuisine ?? '' : 'Mediterrània';
 
   const [name, setName] = useState(restaurant?.name ?? '');
-  const [cuisine, setCuisine] = useState(isKnownCuisine ? initialCuisine || 'Mediterrània' : 'Altra');
-  const [customCuisine, setCustomCuisine] = useState(isKnownCuisine ? '' : initialCuisine);
+  const [cuisine, setCuisine] = useState(CUISINES.includes(initialCuisine) ? initialCuisine : '');
   const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '€€');
   const [city, setCity] = useState(restaurant?.city ?? '');
   const [address, setAddress] = useState(restaurant?.address ?? '');
@@ -40,14 +39,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !CUISINES.includes(cuisine)) return;
 
     setIsSubmitting(true);
     try {
-      const finalCuisine = cuisine === 'Altra' ? customCuisine.trim() || 'Variada' : cuisine;
       await onSave({
         name: name.trim().slice(0, 100),
-        cuisine: finalCuisine.slice(0, 60),
+        cuisine,
         priceRange,
         city: city.trim().slice(0, 80),
         address: address.trim().slice(0, 200),
@@ -110,21 +108,14 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               <select
                 value={cuisine}
                 onChange={(e) => setCuisine(e.target.value)}
+                required
                 className="w-full px-3 py-2.5 rounded-xl border border-stone-300 bg-white text-stone-800 text-sm font-medium focus:border-orange-500 outline-hidden transition"
               >
+                <option value="" disabled>Tria una cuina...</option>
                 {CUISINES.map((c) => (
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              {cuisine === 'Altra' && (
-                <input
-                  type="text"
-                  value={customCuisine}
-                  onChange={(e) => setCustomCuisine(e.target.value)}
-                  placeholder="Especifica la cuina..."
-                  className="mt-2 w-full px-3 py-2 rounded-xl border border-stone-300 text-xs text-stone-800"
-                />
-              )}
             </div>
 
             <div>
