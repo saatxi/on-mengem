@@ -11,7 +11,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "postversion": "bash scripts/release-commit.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.58.0",
