@@ -1,0 +1,155 @@
+import React, { useState } from 'react';
+import { X, LogOut, Check, Mail, User } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+interface Props {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const FOOD_AVATARS = ['🍕', '🍣', '🥘', '🍷', '🌮', '🍔', '🥗', '🍜', '🥑', '🥞', '☕', '🍰'];
+
+export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
+  const { userProfile, updateProfile, logout, authUser } = useAuth();
+  const [nickname, setNickname] = useState(userProfile?.nickname || '');
+  const [avatar, setAvatar] = useState(userProfile?.avatar || '🍕');
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  if (!isOpen) return null;
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nickname.trim()) return;
+    setIsSaving(true);
+    try {
+      await updateProfile({
+        nickname: nickname.trim().slice(0, 50),
+        avatar,
+      });
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 2000);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 bg-stone-900 text-white">
+          <div className="flex items-center gap-3">
+            {authUser?.photoURL ? (
+              <img
+                src={authUser.photoURL}
+                alt="Avatar"
+                className="w-9 h-9 rounded-full border-2 border-orange-500 object-cover"
+              />
+            ) : (
+              <span className="text-2xl">{userProfile?.avatar || '🍕'}</span>
+            )}
+            <div>
+              <h2 className="text-base font-bold">Compte Google</h2>
+              <p className="text-xs text-stone-400">Usuari verificat a On menjem?</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full text-stone-400 hover:text-white transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-5">
+          {/* Google Account Info Box */}
+          <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
+            <div className="flex items-center gap-2 text-stone-700 font-semibold">
+              <Mail className="w-3.5 h-3.5 text-orange-600 flex-shrink-0" />
+              <span className="truncate">{authUser?.email || userProfile?.email || 'Sense correu associat'}</span>
+            </div>
+            <div className="flex items-center gap-2 text-stone-500 text-[11px]">
+              <User className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
+              <span className="truncate">{authUser?.displayName || userProfile?.nickname}</span>
+            </div>
+          </div>
+
+          {/* Form to update display name / avatar */}
+          <form onSubmit={handleSave} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+                Nom que veuran els altres membres del grup
+              </label>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="El teu àlies o nom"
+                required
+                maxLength={50}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-stone-900 text-sm font-medium outline-hidden"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                Tria el teu avatar culinari
+              </label>
+              <div className="grid grid-cols-6 gap-2">
+                {FOOD_AVATARS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setAvatar(emoji)}
+                    className={`h-10 rounded-xl text-xl flex items-center justify-center transition ${
+                      avatar === emoji
+                        ? 'bg-orange-100 ring-2 ring-orange-500 scale-105'
+                        : 'bg-stone-100 hover:bg-stone-200'
+                    }`}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <button
+                type="submit"
+                disabled={isSaving || !nickname.trim()}
+                className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition"
+              >
+                {isSaving ? 'Guardant...' : savedSuccess ? 'Guardat!' : 'Actualitzar Perfil'}
+              </button>
+              {savedSuccess && (
+                <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+                  <Check className="w-4 h-4" /> Dades desades
+                </span>
+              )}
+            </div>
+          </form>
+
+          {/* Sign out */}
+          <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
+            <span className="text-stone-400 text-[10px] font-mono">UID: {authUser?.uid.slice(0, 8)}...</span>
+            <button
+              onClick={async () => {
+                if (confirm('Vols tancar la sessió del teu compte de Google?')) {
+                  await logout();
+                  onClose();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Tancar sessió</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
