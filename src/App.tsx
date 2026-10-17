@@ -12,6 +12,7 @@ import { ShareToGroupModal } from './components/ShareToGroupModal';
 import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { ErrorToast } from './components/ErrorToast';
+import { GroupMembers } from './components/GroupMembers';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { Restaurant, WishlistItem } from './types';
 import {
@@ -44,7 +45,7 @@ import {
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
 
 function MainApp() {
-  const { userProfile, activeGroup, userGroups, hasProfile, isLoading } = useAuth();
+  const { activeGroup, userGroups, hasProfile, isLoading } = useAuth();
   const {
     isPersonal,
     restaurants,
@@ -705,63 +706,13 @@ function MainApp() {
               groupName={activeGroup?.name}
             />
 
-            {/* Members Section */}
-            <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-orange-600" />
-                  Membres sincronitzats ({activeGroup?.memberUids?.length || 1})
-                </h3>
-
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setShowJoinGroup(true)}
-                    className="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-bold text-stone-700 transition"
-                  >
-                    + Unir-se a altre grup
-                  </button>
-                  <button
-                    onClick={() => setShowCreateGroup(true)}
-                    className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition"
-                  >
-                    + Crear nou grup
-                  </button>
-                </div>
-              </div>
-
-              <div className="divide-y divide-stone-100">
-                {activeGroup?.memberUids?.map((uid, index) => {
-                  const isCurrent = uid === userProfile?.id;
-                  const isOwner = uid === activeGroup?.ownerId;
-                  return (
-                    <div key={uid} className="py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-lg">
-                          {isCurrent ? userProfile?.avatar || '🍕' : '👤'}
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                            <span>{isCurrent ? `${userProfile?.nickname} (Tu)` : isOwner ? activeGroup.ownerName : `Membre ${index + 1}`}</span>
-                            {isOwner && (
-                              <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
-                                Creador
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-xs text-stone-400 font-mono">
-                            UID: {uid.slice(0, 10)}...
-                          </div>
-                        </div>
-                      </div>
-
-                      <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Sincronitzat
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+            {activeGroup && (
+              <GroupMembers
+                group={activeGroup}
+                onJoinGroup={() => setShowJoinGroup(true)}
+                onCreateGroup={() => setShowCreateGroup(true)}
+              />
+            )}
           </div>
         )}
 

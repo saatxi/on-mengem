@@ -25,6 +25,13 @@ interface AuthContextType {
   setActiveGroupId: (groupId: string | null) => Promise<void>;
   createGroup: (name: string, description?: string) => Promise<string>;
   joinGroupByCode: (code: string) => Promise<{ success: boolean; message: string; groupId?: string }>;
+  /** Sortir del grup (l'owner primer l'ha de cedir o esborrar). */
+  leaveGroup: (groupId: string) => Promise<void>;
+  /** Només owner. */
+  removeMember: (groupId: string, userId: string) => Promise<void>;
+  transferOwnership: (groupId: string, userId: string) => Promise<void>;
+  regenerateGroupCode: (groupId: string) => Promise<string>;
+  deleteGroup: (groupId: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -210,6 +217,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
+  const refreshGroups = () => Promise.all([fetchGroups(), fetchProfile()]);
+
+  // Les polítiques RLS no fallen quan no afecten cap fila: es comprova que s'hagi esborrat alguna cosa.
+  const leaveGroup = async (groupId: string) => {
+    if (!uid) return;
+    const { data, error } = await supabase
+      .from('group_members').delete().eq('group_id', groupId).eq('user_id', uid).select();
+    if (error) throw error;
+    if (!data?.length) throw new Error('No pots sortir d\'aquest grup. Si n\'ets el creador, cedeix-lo o esborra\'l.');
+    await refreshGroups();
+  };
+
+  const removeMember = async (groupId: string, userId: string) => {
+    const { data, error } = await supabase
+      .from('group_members').delete().eq('group_id', groupId).eq('user_id', userId).select();
+    if (error) throw error;
+    if (!data?.length) throw new Error('No s\'ha pogut expulsar el membre.');
+    await refreshGroups();
+  };
+
+  const transferOwnership = async (groupId: string, userId: string) => {
+    const { error } = await supabase.rpc('transfer_group_ownership', { p_group_id: groupId, p_new_owner: userId });
+    if (error) throw error;
+    await refreshGroups();
+  };
+
+  const regenerateGroupCode = async (groupId: string): Promise<string> => {
+    const { data, error } = await supabase.rpc('regenerate_group_code', { p_group_id: groupId });
+    if (error) throw error;
+    await fetchGroups();
+    return data as string;
+  };
+
+  const deleteGroup = async (groupId: string) => {
+    const { data, error } = await supabase.from('groups').delete().eq('id', groupId).select();
+    if (error) throw error;
+    if (!data?.length) throw new Error('No s\'ha pogut esborrar el grup.');
+    await refreshGroups();
+  };
+
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Logout error:', error);
@@ -232,6 +279,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveGroupId,
         createGroup,
         joinGroupByCode,
+        leaveGroup,
+        removeMember,
+        transferOwnership,
+        regenerateGroupCode,
+        deleteGroup,
         logout,
       }}
     >
