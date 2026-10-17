@@ -1,5 +1,5 @@
 -- Tests de seguretat (RLS + RPC) amb pgTAP.  Execució: `supabase test db`
--- Veure security_spec.md per a la correspondència amb els invariants.
+-- Veure docs/SEGURETAT.md per a la correspondència amb els invariants.
 begin;
 select no_plan();
 
