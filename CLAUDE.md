@@ -78,5 +78,6 @@ Add project setup with Vite, React, Tailwind and Supabase
 
 ## Peculiaritats conegudes
 
-- L'script `clean` esmenta `server.js`, residu de l'antic Express.
+- El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`.
+- El build injecta una `Content-Security-Policy` (meta) a `vite.config.ts`; si afegeixes un domini extern, cal autoritzar-lo allà.
 - `tsconfig.json` no té `strict` activat.

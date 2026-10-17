@@ -118,6 +118,15 @@ Quan tinguis una URL de producció (Cloudflare Pages, Netlify, GitHub Pages…):
 1. Afegeix-la a **Redirect URLs** i, si vols, canvia la **Site URL** (part D).
 2. Afegeix-la als **Authorized JavaScript origins** de Google (B3.5). La *redirect URI* de Google no canvia, perquè sempre és la de Supabase.
 3. Defineix `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY` com a variables d'entorn de la build al servei d'hostatge.
+4. El build injecta una `Content-Security-Policy` com a `<meta>` (veure `vite.config.ts`), amb la URL de Supabase presa de `VITE_SUPABASE_URL`. Les capçaleres `frame-ancestors` no funcionen dins d'un `<meta>`: configura-les al servei d'hostatge, juntament amb `X-Content-Type-Options: nosniff` i `Referrer-Policy: strict-origin-when-cross-origin`. Exemple (`_headers` de Cloudflare Pages/Netlify):
+
+   ```
+   /*
+     Content-Security-Policy: frame-ancestors 'none'
+     X-Content-Type-Options: nosniff
+     Referrer-Policy: strict-origin-when-cross-origin
+   ```
+5. Els límits de grups (intents de codi, propietat) viuen a la base de dades: aplica totes les migracions (`0001` i `0002`) al projecte de Supabase abans de publicar.
 
 ## Nota sobre el pla gratuït
 

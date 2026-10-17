@@ -1,13 +1,40 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import {defineConfig} from 'vite';
+import {defineConfig, loadEnv} from 'vite';
 import {VitePWA} from 'vite-plugin-pwa';
 
-export default defineConfig(() => {
+// Content-Security-Policy només al build: en desenvolupament Vite necessita scripts inline i HMR.
+function contentSecurityPolicy(supabaseUrl: string) {
+  const supabase = supabaseUrl ? [supabaseUrl, supabaseUrl.replace(/^http/, 'ws')] : [];
+  return {
+    name: 'csp-meta',
+    apply: 'build' as const,
+    transformIndexHtml() {
+      const policy = [
+        "default-src 'self'",
+        "script-src 'self'",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src https://fonts.gstatic.com",
+        "img-src 'self' data: https:",
+        `connect-src ${["'self'", ...supabase].join(' ')}`,
+        "manifest-src 'self'",
+        "worker-src 'self'",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+      ].join('; ');
+      return [{tag: 'meta', attrs: {'http-equiv': 'Content-Security-Policy', content: policy}, injectTo: 'head-prepend' as const}];
+    },
+  };
+}
+
+export default defineConfig(({mode}) => {
+  const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
     plugins: [
       react(),
+      contentSecurityPolicy(env.VITE_SUPABASE_URL ?? ''),
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
@@ -46,20 +73,12 @@ export default defineConfig(() => {
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         },
-        devOptions: {
-          enabled: true,
-          type: 'module',
-        },
       }),
     ],
     resolve: {
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
       },
-    },
-    server: {
-      hmr: process.env.DISABLE_HMR !== 'true',
-      watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
   };
 });
