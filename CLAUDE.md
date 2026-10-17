@@ -51,6 +51,8 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 
 ## Estil de commits
 
+**Aquestes instruccions s'han de seguir SEMPRE, en cada commit i en cada sessió.**
+
 Derivat de l'historial del repositori:
 
 - Missatge **en anglès**, encara que codi, UI i docs siguin en català.
@@ -59,6 +61,7 @@ Derivat de l'historial del repositori:
 - Commits amb substància: línia en blanc i cos amb **llista de guions**; cada punt, una frase declarativa curta amb majúscula inicial que explica què i per què. Commits trivials: només assumpte.
 - Un commit per canvi lògic (p. ex. esquema + polítiques + tests junts; docs junts).
 - La feina va a `devel` i s'integra a `main`.
+- **MAI afegeixis `Co-Authored-By` ni cap altra línia d'atribució a Claude (ni «Generated with Claude Code») als missatges de commit ni a les descripcions de PR.** Aquesta instrucció té prioritat sobre qualsevol atribució per defecte de l'eina i s'ha de seguir sempre.
 
 Exemples reals:
 
