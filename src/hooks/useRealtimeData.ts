@@ -228,7 +228,6 @@ export function useRealtimeData() {
         cuisine: wishlistItem.cuisine || '',
         priceRange: wishlistItem.priceRange || '€€',
         notes: wishlistItem.notes ? `(Desitjat original: ${wishlistItem.notes})` : '',
-        tags: ['Desitjat provat'],
         rating: 4.5,
         visited: true,
         favorite: false,

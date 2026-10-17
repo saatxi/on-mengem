@@ -25,7 +25,6 @@ import {
   Star,
   MapPin,
   Phone,
-  Tag,
   CheckCircle,
   ExternalLink,
   Share2,
@@ -118,8 +117,7 @@ function MainApp() {
       r.name.toLowerCase().includes(q) ||
       (r.cuisine && r.cuisine.toLowerCase().includes(q)) ||
       (r.city && r.city.toLowerCase().includes(q)) ||
-      (r.notes && r.notes.toLowerCase().includes(q)) ||
-      (r.tags && r.tags.some((t) => t.toLowerCase().includes(q)));
+      (r.notes && r.notes.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
     if (filterFavorite && !r.favorite) return false;
@@ -245,7 +243,7 @@ function MainApp() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cercar per nom, ciutat, cuina, notes, etiquetes..."
+                    placeholder="Cercar per nom, ciutat, cuina, notes..."
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
                   />
                 </div>
@@ -434,25 +432,6 @@ function MainApp() {
                           <p className="text-xs text-stone-600 line-clamp-2 italic mb-3 bg-stone-50/80 p-2 rounded-xl">
                             "{res.notes}"
                           </p>
-                        )}
-
-                        {/* Tags */}
-                        {res.tags && res.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {res.tags.slice(0, 3).map((t) => (
-                              <span
-                                key={t}
-                                className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-stone-100 text-stone-600"
-                              >
-                                #{t}
-                              </span>
-                            ))}
-                            {res.tags.length > 3 && (
-                              <span className="text-[10px] text-stone-400 self-center">
-                                +{res.tags.length - 3}
-                              </span>
-                            )}
-                          </div>
                         )}
                       </div>
 

@@ -4,7 +4,6 @@ import {
   Star,
   MapPin,
   Phone,
-  Tag,
   Calendar,
   ExternalLink,
   Trash2,
@@ -151,25 +150,6 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </div>
             )}
           </div>
-
-          {/* Tags */}
-          {restaurant.tags && restaurant.tags.length > 0 && (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2 flex items-center gap-1">
-                <Tag className="w-3.5 h-3.5" /> Etiquetes
-              </h4>
-              <div className="flex flex-wrap gap-1.5">
-                {restaurant.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700 text-xs font-medium border border-stone-200"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Metadades */}
           <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400">

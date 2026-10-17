@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, Phone, Tag, DollarSign, FileText } from 'lucide-react';
+import { X, Star, Utensils, MapPin, Phone, DollarSign, FileText } from 'lucide-react';
 import { Restaurant } from '../types';
 
 interface Props {
@@ -7,20 +7,6 @@ interface Props {
   onClose: () => void;
   onAdd: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>) => Promise<void>;
 }
-
-const COMMON_TAGS = [
-  'Terrassa',
-  'Tapes & Platets',
-  'Arrossos',
-  'Brasa & Carn',
-  'Peix & Marisc',
-  'Romàntic',
-  'Menú del dia',
-  'Sense gluten',
-  'Vegetarià / Vegà',
-  'Postres top',
-  'Reserva recomanada',
-];
 
 const CUISINES = [
   'Mediterrània',
@@ -46,22 +32,11 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
   const [phone, setPhone] = useState('');
   const [rating, setRating] = useState(4.5);
   const [notes, setNotes] = useState('');
-  const [tags, setTags] = useState<string[]>(['Terrassa']);
   const [visited, setVisited] = useState(true);
   const [favorite, setFavorite] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
-
-  const toggleTag = (tag: string) => {
-    if (tags.includes(tag)) {
-      setTags(tags.filter((t) => t !== tag));
-    } else {
-      if (tags.length < 10) {
-        setTags([...tags, tag]);
-      }
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +54,6 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
         phone: phone.trim().slice(0, 30),
         rating,
         notes: notes.trim().slice(0, 500),
-        tags,
         visited,
         favorite,
       });
@@ -247,33 +221,6 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
               onChange={(e) => setRating(parseFloat(e.target.value))}
               className="w-full accent-orange-600"
             />
-          </div>
-
-          {/* Etiquetes */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1.5 flex items-center gap-1">
-              <Tag className="w-3.5 h-3.5 text-stone-400" />
-              Etiquetes recomanades
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {COMMON_TAGS.map((t) => {
-                const active = tags.includes(t);
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => toggleTag(t)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
-                      active
-                        ? 'bg-orange-100 text-orange-800 border border-orange-300 font-semibold'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200/80 border border-transparent'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                );
-              })}
-            </div>
           </div>
 
           {/* Notes */}

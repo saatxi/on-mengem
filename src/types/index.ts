@@ -31,7 +31,6 @@ export interface Restaurant {
   phone?: string;
   rating?: number; // 0 - 5
   notes?: string;
-  tags?: string[];
   groupId: string | null; // null = espai personal
   createdBy: string;
   createdByName?: string;
