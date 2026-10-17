@@ -79,6 +79,28 @@ Add project setup with Vite, React, Tailwind and Supabase
 - Add .env.example with the Supabase URL and public key variables
 ```
 
+## Releases
+
+- `make release patch|minor|major|X.Y.Z` executa `npm version`, que crea el commit de versió (`package.json` i `package-lock.json`) i l'etiqueta `vX.Y.Z` amb **el mateix missatge** (`scripts/release-commit.sh`).
+- L'editor s'obre amb «Release X.Y.Z»: **substitueix-ho per una descripció de la release**, no deixis «Release X.Y.Z» com a assumpte.
+- El missatge segueix l'estil de commits: en anglès, assumpte en imperatiu que resumeixi els canvis principals (40–70 caràcters, sense punt final) i cos amb llista de guions.
+- El cos recull els canvis des de l'etiqueta anterior (`git log vANTERIOR..HEAD`), agrupats per funcionalitat i pensant en qui fa servir l'app; deixa fora els canvis interns menors (Makefile, format…).
+- Si cal una acció en desplegar (p. ex. un script SQL per a una BD existent), afegeix-la com a darrer punt.
+- Pujar-la: `git push && git push --tags`.
+
+Exemple:
+
+```
+Add restaurant editing, Instagram links and fixed cuisine list
+
+- Add restaurant editing from the detail view, which now reflects changes immediately.
+- Add website link and Instagram to restaurants and Instagram to wishlist items.
+- Use a closed list of 22 cuisine types in both forms and enforce it in the database.
+- Remove restaurant tags from the app and the schema.
+- Merge the migrations into a single schema file.
+- Existing databases need the cuisine upgrade script before deploying this version.
+```
+
 ## Peculiaritats conegudes
 
 - El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`.
