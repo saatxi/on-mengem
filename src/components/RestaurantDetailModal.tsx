@@ -10,7 +10,8 @@ import {
   CheckCircle,
   Share2,
   Copy,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Pencil
 } from 'lucide-react';
 import { Restaurant } from '../types';
 
@@ -20,6 +21,7 @@ interface Props {
   onToggleFavorite: (r: Restaurant) => void;
   onToggleVisited: (r: Restaurant) => void;
   onDelete: (id: string) => void;
+  onEdit: (r: Restaurant) => void;
   onCopyToGroup?: (r: Restaurant) => void;
   onMoveToGroup?: (r: Restaurant) => void;
 }
@@ -30,6 +32,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   onToggleFavorite,
   onToggleVisited,
   onDelete,
+  onEdit,
   onCopyToGroup,
   onMoveToGroup,
 }) => {
@@ -72,12 +75,21 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </div>
               <h2 className="text-2xl font-black text-white tracking-tight">{restaurant.name}</h2>
             </div>
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onEdit(restaurant)}
+                className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
+                title="Editar restaurant"
+              >
+                <Pencil className="w-5 h-5" />
+              </button>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           <div className="mt-4 flex items-center gap-4 text-xs font-medium text-orange-100">
@@ -194,7 +206,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               {onCopyToGroup && (
                 <button
                   onClick={() => onCopyToGroup(restaurant)}
-                  className="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-orange-50 text-orange-800 border border-orange-200 hover:bg-orange-100 transition"
+                  className="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
                 >
                   <Copy className="w-4 h-4" />
                   <span>Copiar a un grup</span>

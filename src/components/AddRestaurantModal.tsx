@@ -5,7 +5,9 @@ import { Restaurant } from '../types';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
+  restaurant?: Restaurant | null;
 }
 
 const CUISINES = [
@@ -22,18 +24,22 @@ const CUISINES = [
   'Altra',
 ];
 
-export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
-  const [name, setName] = useState('');
-  const [cuisine, setCuisine] = useState('Mediterrània');
-  const [customCuisine, setCustomCuisine] = useState('');
-  const [priceRange, setPriceRange] = useState('€€');
-  const [city, setCity] = useState('');
-  const [address, setAddress] = useState('');
-  const [phone, setPhone] = useState('');
-  const [rating, setRating] = useState(4.5);
-  const [notes, setNotes] = useState('');
-  const [visited, setVisited] = useState(true);
-  const [favorite, setFavorite] = useState(false);
+export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant }) => {
+  const isEditing = !!restaurant;
+  const initialCuisine = restaurant?.cuisine;
+  const isKnownCuisine = !initialCuisine || CUISINES.includes(initialCuisine);
+
+  const [name, setName] = useState(restaurant?.name ?? '');
+  const [cuisine, setCuisine] = useState(isKnownCuisine ? initialCuisine || 'Mediterrània' : 'Altra');
+  const [customCuisine, setCustomCuisine] = useState(isKnownCuisine ? '' : initialCuisine);
+  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '€€');
+  const [city, setCity] = useState(restaurant?.city ?? '');
+  const [address, setAddress] = useState(restaurant?.address ?? '');
+  const [phone, setPhone] = useState(restaurant?.phone ?? '');
+  const [rating, setRating] = useState(restaurant?.rating ?? 4.5);
+  const [notes, setNotes] = useState(restaurant?.notes ?? '');
+  const [visited, setVisited] = useState(restaurant?.visited ?? true);
+  const [favorite, setFavorite] = useState(restaurant?.favorite ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -45,7 +51,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
     setIsSubmitting(true);
     try {
       const finalCuisine = cuisine === 'Altra' ? customCuisine.trim() || 'Variada' : cuisine;
-      await onAdd({
+      await onSave({
         name: name.trim().slice(0, 100),
         cuisine: finalCuisine.slice(0, 60),
         priceRange,
@@ -72,7 +78,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
         <div className="flex items-center justify-between px-6 py-4 bg-orange-600 text-white">
           <div className="flex items-center gap-2">
             <Utensils className="w-5 h-5" />
-            <h2 className="text-base font-bold">Afegir Nou Restaurant</h2>
+            <h2 className="text-base font-bold">{isEditing ? 'Editar restaurant' : 'Afegir Nou Restaurant'}</h2>
           </div>
           <button
             onClick={onClose}
@@ -278,7 +284,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) 
               disabled={isSubmitting || !name.trim()}
               className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
             >
-              {isSubmitting ? 'Guardant...' : 'Afegir Restaurant'}
+              {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir Restaurant'}
             </button>
           </div>
         </form>

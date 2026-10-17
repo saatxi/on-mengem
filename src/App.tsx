@@ -76,7 +76,9 @@ function MainApp() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  // Es guarda l'id i no l'objecte perquè el detall reflecteixi els canvis en temps real
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
   const [shareTarget, setShareTarget] = useState<
     | { mode: 'copy' | 'move'; type: 'restaurant' | 'wishlist'; id: string; name: string }
     | null
@@ -109,6 +111,8 @@ function MainApp() {
   if (!hasProfile) {
     return <WelcomeOnboarding />;
   }
+
+  const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId) ?? null;
 
   // Filter restaurants
   const filteredRestaurants = restaurants.filter((r) => {
@@ -373,7 +377,7 @@ function MainApp() {
                   return (
                     <div
                       key={res.id}
-                      onClick={() => setSelectedRestaurant(res)}
+                      onClick={() => setSelectedRestaurantId(res.id)}
                       className="group bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs hover:shadow-md hover:border-orange-200 transition flex flex-col justify-between cursor-pointer"
                     >
                       <div>
@@ -777,7 +781,7 @@ function MainApp() {
       <AddRestaurantModal
         isOpen={showAddRestaurant}
         onClose={() => setShowAddRestaurant(false)}
-        onAdd={addRestaurant}
+        onSave={addRestaurant}
       />
 
       <AddWishlistModal
@@ -788,18 +792,29 @@ function MainApp() {
 
       <RestaurantDetailModal
         restaurant={selectedRestaurant}
-        onClose={() => setSelectedRestaurant(null)}
+        onClose={() => setSelectedRestaurantId(null)}
+        onEdit={setEditingRestaurant}
         onToggleFavorite={toggleFavorite}
         onToggleVisited={toggleVisited}
         onDelete={deleteRestaurant}
         onCopyToGroup={(r) => {
-          setSelectedRestaurant(null);
+          setSelectedRestaurantId(null);
           setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
         }}
         onMoveToGroup={isPersonal ? (r) => {
-          setSelectedRestaurant(null);
+          setSelectedRestaurantId(null);
           setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
         } : undefined}
+      />
+
+      <AddRestaurantModal
+        key={editingRestaurant?.id ?? 'edit'}
+        isOpen={!!editingRestaurant}
+        restaurant={editingRestaurant}
+        onClose={() => setEditingRestaurant(null)}
+        onSave={async (data) => {
+          if (editingRestaurant) await updateRestaurant(editingRestaurant.id, data);
+        }}
       />
 
       <ShareToGroupModal
