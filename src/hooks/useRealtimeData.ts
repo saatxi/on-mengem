@@ -191,10 +191,19 @@ export function useRealtimeData() {
   };
 
   const updateWishlistItem = async (wishlistId: string, data: Partial<WishlistItem>) => {
-    if (!uid) return;
-    const { error } = await supabase.from('wishlist').update(wishlistToRow(data)).eq('id', wishlistId);
-    if (error) fail('updateWishlistItem', error);
-    else await fetchWishlist();
+    if (!uid) return false;
+    // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
+    const { data: rows, error } = await supabase
+      .from('wishlist')
+      .update(wishlistToRow(data))
+      .eq('id', wishlistId)
+      .select('id');
+    if (error || !rows?.length) {
+      fail('updateWishlistItem', error ?? 'Cap fila actualitzada (RLS?)');
+      return false;
+    }
+    await fetchWishlist();
+    return true;
   };
 
   const deleteWishlistItem = async (wishlistId: string) => {
@@ -204,23 +213,30 @@ export function useRealtimeData() {
     else await fetchWishlist();
   };
 
-  // Converteix un desitjat en restaurant de l'espai actiu
+  // Converteix un desitjat en restaurant de l'espai actiu.
+  // Primer es marca el desitjat com a visitat i, si el restaurant no es pot crear, es desfà;
+  // així un error mai deixa un restaurant creat amb el desitjat encara pendent (duplicats en reintentar).
+  const convertingRef = useRef<Set<string>>(new Set());
   const convertWishlistToRestaurant = async (wishlistItem: WishlistItem) => {
-    if (!uid || !userProfile) return;
+    if (!uid || !userProfile || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
+    convertingRef.current.add(wishlistItem.id);
+    try {
+      if (!(await updateWishlistItem(wishlistItem.id, { status: 'visited' }))) return;
 
-    const created = await insertRestaurant({
-      name: wishlistItem.restaurantName,
-      cuisine: wishlistItem.cuisine || '',
-      priceRange: wishlistItem.priceRange || '€€',
-      notes: wishlistItem.notes ? `(Desitjat original: ${wishlistItem.notes})` : '',
-      tags: ['Desitjat provat'],
-      rating: 4.5,
-      visited: true,
-      favorite: false,
-    });
-
-    // Si el restaurant no s'ha creat, el desitjat no es marca com a visitat.
-    if (created) await updateWishlistItem(wishlistItem.id, { status: 'visited' });
+      const created = await insertRestaurant({
+        name: wishlistItem.restaurantName,
+        cuisine: wishlistItem.cuisine || '',
+        priceRange: wishlistItem.priceRange || '€€',
+        notes: wishlistItem.notes ? `(Desitjat original: ${wishlistItem.notes})` : '',
+        tags: ['Desitjat provat'],
+        rating: 4.5,
+        visited: true,
+        favorite: false,
+      });
+      if (!created) await updateWishlistItem(wishlistItem.id, { status: wishlistItem.status });
+    } finally {
+      convertingRef.current.delete(wishlistItem.id);
+    }
   };
 
   // Copiar / moure cap a grups (RPC al servidor)

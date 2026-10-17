@@ -615,14 +615,16 @@ function MainApp() {
                           >
                             Eliminar
                           </button>
-                          <button
-                            onClick={() => convertWishlistToRestaurant(item)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
-                            title="Afegeix-lo directament a la llista de restaurants"
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            <span>Ja hi hem anat!</span>
-                          </button>
+                          {item.status !== 'visited' && (
+                            <button
+                              onClick={() => convertWishlistToRestaurant(item)}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
+                              title="Afegeix-lo directament a la llista de restaurants"
+                            >
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Ja hi hem anat!</span>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
