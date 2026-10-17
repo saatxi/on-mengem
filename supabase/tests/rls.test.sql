@@ -144,6 +144,10 @@ select throws_ok($$
   insert into public.restaurants (name, instagram, created_by)
   values ('X', 'evil/../../x?a=1', '00000000-0000-0000-0000-00000000000b') $$,
   '23514', null, 'un instagram que no és un nom d''usuari és rebutjat');
+select throws_ok($$
+  insert into public.wishlist (restaurant_name, instagram, user_id)
+  values ('X', 'evil/../../x?a=1', '00000000-0000-0000-0000-00000000000b') $$,
+  '23514', null, 'un instagram de desitjat que no és un nom d''usuari és rebutjat');
 -- Atac 17: nom d'autor falsificat
 select lives_ok($$
   insert into public.restaurants (group_id, name, created_by, created_by_name)

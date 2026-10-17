@@ -81,13 +81,16 @@ create table public.wishlist (
   recommended_by text check (char_length(recommended_by) <= 120),
   notes text check (char_length(notes) <= 2000),
   link text check (char_length(link) <= 500),
+  instagram text, -- nom d'usuari sense @
   status text not null default 'pending' check (status in ('pending', 'planned', 'visited')),
   user_id uuid references auth.users (id) on delete set null,
   user_name text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   -- Només URL http(s).
-  constraint wishlist_link_http check (link is null or link = '' or link ~* '^https?://')
+  constraint wishlist_link_http check (link is null or link = '' or link ~* '^https?://'),
+  -- Només el format d'un nom d'usuari d'Instagram, així no es pot injectar res a l'URL.
+  constraint wishlist_instagram_handle check (instagram is null or instagram = '' or instagram ~ '^[A-Za-z0-9._]{1,30}$')
 );
 create index wishlist_group_idx on public.wishlist (group_id);
 create index wishlist_owner_idx on public.wishlist (user_id) where group_id is null;
@@ -553,9 +556,9 @@ begin
       returning id into new_id;
     else
       insert into public.wishlist (group_id, restaurant_name, cuisine, price_range, recommended_by,
-                                   notes, link, status, user_id)
+                                   notes, link, instagram, status, user_id)
       select gid, w.restaurant_name, w.cuisine, w.price_range, w.recommended_by,
-             w.notes, w.link, w.status, uid
+             w.notes, w.link, w.instagram, w.status, uid
         from public.wishlist w
        where w.id = p_id
          and w.group_id is distinct from gid

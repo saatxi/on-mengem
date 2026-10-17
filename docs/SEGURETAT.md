@@ -17,7 +17,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 10. **Límits de mida i valors** via `CHECK` (noms, notes, `status` d'una llista tancada…).
 11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i són immutables. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic.
 12. **Codis d'invitació**: 10 intents fallits cada 10 minuts per usuari (`join_attempts`); després, `join_group_by_code` retorna `TOO_MANY_ATTEMPTS`.
-13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
+13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` / `wishlist.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
 14. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
 
 ## Atacs que han de ser denegats
@@ -39,7 +39,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 13 | Expulsar un altre membre sent-ne un de normal | `members_delete` | "bob no pot expulsar alice" |
 | 14 | Editar `read_by` d'una alerta directament | cap policy d'update a `alerts` | "bob no pot editar alertes directament" |
 | 15 | Inserir alertes falses | cap policy d'insert a `alerts` | "bob no pot inserir alertes directament" |
-| 16 | Enllaç `javascript:`/`data:` | `CHECK wishlist_link_http` / `restaurants_link_http` / `restaurants_instagram_handle` | "un enllaç (de restaurant) que no és http(s) és rebutjat", "un instagram que no és un nom d'usuari és rebutjat" |
+| 16 | Enllaç `javascript:`/`data:` | `CHECK wishlist_link_http` / `restaurants_link_http` / `restaurants_instagram_handle` / `wishlist_instagram_handle` | "un enllaç (de restaurant) que no és http(s) és rebutjat", "un instagram (de desitjat) que no és un nom d'usuari és rebutjat" |
 | 17 | Falsificar el nom d'autor | trigger `set_author_name` + `lock_ownership` | "el created_by_name el posa el servidor", "created_by_name és immutable" |
 | 18 | Activar un grup aliè, esborrar el perfil o editar l'email | `profiles_update` amb `WITH CHECK`, privilegis per columna, sense `profiles_delete` | 3 tests de bob |
 | 19 | Posar un codi a mà o deixar el grup orfe | privilegis per columna de `groups`; `members_delete` | "l'owner no pot posar un codi a mà", "l'owner no pot sortir del seu grup" |

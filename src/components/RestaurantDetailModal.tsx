@@ -16,6 +16,7 @@ import {
   Instagram
 } from 'lucide-react';
 import { Restaurant } from '../types';
+import { instagramUrl, isInstagramHandle } from '../utils/restaurantFields';
 
 interface Props {
   restaurant: Restaurant | null;
@@ -169,14 +170,14 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </div>
             )}
 
-            {restaurant.instagram && /^[A-Za-z0-9._]{1,30}$/.test(restaurant.instagram) && (
+            {isInstagramHandle(restaurant.instagram) && (
               <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
                 <div className="flex items-center gap-2.5 text-stone-700 min-w-0">
                   <Instagram className="w-4 h-4 text-pink-600 flex-shrink-0" />
                   <span className="text-xs font-medium truncate">@{restaurant.instagram}</span>
                 </div>
                 <a
-                  href={`https://www.instagram.com/${restaurant.instagram}/`}
+                  href={instagramUrl(restaurant.instagram)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"

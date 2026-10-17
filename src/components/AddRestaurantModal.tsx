@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { X, Star, Utensils, MapPin, Phone, DollarSign, FileText, Link2, Instagram } from 'lucide-react';
 import { Restaurant } from '../types';
+import {
+  CUISINES,
+  INSTAGRAM_INPUT_MESSAGE,
+  INSTAGRAM_INPUT_PATTERN,
+  toInstagramHandle,
+} from '../utils/restaurantFields';
 
 interface Props {
   isOpen: boolean;
@@ -9,28 +15,6 @@ interface Props {
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
 }
-
-// Accepta «@usuari», «usuari» o un enllaç a instagram.com i en retorna només el nom d'usuari
-const toInstagramHandle = (value: string) =>
-  value
-    .trim()
-    .replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i, '')
-    .replace(/^@/, '')
-    .split(/[/?#]/)[0];
-
-const CUISINES = [
-  'Mediterrània',
-  'Catalana tradicional',
-  'Tapes de mercat',
-  'Japonesa & Sushi',
-  'Italiana & Pizzes',
-  'Braseria & Carn',
-  'Mexicana',
-  'Hamburgueses gourmet',
-  'Fusió & Internacional',
-  'Vegetariana & Saludable',
-  'Altra',
-];
 
 export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant }) => {
   const isEditing = !!restaurant;
@@ -238,9 +222,9 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               type="text"
               value={instagram}
               onChange={(e) => setInstagram(e.target.value)}
-              onInvalid={(e) => e.currentTarget.setCustomValidity('Escriu un nom d\'usuari (@usuari) o un enllaç a instagram.com')}
+              onInvalid={(e) => e.currentTarget.setCustomValidity(INSTAGRAM_INPUT_MESSAGE)}
               onInput={(e) => e.currentTarget.setCustomValidity('')}
-              pattern="\s*(@?[A-Za-z0-9._]{1,30}|(https?://)?(www\.)?instagram\.com/[A-Za-z0-9._]{1,30}(/.*|\?.*)?)\s*"
+              pattern={INSTAGRAM_INPUT_PATTERN}
               placeholder="@nomdelrestaurant"
               maxLength={200}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"

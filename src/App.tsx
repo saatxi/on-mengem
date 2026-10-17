@@ -15,6 +15,7 @@ import { ErrorToast } from './components/ErrorToast';
 import { GroupMembers } from './components/GroupMembers';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { Restaurant, WishlistItem } from './types';
+import { instagramUrl, isInstagramHandle } from './utils/restaurantFields';
 import {
   Utensils,
   BookmarkPlus,
@@ -27,6 +28,7 @@ import {
   Phone,
   CheckCircle,
   ExternalLink,
+  Instagram,
   Share2,
   Copy,
   Check,
@@ -544,17 +546,30 @@ function MainApp() {
                             <h3 className="text-lg font-bold text-stone-900">{item.restaurantName}</h3>
                           </div>
 
-                          {item.link && /^https?:\/\//i.test(item.link) && (
-                            <a
-                              href={item.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
-                              title="Obrir enllaç"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </a>
-                          )}
+                          <div className="flex items-center gap-1.5">
+                            {isInstagramHandle(item.instagram) && (
+                              <a
+                                href={instagramUrl(item.instagram)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
+                                title={`Obrir @${item.instagram} a Instagram`}
+                              >
+                                <Instagram className="w-4 h-4" />
+                              </a>
+                            )}
+                            {item.link && /^https?:\/\//i.test(item.link) && (
+                              <a
+                                href={item.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
+                                title="Obrir enllaç"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
+                          </div>
                         </div>
 
                         {item.recommendedBy && (

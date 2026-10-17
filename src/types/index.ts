@@ -52,6 +52,7 @@ export interface WishlistItem {
   recommendedBy?: string;
   notes?: string;
   link?: string;
+  instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal
   userId: string;
   userName?: string;

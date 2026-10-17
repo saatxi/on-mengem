@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare } from 'lucide-react';
+import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare, Instagram } from 'lucide-react';
 import { WishlistItem } from '../types';
+import {
+  CUISINES,
+  INSTAGRAM_INPUT_MESSAGE,
+  INSTAGRAM_INPUT_PATTERN,
+  toInstagramHandle,
+} from '../utils/restaurantFields';
 
 interface Props {
   isOpen: boolean;
@@ -11,10 +17,12 @@ interface Props {
 export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
   const [restaurantName, setRestaurantName] = useState('');
   const [cuisine, setCuisine] = useState('Mediterrània');
+  const [customCuisine, setCustomCuisine] = useState('');
   const [priceRange, setPriceRange] = useState('€€');
   const [recommendedBy, setRecommendedBy] = useState('');
   const [notes, setNotes] = useState('');
   const [link, setLink] = useState('');
+  const [instagram, setInstagram] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -25,13 +33,15 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
 
     setIsSubmitting(true);
     try {
+      const finalCuisine = cuisine === 'Altra' ? customCuisine.trim() || 'Variada' : cuisine;
       await onAdd({
         restaurantName: restaurantName.trim().slice(0, 100),
-        cuisine: cuisine.slice(0, 60),
+        cuisine: finalCuisine.slice(0, 60),
         priceRange,
         recommendedBy: recommendedBy.trim().slice(0, 80),
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
+        instagram: toInstagramHandle(instagram),
         status: 'pending',
       });
       onClose();
@@ -80,14 +90,25 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
                 Cuina
               </label>
-              <input
-                type="text"
+              <select
                 value={cuisine}
                 onChange={(e) => setCuisine(e.target.value)}
-                placeholder="Ex. Tapes, Japonesa..."
-                maxLength={60}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-amber-500 outline-hidden"
-              />
+                className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm text-stone-800 focus:border-amber-500 outline-hidden"
+              >
+                {CUISINES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+              {cuisine === 'Altra' && (
+                <input
+                  type="text"
+                  value={customCuisine}
+                  onChange={(e) => setCustomCuisine(e.target.value)}
+                  placeholder="Especifica la cuina..."
+                  maxLength={60}
+                  className="mt-2 w-full px-3 py-2 rounded-xl border border-stone-300 text-xs text-stone-800 focus:border-amber-500 outline-hidden"
+                />
+              )}
             </div>
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
@@ -155,6 +176,24 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://..."
               maxLength={300}
+              className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-amber-500 outline-hidden"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
+              <Instagram className="w-3.5 h-3.5 text-stone-400" />
+              Instagram (opcional)
+            </label>
+            <input
+              type="text"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              onInvalid={(e) => e.currentTarget.setCustomValidity(INSTAGRAM_INPUT_MESSAGE)}
+              onInput={(e) => e.currentTarget.setCustomValidity('')}
+              pattern={INSTAGRAM_INPUT_PATTERN}
+              placeholder="@nomdelrestaurant"
+              maxLength={200}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-amber-500 outline-hidden"
             />
           </div>
