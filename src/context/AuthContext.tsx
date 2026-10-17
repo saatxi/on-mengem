@@ -117,6 +117,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (async () => {
       await Promise.all([fetchProfile(), fetchGroups()]);
       if (!cancelled) setIsLoading(false);
+      // Registra l'últim accés un cop per sessió carregada (no a cada edició del perfil).
+      await supabase.from('profiles').update({ last_login_at: new Date().toISOString() }).eq('id', uid);
     })();
 
     const channel = supabase
@@ -153,9 +155,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!uid) return;
-    const row: Record<string, unknown> = { last_login_at: new Date().toISOString() };
+    const row: Record<string, unknown> = {};
     if (data.nickname !== undefined) row.nickname = data.nickname;
     if (data.avatar !== undefined) row.avatar = data.avatar;
+    if (Object.keys(row).length === 0) return;
     const { error } = await supabase.from('profiles').update(row).eq('id', uid);
     if (error) console.error('Error actualitzant el perfil:', error);
     else await fetchProfile();

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabase/client';
 import {
   toRestaurant,
@@ -14,6 +14,10 @@ function logError(action: string, error: unknown) {
   console.error(`[Supabase] ${action}:`, error);
 }
 
+const ERROR_MESSAGE = 'No s\'ha pogut completar l\'acció. Comprova la connexió i torna-ho a provar.';
+/** Els canvis ràpids consecutius (p. ex. una còpia a varis grups) es resolen amb un sol refresc. */
+const REFRESH_DEBOUNCE_MS = 300;
+
 /**
  * Dades de l'espai actiu: el grup seleccionat o, si no n'hi ha cap,
  * l'espai personal de l'usuari (group_id = NULL).
@@ -28,24 +32,38 @@ export function useRealtimeData() {
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Espai actiu: les respostes d'un espai anterior es descarten (evita barrejar dades en canviar de grup).
+  const scope = `${uid}:${groupId ?? 'personal'}`;
+  const scopeRef = useRef(scope);
+  scopeRef.current = scope;
+
+  const fail = (action: string, err: unknown) => {
+    logError(action, err);
+    setError(ERROR_MESSAGE);
+  };
+  const clearError = useCallback(() => setError(null), []);
 
   const fetchRestaurants = useCallback(async () => {
     if (!uid) return;
     let q = supabase.from('restaurants').select('*').order('created_at', { ascending: false });
     q = groupId ? q.eq('group_id', groupId) : q.is('group_id', null).eq('created_by', uid);
     const { data, error } = await q;
-    if (error) return logError('restaurants', error);
+    if (scopeRef.current !== scope) return;
+    if (error) return fail('restaurants', error);
     setRestaurants((data ?? []).map(toRestaurant));
-  }, [uid, groupId]);
+  }, [uid, groupId, scope]);
 
   const fetchWishlist = useCallback(async () => {
     if (!uid) return;
     let q = supabase.from('wishlist').select('*').order('created_at', { ascending: false });
     q = groupId ? q.eq('group_id', groupId) : q.is('group_id', null).eq('user_id', uid);
     const { data, error } = await q;
-    if (error) return logError('wishlist', error);
+    if (scopeRef.current !== scope) return;
+    if (error) return fail('wishlist', error);
     setWishlist((data ?? []).map(toWishlistItem));
-  }, [uid, groupId]);
+  }, [uid, groupId, scope]);
 
   const fetchAlerts = useCallback(async () => {
     if (!uid || !groupId) {
@@ -58,9 +76,10 @@ export function useRealtimeData() {
       .eq('group_id', groupId)
       .order('created_at', { ascending: false })
       .limit(100);
-    if (error) return logError('alerts', error);
+    if (scopeRef.current !== scope) return;
+    if (error) return fail('alerts', error);
     setAlerts((data ?? []).map(toAlert));
-  }, [uid, groupId]);
+  }, [uid, groupId, scope]);
 
   // Càrrega inicial i Realtime: qualsevol canvi a les taules refresca la llista (RLS filtra els events).
   useEffect(() => {
@@ -74,28 +93,44 @@ export function useRealtimeData() {
 
     let cancelled = false;
     setLoading(true);
+    setRestaurants([]);
+    setWishlist([]);
+    setAlerts([]);
     Promise.all([fetchRestaurants(), fetchWishlist(), fetchAlerts()]).then(() => {
       if (!cancelled) setLoading(false);
     });
 
+    // Els events DELETE no admeten filtres a Realtime: es rebin tots i es refresca amb debounce.
+    const cancels: (() => void)[] = [];
+    const debounced = (refresh: () => Promise<void>) => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      cancels.push(() => clearTimeout(timer));
+      return () => {
+        clearTimeout(timer);
+        timer = setTimeout(refresh, REFRESH_DEBOUNCE_MS);
+      };
+    };
+
     const channel = supabase
       .channel(`data-${uid}-${groupId ?? 'personal'}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, fetchRestaurants)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'wishlist' }, fetchWishlist)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, fetchAlerts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, debounced(fetchRestaurants))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'wishlist' }, debounced(fetchWishlist))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, debounced(fetchAlerts))
       .subscribe();
 
     return () => {
       cancelled = true;
+      cancels.forEach((cancel) => cancel());
       supabase.removeChannel(channel);
     };
   }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts]);
 
   // CRUD Restaurants
-  const addRestaurant = async (
-    data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>
-  ) => {
-    if (!uid || !userProfile) return;
+  type NewRestaurant = Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>;
+
+  /** Retorna si s'ha creat; així altres operacions poden dependre'n. */
+  const insertRestaurant = async (data: NewRestaurant): Promise<boolean> => {
+    if (!uid || !userProfile) return false;
     const { error } = await supabase
       .from('restaurants')
       .insert({
@@ -104,21 +139,29 @@ export function useRealtimeData() {
         created_by: uid,
         created_by_name: userProfile.nickname,
       });
-    if (error) return logError('addRestaurant', error);
+    if (error) {
+      fail('addRestaurant', error);
+      return false;
+    }
     await fetchRestaurants();
+    return true;
+  };
+
+  const addRestaurant = async (data: NewRestaurant) => {
+    await insertRestaurant(data);
   };
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return;
     const { error } = await supabase.from('restaurants').update(restaurantToRow(data)).eq('id', resId);
-    if (error) logError('updateRestaurant', error);
+    if (error) fail('updateRestaurant', error);
     else await fetchRestaurants();
   };
 
   const deleteRestaurant = async (resId: string) => {
     if (!uid) return;
     const { error } = await supabase.from('restaurants').delete().eq('id', resId);
-    if (error) logError('deleteRestaurant', error);
+    if (error) fail('deleteRestaurant', error);
     else await fetchRestaurants();
   };
 
@@ -143,21 +186,21 @@ export function useRealtimeData() {
         user_id: uid,
         user_name: userProfile.nickname,
       });
-    if (error) return logError('addWishlistItem', error);
+    if (error) return fail('addWishlistItem', error);
     await fetchWishlist();
   };
 
   const updateWishlistItem = async (wishlistId: string, data: Partial<WishlistItem>) => {
     if (!uid) return;
     const { error } = await supabase.from('wishlist').update(wishlistToRow(data)).eq('id', wishlistId);
-    if (error) logError('updateWishlistItem', error);
+    if (error) fail('updateWishlistItem', error);
     else await fetchWishlist();
   };
 
   const deleteWishlistItem = async (wishlistId: string) => {
     if (!uid) return;
     const { error } = await supabase.from('wishlist').delete().eq('id', wishlistId);
-    if (error) logError('deleteWishlistItem', error);
+    if (error) fail('deleteWishlistItem', error);
     else await fetchWishlist();
   };
 
@@ -165,7 +208,7 @@ export function useRealtimeData() {
   const convertWishlistToRestaurant = async (wishlistItem: WishlistItem) => {
     if (!uid || !userProfile) return;
 
-    await addRestaurant({
+    const created = await insertRestaurant({
       name: wishlistItem.restaurantName,
       cuisine: wishlistItem.cuisine || '',
       priceRange: wishlistItem.priceRange || '€€',
@@ -176,7 +219,8 @@ export function useRealtimeData() {
       favorite: false,
     });
 
-    await updateWishlistItem(wishlistItem.id, { status: 'visited' });
+    // Si el restaurant no s'ha creat, el desitjat no es marca com a visitat.
+    if (created) await updateWishlistItem(wishlistItem.id, { status: 'visited' });
   };
 
   // Copiar / moure cap a grups (RPC al servidor)
@@ -188,7 +232,7 @@ export function useRealtimeData() {
       p_group_ids: groupIds,
     });
     if (error) {
-      logError('copyToGroups', error);
+      fail('copyToGroups', error);
       throw error;
     }
     return data as number;
@@ -202,7 +246,7 @@ export function useRealtimeData() {
       p_group_id: targetGroupId,
     });
     if (error) {
-      logError('moveToGroup', error);
+      fail('moveToGroup', error);
       throw error;
     }
     await Promise.all([fetchRestaurants(), fetchWishlist()]);
@@ -214,7 +258,7 @@ export function useRealtimeData() {
     const alert = alerts.find((a) => a.id === alertId);
     if (!alert || alert.readBy?.includes(uid)) return;
     const { error } = await supabase.rpc('mark_alerts_read', { p_ids: [alertId] });
-    if (error) logError('markAlertAsRead', error);
+    if (error) fail('markAlertAsRead', error);
     else await fetchAlerts();
   };
 
@@ -223,7 +267,7 @@ export function useRealtimeData() {
     const unread = alerts.filter((a) => !a.readBy?.includes(uid)).map((a) => a.id);
     if (unread.length === 0) return;
     const { error } = await supabase.rpc('mark_alerts_read', { p_ids: unread });
-    if (error) logError('markAllAlertsAsRead', error);
+    if (error) fail('markAllAlertsAsRead', error);
     else await fetchAlerts();
   };
 
@@ -233,6 +277,8 @@ export function useRealtimeData() {
     wishlist,
     alerts,
     loading,
+    error,
+    clearError,
     addRestaurant,
     updateRestaurant,
     deleteRestaurant,

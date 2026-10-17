@@ -11,6 +11,7 @@ import { JoinGroupModal } from './components/JoinGroupModal';
 import { ShareToGroupModal } from './components/ShareToGroupModal';
 import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { ErrorToast } from './components/ErrorToast';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { Restaurant, WishlistItem } from './types';
 import {
@@ -50,6 +51,8 @@ function MainApp() {
     wishlist,
     alerts,
     loading: dataLoading,
+    error: dataError,
+    clearError,
     addRestaurant,
     updateRestaurant,
     deleteRestaurant,
@@ -894,6 +897,8 @@ function MainApp() {
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
       />
+
+      <ErrorToast message={dataError} onClose={clearError} />
 
       {/* Non-intrusive Offline Indicator */}
       <OfflineIndicator />
