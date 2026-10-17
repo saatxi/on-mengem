@@ -1,21 +1,24 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migració](../supabase/migrations/0001_init.sql)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 58 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 86 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
 ## Invariants
-1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup.
+1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup. Només s'editen `nickname`, `avatar`, `active_group_id` (d'un grup propi) i `last_login_at`; el perfil no es pot esborrar.
 2. **Usuari nou**: només es crea el perfil. Cap grup, cap alerta, cap dada d'exemple.
 3. **Espai personal** (`group_id IS NULL`): només el creador pot llegir, escriure i esborrar.
 4. **Grups**: llegir i escriure contingut de grup requereix ser membre (`is_group_member`).
-5. **Pertinença només via RPC**: `create_group` i `join_group_by_code` són l'única manera de crear grups i d'inserir a `group_members`. Un membre només pot sortir ell mateix; l'owner pot expulsar.
+5. **Pertinença només via RPC**: `create_group` i `join_group_by_code` són l'única manera de crear grups i d'inserir a `group_members`. Un membre només pot sortir ell mateix; l'owner pot expulsar però no sortir (ha de cedir el grup amb `transfer_group_ownership` o esborrar-lo). El codi només canvia amb `regenerate_group_code` (owner) i es genera amb aleatorietat criptogràfica.
 6. **Immutabilitat**: `created_by` i `user_id` no canvien. `group_id` només canvia via `move_to_group` (propietari de l'ítem i membre del destí).
 7. **Còpies**: `copy_to_groups` exigeix visibilitat de l'origen i pertinença a cada grup destí. L'original es manté.
-8. **Alertes**: només membres les creen. `read_by` només s'actualitza via `mark_alerts_read`, que ignora els grups dels quals no ets membre.
+8. **Alertes**: les genera el servidor (triggers en afegir o moure ítems a un grup, i les RPC de grups); cap client pot inserir-ne. Es purguen les de més de 90 dies. `read_by` només s'actualitza via `mark_alerts_read`, que ignora els grups dels quals no ets membre.
 9. **Esborrar**: el creador de l'ítem o l'owner del grup. Només l'owner esborra o edita el grup.
 10. **Límits de mida i valors** via `CHECK` (noms, notes, tags ≤ 20, `status` d'una llista tancada…).
-11. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
+11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i són immutables. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic.
+12. **Codis d'invitació**: 10 intents fallits cada 10 minuts per usuari (`join_attempts`); després, `join_group_by_code` retorna `TOO_MANY_ATTEMPTS`.
+13. **URL**: `wishlist.link` només accepta `http(s)://` i `profiles.photo_url` només `https://`.
+14. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
 
 ## Atacs que han de ser denegats
 
@@ -35,8 +38,15 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 12 | `status` invàlid o payloads sobredimensionats | `CHECK` constraints | "status de wishlist invàlid és rebutjat" |
 | 13 | Expulsar un altre membre sent-ne un de normal | `members_delete` | "bob no pot expulsar alice" |
 | 14 | Editar `read_by` d'una alerta directament | cap policy d'update a `alerts` | "bob no pot editar alertes directament" |
+| 15 | Inserir alertes falses | cap policy d'insert a `alerts` | "bob no pot inserir alertes directament" |
+| 16 | Enllaç `javascript:`/`data:` | `CHECK wishlist_link_http` | "un enllaç que no és http(s) és rebutjat" |
+| 17 | Falsificar el nom d'autor | trigger `set_author_name` + `lock_ownership` | "el created_by_name el posa el servidor", "created_by_name és immutable" |
+| 18 | Activar un grup aliè, esborrar el perfil o editar l'email | `profiles_update` amb `WITH CHECK`, privilegis per columna, sense `profiles_delete` | 3 tests de bob |
+| 19 | Posar un codi a mà o deixar el grup orfe | privilegis per columna de `groups`; `members_delete` | "l'owner no pot posar un codi a mà", "l'owner no pot sortir del seu grup" |
+| 20 | Força bruta de codis d'invitació | límit d'intents a `join_group_by_code` | "després de 10 intents fallits…" |
 
 ## Notes
 - Els tests fixen tant `request.jwt.claims` com `request.jwt.claim.sub`, perquè algunes versions antigues de `auth.uid()` només llegeixen la segona.
 - Els tests ja van detectar un error real: el trigger `lock_ownership` fallava en moure ítems perquè avaluava `new.user_id` en una taula que no té aquest camp. Està corregit a la migració.
-- Fora d'abast: límit de peticions (rate limiting), spam de grups i validació del contingut dels textos. Això caldria afegir-ho a part.
+- `join_group_by_code` retorna `{error: …}` en lloc de llançar una excepció: una excepció desfaria el registre de l'intent fallit.
+- Fora d'abast: límit de peticions general, spam de grups i validació del contingut dels textos. Això caldria afegir-ho a part. Els companys de grup veuen l'email dels perfils (decisió de disseny pendent).

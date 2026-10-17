@@ -8,7 +8,8 @@ select no_plan();
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-00000000000a', 'alice@test.dev', '{"full_name":"Alice"}'),
   ('00000000-0000-0000-0000-00000000000b', 'bob@test.dev',   '{"full_name":"Bob"}'),
-  ('00000000-0000-0000-0000-00000000000c', 'carol@test.dev', '{"full_name":"Carol"}');
+  ('00000000-0000-0000-0000-00000000000c', 'carol@test.dev', '{"full_name":"Carol"}'),
+  ('00000000-0000-0000-0000-00000000000d', 'dave@test.dev',  '{"full_name":"Dave","avatar_url":"javascript:alert(1)"}');
 
 insert into public.groups (id, name, code, owner_id, owner_name) values
   ('10000000-0000-0000-0000-000000000001', 'G1', 'AAAAAA', '00000000-0000-0000-0000-00000000000a', 'Alice'),
@@ -122,7 +123,43 @@ select throws_ok($$ select public.move_to_group('restaurant', '20000000-0000-000
 select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000001',
                                          array['10000000-0000-0000-0000-000000000001']::uuid[])), 0,
           'bob no pot copiar un restaurant personal d''alice (0 còpies)');
+-- Atac 15: alertes falsificades des del client
+select throws_ok($$
+  insert into public.alerts (group_id, user_id, type, title, message)
+  values ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b', 'group_joined', 'Fals', 'Avís fals') $$,
+  '42501', null, 'bob no pot inserir alertes directament');
+-- Atac 16: enllaç amb esquema perillós
+select throws_ok($$
+  insert into public.wishlist (restaurant_name, link, user_id)
+  values ('X', 'javascript:alert(1)', '00000000-0000-0000-0000-00000000000b') $$,
+  '23514', null, 'un enllaç que no és http(s) és rebutjat');
+-- Atac 17: nom d'autor falsificat
+select lives_ok($$
+  insert into public.restaurants (group_id, name, created_by, created_by_name)
+  values ('10000000-0000-0000-0000-000000000001', 'Nom fals', '00000000-0000-0000-0000-00000000000b', 'Alice') $$,
+  'bob crea un restaurant amb un created_by_name fals');
+select throws_ok($$ update public.restaurants set created_by_name = 'Alice' where name = 'Nom fals' $$,
+                 'P0001', null, 'created_by_name és immutable');
+-- Atac 18: perfil i grup
+select throws_ok($$ update public.profiles set active_group_id = '10000000-0000-0000-0000-000000000002'
+                    where id = '00000000-0000-0000-0000-00000000000b' $$,
+                 '42501', null, 'bob no pot activar un grup del qual no és membre');
+select is_empty($$ delete from public.profiles where id = '00000000-0000-0000-0000-00000000000b' returning 1 $$,
+                'bob no pot esborrar el seu perfil');
+select throws_ok($$ update public.profiles set email = 'x@y.z' where id = '00000000-0000-0000-0000-00000000000b' $$,
+                 '42501', null, 'bob no pot editar el seu email al perfil');
+select throws_ok($$ select public.regenerate_group_code('10000000-0000-0000-0000-000000000001') $$,
+                 'P0001', null, 'bob (no owner) no pot regenerar el codi de G1');
+select throws_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-000000000001',
+                                                          '00000000-0000-0000-0000-00000000000b') $$,
+                 'P0001', null, 'bob (no owner) no pot cedir G1');
 reset role;
+
+select is((select created_by_name from public.restaurants where name = 'Nom fals'), 'Bob',
+          'el created_by_name el posa el servidor (perfil), no el client');
+delete from public.restaurants where name = 'Nom fals';
+select is((select photo_url from public.profiles where id = '00000000-0000-0000-0000-00000000000d'), null,
+          'una foto de perfil que no és https es descarta');
 
 select ok(exists (select 1 from public.alerts
                   where id = '40000000-0000-0000-0000-000000000001'
@@ -140,8 +177,8 @@ select is((select count(*)::int from public.profiles where id = '00000000-0000-0
           'carol no veu el perfil d''alice (no comparteixen grup)');
 select lives_ok($$ select public.mark_alerts_read(array['40000000-0000-0000-0000-000000000001']::uuid[]) $$,
                 'carol pot cridar mark_alerts_read però sense efecte');
-select throws_ok($$ select public.join_group_by_code('ZZZZZZ') $$, 'P0001', 'GROUP_NOT_FOUND',
-                 'codi inexistent => GROUP_NOT_FOUND');
+select is((select public.join_group_by_code('ZZZZZZ') ->> 'error'), 'GROUP_NOT_FOUND',
+          'codi inexistent => GROUP_NOT_FOUND');
 reset role;
 select ok(not exists (select 1 from public.alerts
                       where id = '40000000-0000-0000-0000-000000000001'
@@ -179,8 +216,16 @@ select is((select count(*)::int from public.restaurants
            where group_id = '10000000-0000-0000-0000-000000000001' and name = 'A personal 1'), 1,
           'la còpia existeix a G1');
 select is((select count(*)::int from public.alerts
-           where group_id = '10000000-0000-0000-0000-000000000001' and type = 'restaurant_added'), 1,
-          'copiar genera una alerta al grup destí');
+           where group_id = '10000000-0000-0000-0000-000000000001' and type = 'restaurant_added'
+             and message like '%"A personal 1"%'), 1,
+          'copiar genera una alerta al grup destí (trigger)');
+select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000003',
+                                         array['10000000-0000-0000-0000-000000000001']::uuid[])), 0,
+          'no es copia un ítem al seu propi grup');
+select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000001',
+                                         array['10000000-0000-0000-0000-000000000001',
+                                               '10000000-0000-0000-0000-000000000001']::uuid[])), 1,
+          'un grup repetit només rep una còpia');
 -- Moviment legítim
 select lives_ok($$ select public.move_to_group('restaurant', '20000000-0000-0000-0000-000000000002',
                                                '10000000-0000-0000-0000-000000000001') $$,
@@ -205,11 +250,17 @@ select is((select count(*)::int from public.restaurants where name = 'De Bob'), 
 select lives_ok($$ delete from public.restaurants where name = 'De Bob' $$, 'l''owner pot esborrar contingut de G1');
 -- Crear grup
 select lives_ok($$ select public.create_group('Nou grup', 'descripció') $$, 'alice pot crear un grup');
-select is((select count(*)::int from public.groups where name = 'Nou grup' and length(code) = 6), 1,
-          'el grup nou té codi de 6 caràcters');
-select is((select count(*)::int from public.group_members m join public.groups g on g.id = m.group_id
-           where g.name = 'Nou grup' and m.user_id = '00000000-0000-0000-0000-00000000000a'), 1,
-          'el creador és membre del grup nou');
+select is((select count(*)::int from public.groups where name = 'Nou grup' and code ~ '^[A-HJ-NP-Z2-9]{6}$'), 1,
+          'el grup nou té un codi de 6 caràcters de l''alfabet permès');
+-- Atac 19: l'owner no pot canviar el codi a mà ni sortir del seu grup
+select throws_ok($$ update public.groups set code = 'AAAA' where name = 'Nou grup' $$,
+                 '42501', null, 'l''owner no pot posar un codi a mà (només regenerate_group_code)');
+select is_empty($$ delete from public.group_members
+                   where group_id = '10000000-0000-0000-0000-000000000001'
+                     and user_id = '00000000-0000-0000-0000-00000000000a' returning 1 $$,
+                'l''owner no pot sortir del seu grup');
+select ok((select public.regenerate_group_code(id) from public.groups where name = 'Nou grup') ~ '^[A-HJ-NP-Z2-9]{6}$',
+          'l''owner regenera el codi d''un grup seu');
 reset role;
 
 -- ------------------------------------------------------------ Carol s'uneix amb codi
@@ -217,7 +268,7 @@ select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true); -- compatibilitat amb versions antigues d'auth.uid()
 set local role authenticated;
 select lives_ok($$ select public.join_group_by_code('aaaaaa') $$, 'carol s''uneix a G1 amb el codi (en minúscules)');
-select is((select count(*)::int from public.restaurants where group_id = '10000000-0000-0000-0000-000000000001'), 3,
+select is((select count(*)::int from public.restaurants where group_id = '10000000-0000-0000-0000-000000000001'), 4,
           'carol ara veu el contingut de G1');
 select is((select (public.join_group_by_code('AAAAAA') ->> 'already_member')::boolean), true,
           'tornar a unir-se no duplica: already_member = true');
@@ -226,6 +277,68 @@ select is((select count(*)::int from public.group_members
            where group_id = '10000000-0000-0000-0000-000000000001'
              and user_id = '00000000-0000-0000-0000-00000000000c'), 1,
           'carol només apareix un cop a group_members');
+
+-- ------------------------------------------------------------ Atac 20: força bruta de codis (Dave)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000d","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000d', true);
+set local role authenticated;
+select lives_ok($$ select public.join_group_by_code('NOPE' || g) from generate_series(1, 10) g $$,
+                'dave fa 10 intents fallits');
+select is((select public.join_group_by_code('AAAAAA') ->> 'error'), 'TOO_MANY_ATTEMPTS',
+          'després de 10 intents fallits, ni el codi correcte funciona (límit)');
+reset role;
+select is((select count(*)::int from public.group_members where user_id = '00000000-0000-0000-0000-00000000000d'), 0,
+          'dave no ha entrat a cap grup');
+
+-- ------------------------------------------------------------ Cessió i sortida de grups
+update public.profiles set active_group_id = '10000000-0000-0000-0000-000000000001'
+ where id = '00000000-0000-0000-0000-00000000000b';
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000a","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000a', true);
+set local role authenticated;
+select lives_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-000000000001',
+                                                          '00000000-0000-0000-0000-00000000000b') $$,
+                'alice cedeix G1 a bob');
+select throws_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-000000000001',
+                                                          '00000000-0000-0000-0000-00000000000a') $$,
+                 'P0001', null, 'alice (ja no owner) no pot tornar a cedir G1');
+reset role;
+select is((select owner_id from public.groups where id = '10000000-0000-0000-0000-000000000001'),
+          '00000000-0000-0000-0000-00000000000b'::uuid, 'bob és el nou owner de G1');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
+set local role authenticated;
+select is_empty($$ delete from public.group_members
+                   where group_id = '10000000-0000-0000-0000-000000000001'
+                     and user_id = '00000000-0000-0000-0000-00000000000b' returning 1 $$,
+                'bob, ara owner, no pot sortir de G1');
+select lives_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-000000000001',
+                                                          '00000000-0000-0000-0000-00000000000a') $$,
+                'bob torna G1 a alice');
+select lives_ok($$ delete from public.group_members
+                   where group_id = '10000000-0000-0000-0000-000000000001'
+                     and user_id = '00000000-0000-0000-0000-00000000000b' $$,
+                'bob (membre) pot sortir de G1');
+reset role;
+select is((select active_group_id from public.profiles where id = '00000000-0000-0000-0000-00000000000b'), null,
+          'en sortir, G1 deixa de ser l''espai actiu de bob');
+
+-- ------------------------------------------------------------ Esborrat de comptes
+insert into public.restaurants (group_id, name, created_by) values
+  ('10000000-0000-0000-0000-000000000001', 'Orfe de bob', '00000000-0000-0000-0000-00000000000b'),
+  (null,                                   'Personal de bob', '00000000-0000-0000-0000-00000000000b');
+delete from auth.users where id = '00000000-0000-0000-0000-00000000000b';
+select is((select created_by from public.restaurants where name = 'Orfe de bob'), null,
+          'esborrar un usuari conserva el contingut que va aportar a un grup');
+select is((select count(*)::int from public.restaurants where name = 'Personal de bob'), 0,
+          'esborrar un usuari elimina el seu espai personal');
+
+delete from auth.users where id = '00000000-0000-0000-0000-00000000000a';
+select is((select owner_id from public.groups where id = '10000000-0000-0000-0000-000000000001'),
+          '00000000-0000-0000-0000-00000000000c'::uuid,
+          'esborrar l''owner cedeix el grup al membre que queda (carol)');
 
 select * from finish();
 rollback;

@@ -557,7 +557,7 @@ function MainApp() {
                             <h3 className="text-lg font-bold text-stone-900">{item.restaurantName}</h3>
                           </div>
 
-                          {item.link && (
+                          {item.link && /^https?:\/\//i.test(item.link) && (
                             <a
                               href={item.link}
                               target="_blank"

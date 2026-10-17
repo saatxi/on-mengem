@@ -91,48 +91,20 @@ export function useRealtimeData() {
     };
   }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts]);
 
-  const createAlert = async (
-    type: Alert['type'],
-    title: string,
-    message: string,
-    restaurantId?: string
-  ) => {
-    if (!uid || !groupId) return;
-    const { error } = await supabase.from('alerts').insert({
-      group_id: groupId,
-      user_id: uid,
-      type,
-      title,
-      message,
-      restaurant_id: restaurantId ?? null,
-      read_by: [uid],
-    });
-    if (error) logError('alert', error);
-  };
-
   // CRUD Restaurants
   const addRestaurant = async (
     data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>
   ) => {
     if (!uid || !userProfile) return;
-    const { data: row, error } = await supabase
+    const { error } = await supabase
       .from('restaurants')
       .insert({
         ...restaurantToRow(data),
         group_id: groupId,
         created_by: uid,
         created_by_name: userProfile.nickname,
-      })
-      .select()
-      .single();
+      });
     if (error) return logError('addRestaurant', error);
-
-    await createAlert(
-      'restaurant_added',
-      'Nou restaurant afegit!',
-      `${userProfile.nickname} ha afegit "${row.name}" a la col·lecció del grup.`,
-      row.id
-    );
     await fetchRestaurants();
   };
 
@@ -163,23 +135,15 @@ export function useRealtimeData() {
     data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>
   ) => {
     if (!uid || !userProfile) return;
-    const { data: row, error } = await supabase
+    const { error } = await supabase
       .from('wishlist')
       .insert({
         ...wishlistToRow({ ...data, status: data.status || 'pending' }),
         group_id: groupId,
         user_id: uid,
         user_name: userProfile.nickname,
-      })
-      .select()
-      .single();
+      });
     if (error) return logError('addWishlistItem', error);
-
-    await createAlert(
-      'wishlist_added',
-      'Nou desitjat proposat!',
-      `${userProfile.nickname} vol anar a provar "${row.restaurant_name}".`
-    );
     await fetchWishlist();
   };
 

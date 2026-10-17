@@ -30,6 +30,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// user_metadata l'edita l'usuari: només s'accepten fotos https.
+function safeHttpsUrl(url: unknown): string | undefined {
+  return typeof url === 'string' && /^https:\/\//i.test(url) ? url : undefined;
+}
+
 function toAuthUser(session: Session | null): AuthUser | null {
   const u = session?.user;
   if (!u) return null;
@@ -38,7 +43,7 @@ function toAuthUser(session: Session | null): AuthUser | null {
     uid: u.id,
     email: u.email ?? undefined,
     displayName: meta.full_name ?? meta.name ?? undefined,
-    photoURL: meta.avatar_url ?? meta.picture ?? undefined,
+    photoURL: safeHttpsUrl(meta.avatar_url ?? meta.picture),
   };
 }
 
@@ -179,15 +184,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const { data, error } = await supabase.rpc('join_group_by_code', { p_code: code.trim() });
     if (error) {
-      if (error.message.includes('GROUP_NOT_FOUND')) {
-        return { success: false, message: 'No s\'ha trobat cap grup amb aquest codi.' };
-      }
       console.error('Error en unir-se al grup:', error);
       return { success: false, message: 'Error en unir-se al grup.' };
     }
 
+    const result = data as { error?: string; id: string; name: string; already_member: boolean };
+    if (result.error === 'GROUP_NOT_FOUND') {
+      return { success: false, message: 'No s\'ha trobat cap grup amb aquest codi.' };
+    }
+    if (result.error === 'TOO_MANY_ATTEMPTS') {
+      return { success: false, message: 'Massa intents fallits. Torna-ho a provar d\'aquí a 10 minuts.' };
+    }
+
     await Promise.all([fetchGroups(), fetchProfile()]);
-    const group = data as { id: string; name: string; already_member: boolean };
+    const group = result;
     return {
       success: true,
       message: group.already_member

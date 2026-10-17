@@ -149,6 +149,8 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
             </label>
             <input
               type="url"
+              pattern="https?://.*"
+              title="Ha de començar per http:// o https://"
               value={link}
               onChange={(e) => setLink(e.target.value)}
               placeholder="https://..."
