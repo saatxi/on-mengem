@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, Phone, DollarSign, FileText } from 'lucide-react';
+import { X, Star, Utensils, MapPin, Phone, DollarSign, FileText, Link2, Instagram } from 'lucide-react';
 import { Restaurant } from '../types';
 
 interface Props {
@@ -9,6 +9,14 @@ interface Props {
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
 }
+
+// Accepta «@usuari», «usuari» o un enllaç a instagram.com i en retorna només el nom d'usuari
+const toInstagramHandle = (value: string) =>
+  value
+    .trim()
+    .replace(/^(https?:\/\/)?(www\.)?instagram\.com\//i, '')
+    .replace(/^@/, '')
+    .split(/[/?#]/)[0];
 
 const CUISINES = [
   'Mediterrània',
@@ -38,6 +46,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [phone, setPhone] = useState(restaurant?.phone ?? '');
   const [rating, setRating] = useState(restaurant?.rating ?? 4.5);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
+  const [link, setLink] = useState(restaurant?.link ?? '');
+  const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
   const [visited, setVisited] = useState(restaurant?.visited ?? true);
   const [favorite, setFavorite] = useState(restaurant?.favorite ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,6 +70,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         phone: phone.trim().slice(0, 30),
         rating,
         notes: notes.trim().slice(0, 500),
+        link: link.trim().slice(0, 300),
+        instagram: toInstagramHandle(instagram),
         visited,
         favorite,
       });
@@ -195,6 +207,41 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Ex. Carrer de Provença, 120"
+              maxLength={200}
+              className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
+              <Link2 className="w-3.5 h-3.5 text-stone-400" />
+              Enllaç web o xarxes (opcional)
+            </label>
+            <input
+              type="url"
+              pattern="https?://.*"
+              title="Ha de començar per http:// o https://"
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="https://..."
+              maxLength={300}
+              className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
+              <Instagram className="w-3.5 h-3.5 text-stone-400" />
+              Instagram (opcional)
+            </label>
+            <input
+              type="text"
+              value={instagram}
+              onChange={(e) => setInstagram(e.target.value)}
+              onInvalid={(e) => e.currentTarget.setCustomValidity('Escriu un nom d\'usuari (@usuari) o un enllaç a instagram.com')}
+              onInput={(e) => e.currentTarget.setCustomValidity('')}
+              pattern="\s*(@?[A-Za-z0-9._]{1,30}|(https?://)?(www\.)?instagram\.com/[A-Za-z0-9._]{1,30}(/.*|\?.*)?)\s*"
+              placeholder="@nomdelrestaurant"
               maxLength={200}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
             />

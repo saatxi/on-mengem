@@ -56,12 +56,18 @@ create table public.restaurants (
   phone text check (char_length(phone) <= 40),
   rating numeric(2, 1) check (rating between 0 and 5),
   notes text check (char_length(notes) <= 2000),
+  link text check (char_length(link) <= 500),
+  instagram text, -- nom d'usuari sense @
   visited boolean not null default false,
   favorite boolean not null default false,
   created_by uuid references auth.users (id) on delete set null,
   created_by_name text,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Només URL http(s).
+  constraint restaurants_link_http check (link is null or link = '' or link ~* '^https?://'),
+  -- Només el format d'un nom d'usuari d'Instagram, així no es pot injectar res a l'URL.
+  constraint restaurants_instagram_handle check (instagram is null or instagram = '' or instagram ~ '^[A-Za-z0-9._]{1,30}$')
 );
 create index restaurants_group_idx on public.restaurants (group_id);
 create index restaurants_owner_idx on public.restaurants (created_by) where group_id is null;
@@ -536,9 +542,9 @@ begin
 
     if p_type = 'restaurant' then
       insert into public.restaurants (group_id, name, cuisine, price_range, address, city, phone,
-                                      rating, notes, visited, favorite, created_by)
+                                      rating, notes, link, instagram, visited, favorite, created_by)
       select gid, r.name, r.cuisine, r.price_range, r.address, r.city, r.phone,
-             r.rating, r.notes, r.visited, r.favorite, uid
+             r.rating, r.notes, r.link, r.instagram, r.visited, r.favorite, uid
         from public.restaurants r
        where r.id = p_id
          and r.group_id is distinct from gid

@@ -11,17 +11,19 @@ import {
   Share2,
   Copy,
   ArrowRightLeft,
-  Pencil
+  Pencil,
+  Link2,
+  Instagram
 } from 'lucide-react';
 import { Restaurant } from '../types';
 
 interface Props {
   restaurant: Restaurant | null;
   onClose: () => void;
+  onEdit: (r: Restaurant) => void;
   onToggleFavorite: (r: Restaurant) => void;
   onToggleVisited: (r: Restaurant) => void;
   onDelete: (id: string) => void;
-  onEdit: (r: Restaurant) => void;
   onCopyToGroup?: (r: Restaurant) => void;
   onMoveToGroup?: (r: Restaurant) => void;
 }
@@ -29,10 +31,10 @@ interface Props {
 export const RestaurantDetailModal: React.FC<Props> = ({
   restaurant,
   onClose,
+  onEdit,
   onToggleFavorite,
   onToggleVisited,
   onDelete,
-  onEdit,
   onCopyToGroup,
   onMoveToGroup,
 }) => {
@@ -142,6 +144,44 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                   className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700"
                 >
                   <span>Maps</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
+
+            {restaurant.link && /^https?:\/\//i.test(restaurant.link) && (
+              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <div className="flex items-center gap-2.5 text-stone-700 min-w-0">
+                  <Link2 className="w-4 h-4 text-sky-600 flex-shrink-0" />
+                  <span className="text-xs font-medium truncate">
+                    {restaurant.link.replace(/^https?:\/\/(www\.)?/i, '')}
+                  </span>
+                </div>
+                <a
+                  href={restaurant.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"
+                >
+                  <span>Obrir</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            )}
+
+            {restaurant.instagram && /^[A-Za-z0-9._]{1,30}$/.test(restaurant.instagram) && (
+              <div className="flex items-center justify-between gap-3 p-3 rounded-xl bg-stone-50 border border-stone-200/80">
+                <div className="flex items-center gap-2.5 text-stone-700 min-w-0">
+                  <Instagram className="w-4 h-4 text-pink-600 flex-shrink-0" />
+                  <span className="text-xs font-medium truncate">@{restaurant.instagram}</span>
+                </div>
+                <a
+                  href={`https://www.instagram.com/${restaurant.instagram}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"
+                >
+                  <span>Obrir</span>
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>

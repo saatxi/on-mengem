@@ -31,6 +31,8 @@ export interface Restaurant {
   phone?: string;
   rating?: number; // 0 - 5
   notes?: string;
+  link?: string; // web o xarxes socials, http(s)
+  instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal
   createdBy: string;
   createdByName?: string;
