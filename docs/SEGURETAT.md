@@ -1,6 +1,6 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 86 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 87 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
@@ -14,7 +14,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 7. **Còpies**: `copy_to_groups` exigeix visibilitat de l'origen i pertinença a cada grup destí. L'original es manté.
 8. **Alertes**: les genera el servidor (triggers en afegir o moure ítems a un grup, i les RPC de grups); cap client pot inserir-ne. Es purguen les de més de 90 dies. `read_by` només s'actualitza via `mark_alerts_read`, que ignora els grups dels quals no ets membre.
 9. **Esborrar**: el creador de l'ítem o l'owner del grup. Només l'owner esborra o edita el grup.
-10. **Límits de mida i valors** via `CHECK` (noms, notes, tags ≤ 20, `status` d'una llista tancada…).
+10. **Límits de mida i valors** via `CHECK` (noms, notes, `status` d'una llista tancada…).
 11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i són immutables. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic.
 12. **Codis d'invitació**: 10 intents fallits cada 10 minuts per usuari (`join_attempts`); després, `join_group_by_code` retorna `TOO_MANY_ATTEMPTS`.
 13. **URL**: `wishlist.link` només accepta `http(s)://` i `profiles.photo_url` només `https://`.

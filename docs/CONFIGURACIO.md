@@ -126,7 +126,7 @@ Quan tinguis una URL de producció (Cloudflare Pages, Netlify, GitHub Pages…):
      X-Content-Type-Options: nosniff
      Referrer-Policy: strict-origin-when-cross-origin
    ```
-5. Els límits de grups (intents de codi, propietat) viuen a la base de dades: aplica totes les migracions (`0001` i `0002`) al projecte de Supabase abans de publicar.
+5. Els límits de grups (intents de codi, propietat) viuen a la base de dades: aplica la migració (`0001_init.sql`) al projecte de Supabase abans de publicar.
 
 ## Nota sobre el pla gratuït
 

@@ -3,6 +3,9 @@
 begin;
 select no_plan();
 
+-- ------------------------------------------------------------ Esquema
+select hasnt_column('public', 'restaurants', 'tags', 'els restaurants ja no tenen etiquetes');
+
 -- ------------------------------------------------------------ Dades de prova
 -- A = alice (propietària de G1), B = bob (membre de G1), C = carol (propietària de G2, aliena a G1)
 insert into auth.users (id, email, raw_user_meta_data) values
