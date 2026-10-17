@@ -53,6 +53,17 @@ docs/                  Guia de configuració i especificació de seguretat
 
 `npm run build` i publica `dist/` (Cloudflare Pages, Netlify, GitHub Pages…) definint les mateixes variables `VITE_SUPABASE_*`. Després afegeix la URL final a les *Redirect URLs* de Supabase (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md)).
 
+## Publicar una versió
+
+Des de `devel`, amb l'arbre net:
+
+```bash
+npm version minor -m "Release %s"   # o patch / major: actualitza package.json, crea commit i tag vX.Y.Z
+git push --follow-tags
+```
+
+La versió de `package.json` es mostra a l'app (modal del perfil). Després integra `devel` a `main`.
+
 ## Instal·lar l'app al mòbil (PWA)
 
 Cal obrir l'adreça de l'app (HTTPS) des del navegador del mòbil.

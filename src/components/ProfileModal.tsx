@@ -134,7 +134,9 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
           {/* Sign out */}
           <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
-            <span className="text-stone-400 text-[10px] font-mono">UID: {authUser?.uid.slice(0, 8)}...</span>
+            <span className="text-stone-400 text-[10px] font-mono">
+              Versió {__APP_VERSION__} · UID: {authUser?.uid.slice(0, 8)}...
+            </span>
             <button
               onClick={async () => {
                 if (confirm('Vols tancar la sessió del teu compte de Google?')) {
