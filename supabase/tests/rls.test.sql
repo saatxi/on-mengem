@@ -115,6 +115,14 @@ select throws_ok($$
   insert into public.wishlist (restaurant_name, status, user_id)
   values ('X', 'inventat', '00000000-0000-0000-0000-00000000000b') $$,
   '23514', null, 'status de wishlist invàlid és rebutjat');
+select throws_ok($$
+  insert into public.restaurants (name, cuisine, created_by)
+  values ('X', 'Inventada', '00000000-0000-0000-0000-00000000000b') $$,
+  '23514', null, 'una cuina de restaurant fora de la llista és rebutjada');
+select throws_ok($$
+  insert into public.wishlist (restaurant_name, cuisine, user_id)
+  values ('X', 'Inventada', '00000000-0000-0000-0000-00000000000b') $$,
+  '23514', null, 'una cuina de desitjat fora de la llista és rebutjada');
 -- Alertes: read_by no s'edita directament
 select is_empty($$ update public.alerts set read_by = '{}' where id = '40000000-0000-0000-0000-000000000001' returning 1 $$,
                 'bob no pot editar alertes directament');

@@ -44,12 +44,19 @@ alter table public.profiles
   add constraint profiles_active_group_fk
   foreign key (active_group_id) references public.groups (id) on delete set null;
 
+-- Tipus de cuina: només els de la llista de l'app (src/utils/restaurantFields.ts). Buit = sense cuina.
+create domain public.cuisine as text check (value = '' or value in (
+  'Mediterrània', 'Espanyola', 'Catalana', 'Basca', 'Italiana', 'Japonesa', 'Asiàtica', 'Índia',
+  'Orient Mitjà', 'Americana', 'Marisc', 'Bar', 'Cerveseria', 'Vinoteca', 'Cafè', 'Fleca', 'Postres',
+  'Esmorzar', 'Brunch', 'Graella', 'Menjar ràpid', 'Vegetariana'
+));
+
 -- Esborrar un compte no s'endu el contingut que va aportar als grups (created_by / user_id passen a NULL).
 create table public.restaurants (
   id uuid primary key default gen_random_uuid(),
   group_id uuid references public.groups (id) on delete cascade, -- NULL = personal
   name text not null check (char_length(name) between 1 and 120),
-  cuisine text check (char_length(cuisine) <= 80),
+  cuisine public.cuisine,
   price_range text check (char_length(price_range) <= 8),
   address text check (char_length(address) <= 200),
   city text check (char_length(city) <= 100),
@@ -76,7 +83,7 @@ create table public.wishlist (
   id uuid primary key default gen_random_uuid(),
   group_id uuid references public.groups (id) on delete cascade, -- NULL = personal
   restaurant_name text not null check (char_length(restaurant_name) between 1 and 120),
-  cuisine text check (char_length(cuisine) <= 80),
+  cuisine public.cuisine,
   price_range text check (char_length(price_range) <= 8),
   recommended_by text check (char_length(recommended_by) <= 120),
   notes text check (char_length(notes) <= 2000),

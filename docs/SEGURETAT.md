@@ -1,6 +1,6 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 87 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 92 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
@@ -14,7 +14,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 7. **Còpies**: `copy_to_groups` exigeix visibilitat de l'origen i pertinença a cada grup destí. L'original es manté.
 8. **Alertes**: les genera el servidor (triggers en afegir o moure ítems a un grup, i les RPC de grups); cap client pot inserir-ne. Es purguen les de més de 90 dies. `read_by` només s'actualitza via `mark_alerts_read`, que ignora els grups dels quals no ets membre.
 9. **Esborrar**: el creador de l'ítem o l'owner del grup. Només l'owner esborra o edita el grup.
-10. **Límits de mida i valors** via `CHECK` (noms, notes, `status` d'una llista tancada…).
+10. **Límits de mida i valors** via `CHECK` (noms, notes, `status` d'una llista tancada…). `cuisine` (restaurants i desitjats) usa el domini `public.cuisine`: buit o un dels tipus de la llista de l'app.
 11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i són immutables. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic.
 12. **Codis d'invitació**: 10 intents fallits cada 10 minuts per usuari (`join_attempts`); després, `join_group_by_code` retorna `TOO_MANY_ATTEMPTS`.
 13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` / `wishlist.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
@@ -35,7 +35,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 9 | Copiar o moure a un grup on no ets membre | comprovació a les RPC | "alice no pot copiar/moure a G2" |
 | 10 | Marcar com a llegides alertes d'un grup aliè | `mark_alerts_read` filtra per membre | "atac 10: carol no ha pogut marcar alertes…" |
 | 11 | Esborrar o editar un grup que no és teu | `groups_delete` / `groups_update` | "bob no pot esborrar G1", "bob no pot editar G1" |
-| 12 | `status` invàlid o payloads sobredimensionats | `CHECK` constraints | "status de wishlist invàlid és rebutjat" |
+| 12 | `status` invàlid o payloads sobredimensionats | `CHECK` constraints i domini `public.cuisine` | "status de wishlist invàlid és rebutjat", "una cuina (de desitjat) fora de la llista és rebutjada" |
 | 13 | Expulsar un altre membre sent-ne un de normal | `members_delete` | "bob no pot expulsar alice" |
 | 14 | Editar `read_by` d'una alerta directament | cap policy d'update a `alerts` | "bob no pot editar alertes directament" |
 | 15 | Inserir alertes falses | cap policy d'insert a `alerts` | "bob no pot inserir alertes directament" |
