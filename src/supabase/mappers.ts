@@ -1,0 +1,103 @@
+import { Alert, Group, Restaurant, UserProfile, WishlistItem } from '../types';
+
+// Les files de Postgres són snake_case; l'app treballa en camelCase.
+type Row = Record<string, any>;
+
+const orUndef = <T,>(v: T | null | undefined) => (v ?? undefined);
+
+export const toProfile = (r: Row): UserProfile => ({
+  id: r.id,
+  nickname: r.nickname,
+  email: orUndef(r.email),
+  avatar: r.avatar,
+  photoURL: orUndef(r.photo_url),
+  activeGroupId: orUndef(r.active_group_id),
+  createdAt: r.created_at,
+  lastLoginAt: r.last_login_at,
+});
+
+export const toGroup = (r: Row): Group => ({
+  id: r.id,
+  name: r.name,
+  description: orUndef(r.description),
+  code: r.code,
+  ownerId: r.owner_id,
+  ownerName: orUndef(r.owner_name),
+  memberUids: (r.group_members ?? []).map((m: Row) => m.user_id),
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+});
+
+export const toRestaurant = (r: Row): Restaurant => ({
+  id: r.id,
+  name: r.name,
+  cuisine: orUndef(r.cuisine),
+  priceRange: orUndef(r.price_range),
+  address: orUndef(r.address),
+  city: orUndef(r.city),
+  phone: orUndef(r.phone),
+  rating: r.rating == null ? undefined : Number(r.rating),
+  notes: orUndef(r.notes),
+  tags: r.tags ?? [],
+  groupId: r.group_id ?? null,
+  createdBy: r.created_by,
+  createdByName: orUndef(r.created_by_name),
+  visited: r.visited,
+  favorite: r.favorite,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+});
+
+export const toWishlistItem = (r: Row): WishlistItem => ({
+  id: r.id,
+  restaurantName: r.restaurant_name,
+  cuisine: orUndef(r.cuisine),
+  priceRange: orUndef(r.price_range),
+  recommendedBy: orUndef(r.recommended_by),
+  notes: orUndef(r.notes),
+  link: orUndef(r.link),
+  groupId: r.group_id ?? null,
+  userId: r.user_id,
+  userName: orUndef(r.user_name),
+  status: r.status,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+});
+
+export const toAlert = (r: Row): Alert => ({
+  id: r.id,
+  groupId: r.group_id,
+  userId: r.user_id,
+  type: r.type,
+  title: r.title,
+  message: r.message,
+  restaurantId: orUndef(r.restaurant_id),
+  readBy: r.read_by ?? [],
+  createdAt: r.created_at,
+});
+
+// camelCase (parcial) -> columnes snake_case; només inclou les claus presents.
+export const restaurantToRow = (d: Partial<Restaurant>): Row => {
+  const m: Record<string, string> = {
+    name: 'name', cuisine: 'cuisine', priceRange: 'price_range', address: 'address',
+    city: 'city', phone: 'phone', rating: 'rating', notes: 'notes', tags: 'tags',
+    visited: 'visited', favorite: 'favorite',
+  };
+  return pick(d, m);
+};
+
+export const wishlistToRow = (d: Partial<WishlistItem>): Row => {
+  const m: Record<string, string> = {
+    restaurantName: 'restaurant_name', cuisine: 'cuisine', priceRange: 'price_range',
+    recommendedBy: 'recommended_by', notes: 'notes', link: 'link', status: 'status',
+  };
+  return pick(d, m);
+};
+
+function pick(d: Row, map: Record<string, string>): Row {
+  const out: Row = {};
+  for (const [k, col] of Object.entries(map)) {
+    if (k in d && d[k] !== undefined) out[col] = d[k];
+  }
+  return out;
+}

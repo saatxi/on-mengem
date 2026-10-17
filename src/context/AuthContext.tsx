@@ -1,0 +1,236 @@
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import type { Session } from '@supabase/supabase-js';
+import { supabase } from '../supabase/client';
+import { toGroup, toProfile } from '../supabase/mappers';
+import { UserProfile, Group } from '../types';
+
+export interface AuthUser {
+  uid: string;
+  email?: string;
+  displayName?: string;
+  photoURL?: string;
+}
+
+interface AuthContextType {
+  authUser: AuthUser | null;
+  userProfile: UserProfile | null;
+  /** Grup actiu; null = espai personal de l'usuari. */
+  activeGroup: Group | null;
+  userGroups: Group[];
+  isLoading: boolean;
+  hasProfile: boolean;
+  loginWithGoogle: () => Promise<void>;
+  updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  /** groupId = null per tornar a l'espai personal. */
+  setActiveGroupId: (groupId: string | null) => Promise<void>;
+  createGroup: (name: string, description?: string) => Promise<string>;
+  joinGroupByCode: (code: string) => Promise<{ success: boolean; message: string; groupId?: string }>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+function toAuthUser(session: Session | null): AuthUser | null {
+  const u = session?.user;
+  if (!u) return null;
+  const meta = u.user_metadata ?? {};
+  return {
+    uid: u.id,
+    email: u.email ?? undefined,
+    displayName: meta.full_name ?? meta.name ?? undefined,
+    photoURL: meta.avatar_url ?? meta.picture ?? undefined,
+  };
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userGroups, setUserGroups] = useState<Group[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  // Sessió de Supabase Auth
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const user = toAuthUser(data.session);
+      setAuthUser(user);
+      if (!user) setIsLoading(false);
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = toAuthUser(session);
+      // Evita re-renders si és el mateix usuari (refresc de token)
+      setAuthUser((prev) => (prev?.uid === user?.uid ? prev : user));
+      if (!user) {
+        setUserProfile(null);
+        setUserGroups([]);
+        setIsLoading(false);
+      }
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
+  const uid = authUser?.uid;
+
+  const fetchProfile = useCallback(async () => {
+    if (!uid) return;
+    // El trigger de la BD crea el perfil just després del primer login: reintenta breument.
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
+      if (error) {
+        console.error('Error carregant el perfil:', error);
+        break;
+      }
+      if (data) {
+        setUserProfile(toProfile(data));
+        return;
+      }
+      await sleep(400);
+    }
+  }, [uid]);
+
+  const fetchGroups = useCallback(async () => {
+    if (!uid) return;
+    const { data, error } = await supabase
+      .from('groups')
+      .select('*, group_members(user_id)')
+      .order('created_at', { ascending: true });
+    if (error) {
+      console.error('Error carregant els grups:', error);
+      return;
+    }
+    setUserGroups((data ?? []).map(toGroup));
+  }, [uid]);
+
+  // Càrrega inicial + Realtime (perfil i grups)
+  useEffect(() => {
+    if (!uid) return;
+    let cancelled = false;
+
+    (async () => {
+      await Promise.all([fetchProfile(), fetchGroups()]);
+      if (!cancelled) setIsLoading(false);
+    })();
+
+    const channel = supabase
+      .channel(`auth-${uid}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${uid}` }, fetchProfile)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, fetchGroups)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'group_members' }, fetchGroups)
+      .subscribe();
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [uid, fetchProfile, fetchGroups]);
+
+  // Grup actiu derivat del perfil; sense coincidència => espai personal
+  const activeGroup =
+    userGroups.find((g) => g.id === userProfile?.activeGroupId) ?? null;
+
+  const loginWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: { prompt: 'select_account' },
+      },
+    });
+    if (error) {
+      console.error('Error iniciant sessió amb Google:', error);
+      throw error;
+    }
+    // El navegador redirigeix a Google; en tornar, onAuthStateChange emet la sessió.
+  };
+
+  const updateProfile = async (data: Partial<UserProfile>) => {
+    if (!uid) return;
+    const row: Record<string, unknown> = { last_login_at: new Date().toISOString() };
+    if (data.nickname !== undefined) row.nickname = data.nickname;
+    if (data.avatar !== undefined) row.avatar = data.avatar;
+    const { error } = await supabase.from('profiles').update(row).eq('id', uid);
+    if (error) console.error('Error actualitzant el perfil:', error);
+    else await fetchProfile();
+  };
+
+  const setActiveGroupId = async (groupId: string | null) => {
+    if (!uid) return;
+    const { error } = await supabase.from('profiles').update({ active_group_id: groupId }).eq('id', uid);
+    if (error) console.error('Error canviant d\'espai:', error);
+    else await fetchProfile();
+  };
+
+  const createGroup = async (name: string, description?: string): Promise<string> => {
+    if (!uid) throw new Error('Usuari no autenticat');
+    const { data, error } = await supabase.rpc('create_group', {
+      p_name: name.trim(),
+      p_description: description?.trim() ?? '',
+    });
+    if (error) throw error;
+    await Promise.all([fetchGroups(), fetchProfile()]);
+    return (data as { id: string }).id;
+  };
+
+  const joinGroupByCode = async (code: string): Promise<{ success: boolean; message: string; groupId?: string }> => {
+    if (!uid) return { success: false, message: 'Usuari no identificat' };
+
+    const { data, error } = await supabase.rpc('join_group_by_code', { p_code: code.trim() });
+    if (error) {
+      if (error.message.includes('GROUP_NOT_FOUND')) {
+        return { success: false, message: 'No s\'ha trobat cap grup amb aquest codi.' };
+      }
+      console.error('Error en unir-se al grup:', error);
+      return { success: false, message: 'Error en unir-se al grup.' };
+    }
+
+    await Promise.all([fetchGroups(), fetchProfile()]);
+    const group = data as { id: string; name: string; already_member: boolean };
+    return {
+      success: true,
+      message: group.already_member
+        ? `Ja ets membre de "${group.name}". L'hem activat!`
+        : `T'has unit correctament a "${group.name}"!`,
+      groupId: group.id,
+    };
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Logout error:', error);
+    setAuthUser(null);
+    setUserProfile(null);
+    setUserGroups([]);
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        authUser,
+        userProfile,
+        activeGroup,
+        userGroups,
+        isLoading,
+        hasProfile: !!authUser && !!userProfile?.nickname,
+        loginWithGoogle,
+        updateProfile,
+        setActiveGroupId,
+        createGroup,
+        joinGroupByCode,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
