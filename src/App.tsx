@@ -52,7 +52,7 @@ import {
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
 
 function MainApp() {
-  const { activeGroup, userGroups, hasProfile, isLoading } = useAuth();
+  const { activeGroup, userGroups, hasProfile, isLoading, authUser } = useAuth();
   const {
     isPersonal,
     restaurants,
@@ -850,7 +850,7 @@ function MainApp() {
         activeTab={effectiveTab}
         onTabChange={setCurrentTab}
         isPersonal={isPersonal}
-        alertCount={alerts.length}
+        alertCount={alerts.filter((a) => authUser && !a.readBy?.includes(authUser.uid)).length}
       />
 
       {/* Non-intrusive Offline Indicator */}
