@@ -27,12 +27,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [city, setCity] = useState(restaurant?.city ?? '');
   const [address, setAddress] = useState(restaurant?.address ?? '');
   const [phone, setPhone] = useState(restaurant?.phone ?? '');
-  const [rating, setRating] = useState(restaurant?.rating ?? 4.5);
+  const [rating, setRating] = useState(restaurant?.rating ?? 3);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
   // «Ja l'hem visitat» crea una visita d'avui en afegir el restaurant; no apareix en mode edició.
-  const [visitedToday, setVisitedToday] = useState(true);
+  const [visitedToday, setVisitedToday] = useState(false);
   const [favorite, setFavorite] = useState(restaurant?.favorite ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -69,10 +69,11 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs">
+      <div className="flex min-h-full items-center justify-center p-4">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 flex flex-col max-h-[calc(100dvh-2rem)] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-orange-600 text-white">
+        <div className="flex items-center justify-between px-6 py-4 bg-orange-600 text-white flex-shrink-0">
           <div className="flex items-center gap-2">
             <Utensils className="w-5 h-5" />
             <h2 className="text-base font-bold">{isEditing ? 'Editar restaurant' : 'Afegir Nou Restaurant'}</h2>
@@ -85,7 +86,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
           {/* Nom */}
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
@@ -308,6 +309,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             </button>
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
