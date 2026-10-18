@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare, Instagram, MapPin } from 'lucide-react';
 import { WishlistItem } from '../types';
 import {
@@ -24,6 +24,19 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
   const [link, setLink] = useState('');
   const [instagram, setInstagram] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setRestaurantName('');
+      setCuisine('Mediterrània');
+      setPriceRange('10-20 €');
+      setRecommendedBy('');
+      setAddress('');
+      setNotes('');
+      setLink('');
+      setInstagram('');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
