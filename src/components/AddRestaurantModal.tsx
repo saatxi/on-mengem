@@ -23,7 +23,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
   const [name, setName] = useState(restaurant?.name ?? '');
   const [cuisine, setCuisine] = useState(CUISINES.includes(initialCuisine) ? initialCuisine : '');
-  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '€€');
+  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '10-20 €');
   const [city, setCity] = useState(restaurant?.city ?? '');
   const [address, setAddress] = useState(restaurant?.address ?? '');
   const [phone, setPhone] = useState(restaurant?.phone ?? '');
@@ -122,8 +122,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
                 Nivell de preu
               </label>
-              <div className="grid grid-cols-4 gap-1.5">
-                {['€', '€€', '€€€', '€€€€'].map((p) => (
+              <div className="grid grid-cols-3 gap-1.5">
+                {['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'].map((p) => (
                   <button
                     key={p}
                     type="button"

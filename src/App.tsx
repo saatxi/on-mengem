@@ -394,7 +394,7 @@ function MainApp() {
                                 {res.cuisine || 'Restaurant'}
                               </span>
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono">
-                                {res.priceRange || '€€'}
+                                {res.priceRange || '—'}
                               </span>
                               {res.visited && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
@@ -538,7 +538,7 @@ function MainApp() {
                                 {item.cuisine || 'Pendent'}
                               </span>
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono">
-                                {item.priceRange || '€€'}
+                                {item.priceRange || '—'}
                               </span>
                               {item.status === 'visited' && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">

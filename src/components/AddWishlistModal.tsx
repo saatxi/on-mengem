@@ -17,7 +17,7 @@ interface Props {
 export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
   const [restaurantName, setRestaurantName] = useState('');
   const [cuisine, setCuisine] = useState('Mediterrània');
-  const [priceRange, setPriceRange] = useState('€€');
+  const [priceRange, setPriceRange] = useState('10-20 €');
   const [recommendedBy, setRecommendedBy] = useState('');
   const [notes, setNotes] = useState('');
   const [link, setLink] = useState('');
@@ -102,8 +102,8 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
                 Preu estimat
               </label>
-              <div className="grid grid-cols-4 gap-1">
-                {['€', '€€', '€€€', '€€€€'].map((p) => (
+              <div className="grid grid-cols-3 gap-1">
+                {['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'].map((p) => (
                   <button
                     key={p}
                     type="button"
