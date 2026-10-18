@@ -122,22 +122,15 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
                 Nivell de preu
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <select
+                value={priceRange}
+                onChange={(e) => setPriceRange(e.target.value)}
+                className="w-full rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition px-3 py-2.5"
+              >
                 {['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'].map((p) => (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => setPriceRange(p)}
-                    className={`py-2 rounded-xl text-xs font-bold transition ${
-                      priceRange === p
-                        ? 'bg-orange-600 text-white shadow-xs'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    {p}
-                  </button>
+                  <option key={p} value={p}>{p}</option>
                 ))}
-              </div>
+              </select>
             </div>
           </div>
 
