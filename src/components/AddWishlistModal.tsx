@@ -25,7 +25,20 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
   const [instagram, setInstagram] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const handleClose = () => { reset(); onClose(); };
+
   if (!isOpen) return null;
+
+  const reset = () => {
+    setRestaurantName('');
+    setCuisine('Mediterrània');
+    setPriceRange('10-20 €');
+    setRecommendedBy('');
+    setAddress('');
+    setNotes('');
+    setLink('');
+    setInstagram('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +57,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         instagram: toInstagramHandle(instagram),
         status: 'pending',
       });
+      reset();
       onClose();
     } catch (err) {
       console.error(err);
@@ -62,7 +76,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
             <h2 className="text-base font-bold">Proposar Lloc Desitjat</h2>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-full text-amber-100 hover:text-white hover:bg-amber-600 transition"
           >
             <X className="w-5 h-5" />
@@ -199,7 +213,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
           <div className="flex gap-2 pt-2">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleClose}
               className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
             >
               Cancel·lar
