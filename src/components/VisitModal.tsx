@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Calendar, Star, FileText, Users, Lock, Globe } from 'lucide-react';
 import { Restaurant, Visit } from '../types';
 import { useGroupMembers } from '../hooks/useGroupMembers';
@@ -37,6 +37,17 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
   );
   const [shared, setShared] = useState<boolean>(visit?.shared ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!restaurant) return;
+    setVisitedOn(visit?.visitedOn ?? today);
+    setUnknownDate(!visit?.visitedOn && !!visit);
+    setRating(visit?.rating ?? 0);
+    setNotes(visit?.notes ?? '');
+    setAttendeeIds(visit?.attendeeIds?.length ? visit.attendeeIds : uid ? [uid] : []);
+    setShared(visit?.shared ?? true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant?.id, visit?.id]);
 
   if (!restaurant) return null;
 
