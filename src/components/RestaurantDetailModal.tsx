@@ -67,7 +67,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     }
   };
 
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address ?? '')}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([restaurant.name, restaurant.address].filter(Boolean).join(', '))}`;
 
   const formatDate = (iso?: string) =>
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;

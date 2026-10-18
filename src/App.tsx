@@ -443,7 +443,7 @@ function MainApp() {
                               <span className="truncate">{res.address}</span>
                             </div>
                             <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(res.address)}`}
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([res.name, res.address].filter(Boolean).join(', '))}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
@@ -587,7 +587,7 @@ function MainApp() {
                               <span className="truncate">{item.address}</span>
                             </div>
                             <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}`}
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([item.restaurantName, item.address].filter(Boolean).join(', '))}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}
