@@ -579,9 +579,20 @@ function MainApp() {
                         </div>
 
                         {item.address && (
-                          <div className="flex items-center gap-1 text-xs text-stone-500 mb-2">
-                            <MapPin className="w-3 h-3 shrink-0" />
-                            <span>{item.address}</span>
+                          <div className="flex items-center justify-between gap-2 text-xs text-stone-500 mb-2">
+                            <div className="flex items-center gap-1 min-w-0">
+                              <MapPin className="w-3 h-3 shrink-0" />
+                              <span className="truncate">{item.address}</span>
+                            </div>
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([item.restaurantName, item.address].filter(Boolean).join(', '))}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-[11px] font-bold rounded-lg transition shrink-0"
+                            >
+                              Maps
+                            </a>
                           </div>
                         )}
 

@@ -243,6 +243,11 @@ select is((select count(*)::int from public.alerts
            where group_id = '10000000-0000-0000-0000-000000000001' and type = 'restaurant_added'
              and message like '%"A personal 1"%'), 1,
           'copiar genera una alerta al grup destí (trigger)');
+select is((select read_by from public.alerts
+           where group_id = '10000000-0000-0000-0000-000000000001' and type = 'restaurant_added'
+             and message like '%"A personal 1"%'),
+          '{}'::uuid[],
+          'l''alerta generada pel trigger comença amb read_by buit (l''autor no es pre-marca)');
 select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000003',
                                          array['10000000-0000-0000-0000-000000000001']::uuid[])), 0,
           'no es copia un ítem al seu propi grup');
