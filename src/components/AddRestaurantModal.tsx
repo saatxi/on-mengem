@@ -27,7 +27,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [city, setCity] = useState(restaurant?.city ?? '');
   const [address, setAddress] = useState(restaurant?.address ?? '');
   const [phone, setPhone] = useState(restaurant?.phone ?? '');
-  const [rating, setRating] = useState(restaurant?.rating ?? 3);
+  const [rating, setRating] = useState<number | null>(restaurant?.rating ?? null);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
@@ -52,7 +52,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           city: city.trim().slice(0, 80),
           address: address.trim().slice(0, 200),
           phone: phone.trim().slice(0, 30),
-          rating,
+          rating: rating ?? undefined,
           notes: notes.trim().slice(0, 500),
           link: link.trim().slice(0, 300),
           instagram: toInstagramHandle(instagram),
@@ -223,29 +223,43 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           <div>
             <div className="flex items-center justify-between mb-1">
               <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
-                Puntuació ({rating} de 5)
+                {rating !== null ? `Puntuació (${rating} de 5)` : 'Puntuació (sense valorar)'}
               </label>
-              <div className="flex text-amber-500">
-                {[1, 2, 3, 4, 5].map((val) => (
-                  <Star
-                    key={val}
-                    className={`w-4 h-4 cursor-pointer transition ${
-                      rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300'
-                    }`}
-                    onClick={() => setRating(val)}
-                  />
-                ))}
+              <div className="flex items-center gap-2">
+                <div className="flex text-amber-500">
+                  {[1, 2, 3, 4, 5].map((val) => (
+                    <Star
+                      key={val}
+                      className={`w-4 h-4 cursor-pointer transition ${
+                        rating !== null && rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300'
+                      }`}
+                      onClick={() => setRating(rating === val ? null : val)}
+                    />
+                  ))}
+                </div>
+                {rating !== null && (
+                  <button
+                    type="button"
+                    onClick={() => setRating(null)}
+                    className="text-[10px] text-stone-400 hover:text-stone-600 transition"
+                    title="Treure puntuació"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="0.5"
-              value={rating}
-              onChange={(e) => setRating(parseFloat(e.target.value))}
-              className="w-full accent-orange-600"
-            />
+            {rating !== null && (
+              <input
+                type="range"
+                min="1"
+                max="5"
+                step="0.5"
+                value={rating}
+                onChange={(e) => setRating(parseFloat(e.target.value))}
+                className="w-full accent-orange-600"
+              />
+            )}
           </div>
 
           {/* Notes */}
