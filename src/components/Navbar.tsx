@@ -42,8 +42,8 @@ export const Navbar: React.FC<Props> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* Logo and Group Selector */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-sm shadow-orange-500/30">
               <Utensils className="w-5 h-5" />
             </div>
@@ -53,19 +53,19 @@ export const Navbar: React.FC<Props> = ({
           </div>
 
           {/* Group Switcher */}
-          <div className="relative">
+          <div className="relative min-w-0">
             <button
               onClick={() => {
                 setShowGroupMenu(!showGroupMenu);
                 setShowAlertMenu(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-bold transition active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 max-w-full rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-bold transition active:scale-95"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="max-w-[130px] sm:max-w-[180px] truncate">
+              <span className="w-2 h-2 flex-shrink-0 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="min-w-0 max-w-[130px] sm:max-w-[180px] truncate">
                 {activeGroup?.name || 'El meu espai'}
               </span>
-              <ChevronDown className="w-3.5 h-3.5 text-stone-500" />
+              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-stone-500" />
             </button>
 
             {showGroupMenu && (
@@ -148,7 +148,7 @@ export const Navbar: React.FC<Props> = ({
         </div>
 
         {/* Right side controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           {/* PWA Install Button */}
           <PWAInstallButton />
 
@@ -223,7 +223,7 @@ export const Navbar: React.FC<Props> = ({
           {/* User Profile Button */}
           <button
             onClick={onOpenProfile}
-            className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-full bg-stone-100 hover:bg-stone-200/80 border border-stone-200 text-stone-800 text-xs font-bold transition active:scale-95"
+            className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-3 rounded-full bg-stone-100 hover:bg-stone-200/80 border border-stone-200 text-stone-800 text-xs font-bold transition active:scale-95"
             title="El teu perfil d'usuari"
           >
             {authUser?.photoURL ? (
@@ -235,7 +235,7 @@ export const Navbar: React.FC<Props> = ({
             ) : (
               <span className="text-base">{userProfile?.avatar || '🍕'}</span>
             )}
-            <span className="max-w-[80px] sm:max-w-[120px] truncate">
+            <span className="hidden sm:inline max-w-[120px] truncate">
               {userProfile?.nickname || 'Perfil'}
             </span>
           </button>

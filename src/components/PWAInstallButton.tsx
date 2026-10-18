@@ -18,11 +18,11 @@ export const PWAInstallButton: React.FC = () => {
     return (
       <button
         onClick={install}
-        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition active:scale-95"
+        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 p-1.5 sm:px-3 text-xs font-semibold text-white shadow-sm transition active:scale-95"
         title="Instal·la On menjem? al teu dispositiu com a aplicació nativa"
       >
         <Download className="w-3.5 h-3.5" />
-        <span>Instal·la App</span>
+        <span className="hidden sm:inline">Instal·la App</span>
       </button>
     );
   }
@@ -33,11 +33,11 @@ export const PWAInstallButton: React.FC = () => {
       <>
         <button
           onClick={() => setShowIOSGuide(true)}
-          className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/80 px-2.5 py-1 text-xs font-medium text-orange-800 hover:bg-orange-100 transition active:scale-95"
+          className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/80 p-1.5 sm:px-2.5 sm:py-1 text-xs font-medium text-orange-800 hover:bg-orange-100 transition active:scale-95"
           title={isIOS ? 'Instal·la a iPhone o iPad' : 'Instal·la a Android'}
         >
           <Smartphone className="w-3.5 h-3.5 text-orange-600" />
-          <span>Instal·lar</span>
+          <span className="hidden sm:inline">Instal·lar</span>
         </button>
 
         {/* Portal a body: el backdrop-filter del header faria que el fixed quedés confinat dins seu */}
