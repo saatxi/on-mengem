@@ -33,6 +33,7 @@ interface AuthContextType {
   regenerateGroupCode: (groupId: string) => Promise<string>;
   deleteGroup: (groupId: string) => Promise<void>;
   logout: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -265,6 +266,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserGroups([]);
   };
 
+  const deleteAccount = async () => {
+    const { error } = await supabase.rpc('delete_my_account');
+    if (error) throw error;
+    // L'usuari ja no existeix al servidor: només cal esborrar la sessió local.
+    await supabase.auth.signOut({ scope: 'local' });
+    setAuthUser(null);
+    setUserProfile(null);
+    setUserGroups([]);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -285,6 +296,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         regenerateGroupCode,
         deleteGroup,
         logout,
+        deleteAccount,
       }}
     >
       {children}

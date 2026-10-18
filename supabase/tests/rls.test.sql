@@ -363,5 +363,24 @@ select is((select owner_id from public.groups where id = '10000000-0000-0000-000
           '00000000-0000-0000-0000-00000000000c'::uuid,
           'esborrar l''owner cedeix el grup al membre que queda (carol)');
 
+-- ------------------------------------------------------------ Esborrat del propi compte
+set local role anon;
+select set_config('request.jwt.claims', '', true);
+select set_config('request.jwt.claim.sub', '', true);
+select throws_ok($$ select public.delete_my_account() $$, '42501', null, 'anònim: no pot cridar delete_my_account');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+set local role authenticated;
+select lives_ok($$ select public.delete_my_account() $$, 'carol esborra el seu propi compte');
+reset role;
+select is((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-00000000000c'), 0,
+          'delete_my_account esborra l''usuari que la crida');
+select is((select count(*)::int from public.profiles where id = '00000000-0000-0000-0000-00000000000c'), 0,
+          'delete_my_account esborra el seu perfil');
+select is((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-00000000000d'), 1,
+          'delete_my_account no toca els altres usuaris');
+
 select * from finish();
 rollback;

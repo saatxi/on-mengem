@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, LogOut, Check, Mail, User } from 'lucide-react';
+import { X, LogOut, Check, Mail, User, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Props {
@@ -10,13 +10,32 @@ interface Props {
 const FOOD_AVATARS = ['🍕', '🍣', '🥘', '🍷', '🌮', '🍔', '🥗', '🍜', '🥑', '🥞', '☕', '🍰'];
 
 export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
-  const { userProfile, updateProfile, logout, authUser } = useAuth();
+  const { userProfile, updateProfile, logout, deleteAccount, authUser } = useAuth();
   const [nickname, setNickname] = useState(userProfile?.nickname || '');
   const [avatar, setAvatar] = useState(userProfile?.avatar || '🍕');
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleDeleteAccount = async () => {
+    const confirmed = confirm(
+      'Vols eliminar el teu compte?\n\n' +
+        'Aquesta acció NO es pot desfer. S\'esborraran el teu perfil i totes les dades del teu espai personal (restaurants i llista de desitjos).\n\n' +
+        'El que hagis afegit als grups es mantindrà sense el teu nom d\'usuari, i els grups dels quals siguis propietari passaran al membre més antic.'
+    );
+    if (!confirmed) return;
+    setIsDeleting(true);
+    try {
+      await deleteAccount();
+      onClose();
+    } catch (err) {
+      console.error('Error eliminant el compte:', err);
+      alert('No s\'ha pogut eliminar el compte. Torna-ho a provar més tard.');
+      setIsDeleting(false);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,22 +152,32 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </form>
 
           {/* Sign out */}
-          <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
+          <div className="pt-3 border-t border-stone-200 flex flex-wrap justify-between items-center gap-2 text-xs">
             <span className="text-stone-400 text-[10px] font-mono">
               Versió {__APP_VERSION__} · UID: {authUser?.uid.slice(0, 8)}...
             </span>
-            <button
-              onClick={async () => {
-                if (confirm('Vols tancar la sessió del teu compte de Google?')) {
-                  await logout();
-                  onClose();
-                }
-              }}
-              className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Tancar sessió</span>
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-700 font-semibold disabled:opacity-50 transition"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>{isDeleting ? 'Eliminant...' : 'Eliminar compte'}</span>
+              </button>
+              <button
+                onClick={async () => {
+                  if (confirm('Vols tancar la sessió del teu compte de Google?')) {
+                    await logout();
+                    onClose();
+                  }
+                }}
+                className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Tancar sessió</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

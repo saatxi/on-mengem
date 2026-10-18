@@ -603,6 +603,16 @@ begin
   if rows_moved = 0 then raise exception 'Ítem no trobat a l''espai personal'; end if;
 end $$;
 
+-- L'usuari esborra el seu propi compte; handle_user_delete i els cascades netegen les dades.
+create or replace function public.delete_my_account()
+returns void language plpgsql security definer set search_path = '' as $$
+declare
+  uid uuid := auth.uid();
+begin
+  if uid is null then raise exception 'No autenticat' using errcode = '42501'; end if;
+  delete from auth.users where id = uid;
+end $$;
+
 -- Només usuaris autenticats poden cridar les RPC; les funcions internes no són cridables.
 revoke all on function public.new_group_code() from public, anon, authenticated;
 revoke all on function public.create_group(text, text) from public, anon;
@@ -612,6 +622,7 @@ revoke all on function public.transfer_group_ownership(uuid, uuid) from public, 
 revoke all on function public.mark_alerts_read(uuid[]) from public, anon;
 revoke all on function public.copy_to_groups(text, uuid, uuid[]) from public, anon;
 revoke all on function public.move_to_group(text, uuid, uuid) from public, anon;
+revoke all on function public.delete_my_account() from public, anon;
 grant execute on function public.create_group(text, text) to authenticated;
 grant execute on function public.join_group_by_code(text) to authenticated;
 grant execute on function public.regenerate_group_code(uuid) to authenticated;
@@ -619,6 +630,7 @@ grant execute on function public.transfer_group_ownership(uuid, uuid) to authent
 grant execute on function public.mark_alerts_read(uuid[]) to authenticated;
 grant execute on function public.copy_to_groups(text, uuid, uuid[]) to authenticated;
 grant execute on function public.move_to_group(text, uuid, uuid) to authenticated;
+grant execute on function public.delete_my_account() to authenticated;
 
 -- ---------------------------------------------------------------- Realtime
 
