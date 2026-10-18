@@ -47,7 +47,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   onCopyToGroup,
   onMoveToGroup,
 }) => {
-  const { authUser, activeGroup } = useAuth();
+  const { authUser, activeGroup, userProfile } = useAuth();
   const uid = authUser?.uid ?? '';
   const members = useGroupMembers(activeGroup ?? null);
 
@@ -317,7 +317,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 {restaurant.visits.map((v) => {
                   const canEdit = canEditVisit(v, uid);
                   const attendeeNames = v.attendeeIds
-                    .map((id) => members[id]?.nickname ?? id)
+                    .map((id) => members[id]?.nickname ?? (id === uid ? (userProfile?.nickname || 'Tu') : null))
+                    .filter(Boolean)
                     .join(', ');
 
                   return (

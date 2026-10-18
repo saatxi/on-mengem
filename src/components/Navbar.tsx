@@ -152,9 +152,9 @@ export const Navbar: React.FC<Props> = ({
           {/* PWA Install Button */}
           <PWAInstallButton />
 
-          {/* Alerts Bell (només en grups) */}
+          {/* Alerts Bell (només en grups, i amagat al mòbil on ja surt al BottomNav) */}
           {activeGroup && (
-          <div className="relative">
+          <div className="relative hidden sm:block">
             <button
               onClick={() => {
                 setShowAlertMenu(!showAlertMenu);
