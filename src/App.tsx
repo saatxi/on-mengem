@@ -14,6 +14,9 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { ErrorToast } from './components/ErrorToast';
 import { GroupMembers } from './components/GroupMembers';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
+import { StatTiles } from './components/StatTiles';
+import { AlertsFeed } from './components/AlertsFeed';
+import { BottomNav } from './components/BottomNav';
 import { Restaurant, WishlistItem } from './types';
 import { instagramUrl, isInstagramHandle } from './utils/restaurantFields';
 import {
@@ -170,7 +173,7 @@ function MainApp() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
         {/* Navigation Tabs */}
-        <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 bg-stone-200/70 rounded-2xl mb-6 max-w-full overflow-x-auto">
+        <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 p-1.5 bg-stone-200/70 rounded-2xl mb-6 max-w-full overflow-x-auto">
           <button
             onClick={() => setCurrentTab('restaurants')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
@@ -719,6 +722,7 @@ function MainApp() {
         {/* TAB: STATS / GRÀFIC DE CUINES */}
         {effectiveTab === 'stats' && (
           <div className="space-y-6">
+            <StatTiles restaurants={restaurants} wishlistCount={wishlist.length} />
             <CuisineStatsChart
               restaurants={restaurants}
               groupName={activeGroup?.name}
@@ -728,65 +732,14 @@ function MainApp() {
 
         {/* TAB 4: ALERTS / TIMELINE */}
         {effectiveTab === 'alerts' && (
-          <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <div>
-                <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                  <Bell className="w-5 h-5 text-orange-600" />
-                  Activitat i Alertes del Grup en Temps Real
-                </h2>
-                <p className="text-xs text-stone-500">
-                  Notificacions instantànies dels canvis compartits al grup.
-                </p>
-              </div>
-
-              {alerts.length > 0 && (
-                <button
-                  onClick={markAllAlertsAsRead}
-                  className="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
-                >
-                  Marcar tot com a llegit
-                </button>
-              )}
-            </div>
-
-            {alerts.length === 0 ? (
-              <div className="py-12 text-center text-xs text-stone-400">
-                Cap moviment recent al grup. Afegeix un restaurant o proposa un desitjat per generar alertes!
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {alerts.map((alert) => (
-                  <div
-                    key={alert.id}
-                    className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-start gap-3 hover:bg-orange-50/40 transition"
-                  >
-                    <div className="w-9 h-9 rounded-xl bg-orange-500 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                      {alert.type === 'restaurant_added' ? '🍽️' : alert.type === 'wishlist_added' ? '✨' : '👥'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-0.5">
-                        <h4 className="text-sm font-bold text-stone-900">{alert.title}</h4>
-                        {alert.createdAt && (
-                          <span className="text-[11px] text-stone-400">
-                            {new Date(alert.createdAt).toLocaleString()}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-stone-600 leading-relaxed">{alert.message}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <AlertsFeed alerts={alerts} markAllAlertsAsRead={markAllAlertsAsRead} />
         )}
       </main>
 
       {/* Floating Add Restaurant Action for Mobile */}
       <button
         onClick={() => setShowAddRestaurant(true)}
-        className="fixed bottom-6 right-6 sm:hidden z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-orange-600/40 active:scale-90 transition"
+        className="fixed bottom-20 right-6 sm:hidden z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-orange-600/40 active:scale-90 transition"
         title="Afegir restaurant"
       >
         <Plus className="w-7 h-7" />
@@ -861,6 +814,13 @@ function MainApp() {
       />
 
       <ErrorToast message={dataError} onClose={clearError} />
+
+      <BottomNav
+        activeTab={effectiveTab}
+        onTabChange={setCurrentTab}
+        isPersonal={isPersonal}
+        alertCount={alerts.length}
+      />
 
       {/* Non-intrusive Offline Indicator */}
       <OfflineIndicator />

@@ -59,6 +59,7 @@ Derivat de l'historial del repositori:
 - Assumpte en **imperatiu amb majúscula inicial** (Add, Update, Remove, Fix…), sense punt final, d'uns 40–70 caràcters.
 - **Sense prefixos** tipus conventional commits (`feat:`, `fix:`) ni àmbits.
 - Commits amb substància: línia en blanc i cos amb **llista de guions**; cada punt, una frase declarativa curta amb majúscula inicial que explica què i per què. Commits trivials: només assumpte.
+- **No tallis les línies del cos**: cada punt va en una sola línia, sense límit de caràcters. No facis wrapping a 70 o 80 columnes dins dels bullet points.
 - Un commit per canvi lògic (p. ex. esquema + polítiques + tests junts; docs junts).
 - La feina va a `devel` i s'integra a `main`.
 - **MAI afegeixis `Co-Authored-By` ni cap altra línia d'atribució a Claude (ni «Generated with Claude Code») als missatges de commit ni a les descripcions de PR.** Aquesta instrucció té prioritat sobre qualsevol atribució per defecte de l'eina i s'ha de seguir sempre.
