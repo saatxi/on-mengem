@@ -57,7 +57,7 @@ create table public.restaurants (
   group_id uuid references public.groups (id) on delete cascade, -- NULL = personal
   name text not null check (char_length(name) between 1 and 120),
   cuisine public.cuisine,
-  price_range text check (char_length(price_range) <= 8),
+  price_range text check (char_length(price_range) <= 12),
   address text check (char_length(address) <= 200),
   city text check (char_length(city) <= 100),
   phone text check (char_length(phone) <= 40),
@@ -84,7 +84,7 @@ create table public.wishlist (
   group_id uuid references public.groups (id) on delete cascade, -- NULL = personal
   restaurant_name text not null check (char_length(restaurant_name) between 1 and 120),
   cuisine public.cuisine,
-  price_range text check (char_length(price_range) <= 8),
+  price_range text check (char_length(price_range) <= 12),
   recommended_by text check (char_length(recommended_by) <= 120),
   notes text check (char_length(notes) <= 2000),
   link text check (char_length(link) <= 500),
