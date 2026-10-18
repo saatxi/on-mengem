@@ -598,41 +598,43 @@ function MainApp() {
                         )}
                       </div>
 
-                      <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                        <span className="text-[11px] text-stone-400">
-                          Proposat per: <strong className="text-stone-600">{item.userName || 'Membre'}</strong>
-                        </span>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => setShareTarget({ mode: 'copy', type: 'wishlist', id: item.id, name: item.restaurantName })}
-                            className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
-                            title="Copiar a un grup"
-                          >
-                            <CopyIcon className="w-3.5 h-3.5" />
-                          </button>
-                          {isPersonal && (
+                      <div className="pt-3 border-t border-stone-100 space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] text-stone-400">Proposat per:</span>
+                          <div className="flex items-center gap-1">
                             <button
-                              onClick={() => setShareTarget({ mode: 'move', type: 'wishlist', id: item.id, name: item.restaurantName })}
+                              onClick={() => setShareTarget({ mode: 'copy', type: 'wishlist', id: item.id, name: item.restaurantName })}
                               className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
-                              title="Moure a un grup"
+                              title="Copiar a un grup"
                             >
-                              <ArrowRightLeft className="w-3.5 h-3.5" />
+                              <CopyIcon className="w-3.5 h-3.5" />
                             </button>
-                          )}
-                          <button
-                            onClick={() => setEditingWishlist(item)}
-                            className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition"
-                            title="Editar"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => deleteWishlistItem(item.id)}
-                            className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
-                          >
-                            Eliminar
-                          </button>
+                            {isPersonal && (
+                              <button
+                                onClick={() => setShareTarget({ mode: 'move', type: 'wishlist', id: item.id, name: item.restaurantName })}
+                                className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
+                                title="Moure a un grup"
+                              >
+                                <ArrowRightLeft className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => setEditingWishlist(item)}
+                              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition"
+                              title="Editar"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => deleteWishlistItem(item.id)}
+                              className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
+                            >
+                              Eliminar
+                            </button>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <strong className="text-[12px] text-stone-600">{item.userName || 'Membre'}</strong>
                           {item.status !== 'visited' && (
                             <button
                               onClick={() => convertWishlistToRestaurant(item)}
@@ -640,7 +642,7 @@ function MainApp() {
                               title="Afegeix-lo directament a la llista de restaurants"
                             >
                               <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>Ja hi hem anat!</span>
+                              <span>Visitat!</span>
                             </button>
                           )}
                         </div>
