@@ -152,22 +152,40 @@ Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat a
 | "Falten VITE_SUPABASE_URL…" a la consola | Falta `.env` o no has reiniciat el servidor | Crea el `.env` i reinicia |
 | El client no connecta | La URL acaba en `/rest/v1/` | Treu aquest final (E1.4) |
 
-## Quan publiquis l'app
+## Quan publiquis l'app a Cloudflare Pages
 
-Quan tinguis una URL de producció (Cloudflare Pages, Netlify, GitHub Pages…):
+El repositori ja inclou `public/_headers` (capçaleres de seguretat HTTP) i `public/_redirects` (SPA fallback) que Cloudflare Pages llegeix directament del directori `dist/` generat pel build.
 
-1. Afegeix-la a **Redirect URLs** i, si vols, canvia la **Site URL** (part D).
-2. Afegeix-la als **Authorized JavaScript origins** de Google (B3.5). La *redirect URI* de Google no canvia, perquè sempre és la de Supabase.
-3. Defineix `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY` com a variables d'entorn de la build al servei d'hostatge.
-4. El build injecta una `Content-Security-Policy` com a `<meta>` (veure `vite.config.ts`), amb la URL de Supabase presa de `VITE_SUPABASE_URL`. Les capçaleres `frame-ancestors` no funcionen dins d'un `<meta>`: configura-les al servei d'hostatge, juntament amb `X-Content-Type-Options: nosniff` i `Referrer-Policy: strict-origin-when-cross-origin`. Exemple (`_headers` de Cloudflare Pages/Netlify):
+### Primer deploy
 
-   ```
-   /*
-     Content-Security-Policy: frame-ancestors 'none'
-     X-Content-Type-Options: nosniff
-     Referrer-Policy: strict-origin-when-cross-origin
-   ```
-5. Els límits de grups (intents de codi, propietat) viuen a la base de dades: aplica la migració (`0001_init.sql`) al projecte de Supabase abans de publicar.
+1. Entra a [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**.
+2. Autoritza l'accés al teu compte de GitHub i selecciona el repositori `on-menjem`.
+3. Configuració del build:
+   - **Framework preset:** None
+   - **Build command:** `npm run build`
+   - **Build output directory:** `dist`
+4. A **Environment variables (advanced)**, afegeix per a *Production* i *Preview*:
+   - `VITE_SUPABASE_URL` → la URL del teu projecte Supabase (`https://<ref>.supabase.co`)
+   - `VITE_SUPABASE_ANON_KEY` → la clau pública (`sb_publishable_...` o `eyJ...`)
+   - `NODE_VERSION` → `24`
+5. Prem **Save and Deploy**. El primer deploy triga uns minuts.
+6. Un cop acabat, Cloudflare assigna una URL (`https://on-menjem.pages.dev` o similar). Copia-la.
+
+### Connectar la URL de producció a Supabase i Google
+
+7. **Supabase → Authentication → URL Configuration:**
+   - Afegeix la URL a **Redirect URLs**.
+   - Canvia la **Site URL** a la URL de producció (o deixa `localhost` si encara estàs en proves).
+8. **Google Cloud → APIs & Services → Credentials → el teu client OAuth:**
+   - Afegeix la URL a **Authorized JavaScript origins** (B3.5). La *redirect URI* de Google no canvia (sempre és la de Supabase).
+
+### Desplegaments posteriors
+
+Cloudflare Pages redesplega automàticament cada vegada que fas `git push` a la branca configurada (normalment `main`). Per desplegar manualment o des d'una altra branca, usa el Dashboard o la CLI de Cloudflare Pages.
+
+### Capçaleres de seguretat
+
+El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les capçaleres `frame-ancestors`, `X-Content-Type-Options` i `Referrer-Policy` les serveix Cloudflare Pages a partir de `public/_headers`, que ja és al repositori.
 
 ## Nota sobre el pla gratuït
 
