@@ -15,7 +15,7 @@ Ordre recomanat: **A → B → C → D → E**. Cal anar i tornar entre Supabase
 
 1. Entra a [supabase.com](https://supabase.com), inicia sessió i prem **New project**.
 2. Posa un nom (per exemple `on-menjem`), una contrasenya de base de dades (guarda-la) i la regió més propera (per exemple *West EU*). Prem **Create**. Tarda un parell de minuts.
-3. Quan estigui llest, aplica les migracions amb la CLI (`supabase db push`, vegeu [Aplicar les migracions via CLI](#aplicar-les-migracions-via-cli-alternativa-al-sql-editor)). També pots anar a **SQL Editor → New query** i executar un per un, en ordre, els fitxers de [supabase/migrations/](../supabase/migrations/) (`0001_init.sql`, `0002_…`). Si ho fas així, la CLI no sabrà que ja estan aplicats i, a partir d'aquí, hauràs de continuar aplicant les migracions noves a mà.
+3. Quan estigui llest, aplica les migracions amb la CLI de Supabase (vegeu [Migracions amb la CLI de Supabase](#migracions-amb-la-cli-de-supabase)).
 4. Ves a **Authentication → Sign In / Providers** i obre **Google**.
 5. Copia el camp **Callback URL (for OAuth)**. Té aquest aspecte: `https://abcdefgh.supabase.co/auth/v1/callback`.
 6. Deixa aquesta pestanya oberta.
@@ -100,18 +100,15 @@ Obre `http://localhost:3000` i prem **Continua amb Google**. Si has de canviar e
 
 ---
 
-## Aplicar les migracions via CLI (alternativa al SQL Editor)
+## Migracions amb la CLI de Supabase
 
-Si prefereixes gestionar l'esquema des de la terminal en lloc del SQL Editor del Dashboard, pots fer-ho amb la CLI de Supabase.
+L'esquema de la base de dades es gestiona amb la CLI de Supabase. No cal instal·lar-la: s'executa amb `npx supabase` (com fa el `Makefile`). Els fitxers de [supabase/migrations/](../supabase/migrations/) s'apliquen en ordre i la CLI recorda quins ja s'han aplicat a cada projecte.
 
-**Prerequisit:** tenir la CLI instal·lada.
-```bash
-npm install -g supabase
-```
+### Enllaçar el projecte (un sol cop per ordinador)
 
 **1. Inicia sessió:**
 ```bash
-supabase login
+npx supabase login
 ```
 S'obrirà el navegador per autenticar-te. Un cop fet, la CLI guardarà el token localment.
 
@@ -119,25 +116,43 @@ S'obrirà el navegador per autenticar-te. Un cop fet, la CLI guardarà el token 
 
 Ves a **Dashboard → Project Settings → General**. El `project-ref` és la cadena de la URL: `supabase.com/dashboard/project/**abcdefghijklmnop**`.
 
-**3. Enllaça el projecte local:**
+**3. Enllaça el projecte:**
 ```bash
-supabase link --project-ref <project-ref>
+npx supabase link --project-ref <project-ref>
 ```
 Et demanarà la contrasenya de la base de dades (la que vas posar en crear el projecte). Si no la recordes, la pots restablir a **Project Settings → Database → Reset database password**.
 
-**4. Comprova l'enllaç:**
+**4. Comprova l'estat de les migracions:**
 ```bash
-supabase status
+npx supabase migration list --linked
 ```
-Ha de mostrar el `project-ref` i la URL remota.
+Mostra cada migració amb una columna *Local* i una *Remote*. Si una migració només té valor a *Local*, encara no s'ha aplicat a producció.
 
-**5. Aplica les migracions:**
+### Aplicar les migracions
+
 ```bash
-supabase db push
+npx supabase db push --dry-run   # mostra què aplicaria, sense tocar res
+npx supabase db push
 ```
-Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat al projecte remot.
+Aplica els fitxers de `supabase/migrations/` que encara no s'han executat al projecte remot. En un projecte nou, les aplica totes.
 
-> **Per buidar la BD i tornar a aplicar des de zero:** `supabase db reset --linked`. Esborra totes les dades i torna a aplicar les migracions. No facis servir `drop schema public cascade; create schema public;`: l'esquema nou no té els permisos per defecte de Supabase (`anon`, `authenticated`) i l'app falla amb `permission denied for schema public`. A més, `supabase db push` no torna a aplicar les migracions que ja consten com a aplicades.
+### Afegir una migració nova
+
+L'app ja és en producció: **no modifiquis mai una migració que ja s'ha aplicat**. Cada canvi d'esquema, política o funció va en un fitxer nou.
+
+1. Crea `supabase/migrations/000N_descripcio.sql` amb el número següent.
+2. Prova-la en local: `make db-reset` (torna a aplicar totes les migracions; esborra les dades locals) i `make db-test`.
+3. Aplica-la a producció amb `npx supabase db push` **abans** de passar a `main` el codi que la necessita, perquè cada push a `main` publica l'app.
+
+### Si la base de dades es va crear amb el SQL Editor
+
+Si vas executar les migracions enganxant-les al SQL Editor, la CLI no sap que ja hi són i `db push` les intentaria tornar a aplicar. Marca-les com a aplicades un sol cop, abans del primer `db push`:
+```bash
+npx supabase migration repair --status applied 0001
+```
+Repeteix-ho amb cada migració que ja hagis executat a mà (`0002`, …) i comprova-ho amb `npx supabase migration list --linked`.
+
+> **Per buidar la BD i tornar a aplicar des de zero:** `npx supabase db reset --linked`. Esborra totes les dades i torna a aplicar les migracions. No facis servir `drop schema public cascade; create schema public;`: l'esquema nou no té els permisos per defecte de Supabase (`anon`, `authenticated`) i l'app falla amb `permission denied for schema public`. A més, `supabase db push` no torna a aplicar les migracions que ja consten com a aplicades.
 
 ---
 

@@ -17,7 +17,7 @@ PWA en català per guardar restaurants i llistes de desitjats en un **espai pers
 
 Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](https://supabase.com) i un client OAuth de Google. La guia pas a pas és a **[docs/CONFIGURACIO.md](docs/CONFIGURACIO.md)**. En resum:
 
-1. Crea el projecte a Supabase i aplica les migracions de [supabase/migrations/](supabase/migrations/) amb `supabase db push` (o executa-les en ordre a l'*SQL Editor*).
+1. Crea el projecte a Supabase i aplica les migracions de [supabase/migrations/](supabase/migrations/) amb la CLI de Supabase (`npx supabase db push`, vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md)).
 2. Activa el proveïdor de Google (Client ID i Secret de Google Cloud) i configura les URL de redirecció.
 3. `cp .env.example .env` i omple `VITE_SUPABASE_URL` i `VITE_SUPABASE_ANON_KEY`.
 4. `npm install && npm run dev`, i obre `http://localhost:3000`.
