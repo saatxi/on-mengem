@@ -78,6 +78,7 @@ export const toWishlistItem = (r: Row): WishlistItem => ({
   cuisine: orUndef(r.cuisine),
   priceRange: orUndef(r.price_range),
   recommendedBy: orUndef(r.recommended_by),
+  address: orUndef(r.address),
   notes: orUndef(r.notes),
   link: orUndef(r.link),
   instagram: orUndef(r.instagram),
@@ -114,7 +115,7 @@ export const restaurantToRow = (d: Partial<Restaurant>): Row => {
 export const wishlistToRow = (d: Partial<WishlistItem>): Row => {
   const m: Record<string, string> = {
     restaurantName: 'restaurant_name', cuisine: 'cuisine', priceRange: 'price_range',
-    recommendedBy: 'recommended_by', notes: 'notes', link: 'link', instagram: 'instagram',
+    recommendedBy: 'recommended_by', address: 'address', notes: 'notes', link: 'link', instagram: 'instagram',
     status: 'status',
   };
   return pick(d, m);

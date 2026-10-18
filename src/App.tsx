@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { WelcomeOnboarding } from './components/WelcomeOnboarding';
 import { AddRestaurantModal } from './components/AddRestaurantModal';
 import { AddWishlistModal } from './components/AddWishlistModal';
+import { EditWishlistModal } from './components/EditWishlistModal';
 import { RestaurantDetailModal } from './components/RestaurantDetailModal';
 import { CreateGroupModal } from './components/CreateGroupModal';
 import { JoinGroupModal } from './components/JoinGroupModal';
@@ -44,7 +45,8 @@ import {
   CheckCircle2,
   BarChart3,
   Copy as CopyIcon,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Pencil
 } from 'lucide-react';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
@@ -80,6 +82,7 @@ function MainApp() {
   // Modals state
   const [showAddRestaurant, setShowAddRestaurant] = useState(false);
   const [showAddWishlist, setShowAddWishlist] = useState(false);
+  const [editingWishlist, setEditingWishlist] = useState<WishlistItem | null>(null);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -575,6 +578,13 @@ function MainApp() {
                           </div>
                         </div>
 
+                        {item.address && (
+                          <div className="flex items-center gap-1 text-xs text-stone-500 mb-2">
+                            <MapPin className="w-3 h-3 shrink-0" />
+                            <span>{item.address}</span>
+                          </div>
+                        )}
+
                         {item.recommendedBy && (
                           <div className="text-xs text-amber-900 font-medium bg-amber-50/70 p-2 rounded-xl mb-2.5">
                             💡 <strong>Recomanació:</strong> {item.recommendedBy}
@@ -610,6 +620,13 @@ function MainApp() {
                               <ArrowRightLeft className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          <button
+                            onClick={() => setEditingWishlist(item)}
+                            className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition"
+                            title="Editar"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
                           <button
                             onClick={() => deleteWishlistItem(item.id)}
                             className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
@@ -756,6 +773,12 @@ function MainApp() {
         isOpen={showAddWishlist}
         onClose={() => setShowAddWishlist(false)}
         onAdd={addWishlistItem}
+      />
+
+      <EditWishlistModal
+        item={editingWishlist}
+        onClose={() => setEditingWishlist(null)}
+        onSave={updateWishlistItem}
       />
 
       <RestaurantDetailModal
