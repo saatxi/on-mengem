@@ -152,24 +152,25 @@ Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat a
 | "Falten VITE_SUPABASE_URL…" a la consola | Falta `.env` o no has reiniciat el servidor | Crea el `.env` i reinicia |
 | El client no connecta | La URL acaba en `/rest/v1/` | Treu aquest final (E1.4) |
 
-## Quan publiquis l'app a Cloudflare Pages
+## Quan publiquis l'app a Cloudflare
 
-El repositori ja inclou `public/_headers` (capçaleres de seguretat HTTP) i `public/_redirects` (SPA fallback) que Cloudflare Pages llegeix directament del directori `dist/` generat pel build.
+L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Builds). La configuració és a `wrangler.jsonc`: nom del Worker, directori `./dist` i fallback de SPA. Cloudflare llegeix `public/_headers` (capçaleres de seguretat), que Vite copia a `dist/`.
 
 ### Primer deploy
 
-1. Entra a [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Pages → Connect to Git**.
+1. Entra a [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Import a repository**.
 2. Autoritza l'accés al teu compte de GitHub i selecciona el repositori `on-menjem`.
-3. Configuració del build:
-   - **Framework preset:** None
+3. Configuració:
    - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-4. A **Environment variables (advanced)**, afegeix per a *Production* i *Preview*:
+   - **Deploy command:** `npx wrangler deploy` (el valor per defecte)
+   - **Production branch:** `main`
+4. A **Advanced settings → Build variables**, afegeix:
    - `VITE_SUPABASE_URL` → la URL del teu projecte Supabase (`https://<ref>.supabase.co`)
    - `VITE_SUPABASE_ANON_KEY` → la clau pública (`sb_publishable_...` o `eyJ...`)
-   - `NODE_VERSION` → `24`
-5. Prem **Save and Deploy**. El primer deploy triga uns minuts.
-6. Un cop acabat, Cloudflare assigna una URL (`https://on-menjem.pages.dev` o similar). Copia-la.
+
+   Han de ser **variables de build** perquè Vite les incrusta al bundle quan compila. Les `vars` de `wrangler.jsonc` i les *Variables and secrets* del Worker són de runtime i Vite no les veu. Si ja has creat el Worker, les trobaràs a **Settings → Build → Variables and secrets**.
+5. No cal definir `NODE_VERSION`: Cloudflare llegeix la versió de `.nvmrc`.
+6. Prem **Deploy**. Un cop acabat, la URL és `https://on-menjem.<el-teu-subdomini>.workers.dev`. Copia-la.
 
 ### Connectar la URL de producció a Supabase i Google
 
@@ -181,11 +182,11 @@ El repositori ja inclou `public/_headers` (capçaleres de seguretat HTTP) i `pub
 
 ### Desplegaments posteriors
 
-Cloudflare Pages redesplega automàticament cada vegada que fas `git push` a la branca configurada (normalment `main`). Per desplegar manualment o des d'una altra branca, usa el Dashboard o la CLI de Cloudflare Pages.
+Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. Les altres branques generen versions de previsualització que no es publiquen a producció. Per desplegar des de la terminal: `npm run build && npx wrangler deploy` (cal `npx wrangler login` abans i tenir les variables `VITE_*` al `.env`).
 
 ### Capçaleres de seguretat
 
-El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les capçaleres `frame-ancestors`, `X-Content-Type-Options` i `Referrer-Policy` les serveix Cloudflare Pages a partir de `public/_headers`, que ja és al repositori.
+El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les capçaleres `frame-ancestors`, `X-Content-Type-Options` i `Referrer-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
 
 ## Nota sobre el pla gratuït
 

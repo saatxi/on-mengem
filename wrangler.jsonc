@@ -2,7 +2,8 @@
     "name": "on-menjem",
     "compatibility_date": "2026-10-12",
     "assets": {
-        "directory": "./dist"
+        "directory": "./dist",
+        "not_found_handling": "single-page-application"
     },
     "vars": {
         "VITE_SUPABASE_ANON_KEY": "sb_publishable_7UJKVEXkApSkELVtr-BSCA_SiAT5oRk",

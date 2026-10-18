@@ -52,7 +52,7 @@ docs/                  Guia de configuració i especificació de seguretat
 
 ## Publicar
 
-`npm run build` i publica `dist/` (Cloudflare Pages, Netlify, GitHub Pages…) definint les mateixes variables `VITE_SUPABASE_*`. Després afegeix la URL final a les *Redirect URLs* de Supabase (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md)).
+L'app es publica a Cloudflare Workers amb fitxers estàtics (`wrangler.jsonc`): cada push a `main` executa `npm run build` i `npx wrangler deploy`. Les variables `VITE_SUPABASE_*` s'han de definir com a variables de build del Worker. Després afegeix la URL final a les *Redirect URLs* de Supabase (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md)).
 
 ## Publicar una versió
 
