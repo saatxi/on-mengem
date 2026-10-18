@@ -152,30 +152,39 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </form>
 
           {/* Sign out */}
-          <div className="pt-3 border-t border-stone-200 flex flex-wrap justify-between items-center gap-2 text-xs">
+          <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
             <span className="text-stone-400 text-[10px] font-mono">
               Versió {__APP_VERSION__} · UID: {authUser?.uid.slice(0, 8)}...
             </span>
-            <div className="flex items-center gap-4">
+            <button
+              onClick={async () => {
+                if (confirm('Vols tancar la sessió del teu compte de Google?')) {
+                  await logout();
+                  onClose();
+                }
+              }}
+              className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Tancar sessió</span>
+            </button>
+          </div>
+
+          <div className="p-4 rounded-2xl border border-red-200 bg-red-50/50 space-y-3">
+            <div>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-red-700">Eliminar el compte</h3>
+              <p className="mt-1 text-xs text-stone-600">
+                Esborra el teu perfil i el teu espai personal. Aquesta acció no es pot desfer.
+              </p>
+            </div>
+            <div className="flex justify-end">
               <button
                 onClick={handleDeleteAccount}
                 disabled={isDeleting}
-                className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-700 font-semibold disabled:opacity-50 transition"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-300 bg-white text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>{isDeleting ? 'Eliminant...' : 'Eliminar compte'}</span>
-              </button>
-              <button
-                onClick={async () => {
-                  if (confirm('Vols tancar la sessió del teu compte de Google?')) {
-                    await logout();
-                    onClose();
-                  }
-                }}
-                className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Tancar sessió</span>
               </button>
             </div>
           </div>
