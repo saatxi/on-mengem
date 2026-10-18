@@ -49,8 +49,6 @@ export const toRestaurant = (r: Row): Restaurant => ({
   cuisine: orUndef(r.cuisine),
   priceRange: orUndef(r.price_range),
   address: orUndef(r.address),
-  city: orUndef(r.city),
-  phone: orUndef(r.phone),
   rating: r.rating == null ? undefined : Number(r.rating),
   notes: orUndef(r.notes),
   link: orUndef(r.link),
@@ -106,7 +104,7 @@ export const toAlert = (r: Row): Alert => ({
 export const restaurantToRow = (d: Partial<Restaurant>): Row => {
   const m: Record<string, string> = {
     name: 'name', cuisine: 'cuisine', priceRange: 'price_range', address: 'address',
-    city: 'city', phone: 'phone', rating: 'rating', notes: 'notes', link: 'link',
+    rating: 'rating', notes: 'notes', link: 'link',
     instagram: 'instagram', favorite: 'favorite',
   };
   return pick(d, m);

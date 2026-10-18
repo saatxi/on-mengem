@@ -30,7 +30,6 @@ import {
   Plus,
   Star,
   MapPin,
-  Phone,
   CheckCircle,
   ExternalLink,
   Instagram,
@@ -132,7 +131,6 @@ function MainApp() {
     const matchesSearch =
       r.name.toLowerCase().includes(q) ||
       (r.cuisine && r.cuisine.toLowerCase().includes(q)) ||
-      (r.city && r.city.toLowerCase().includes(q)) ||
       (r.notes && r.notes.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
@@ -435,12 +433,6 @@ function MainApp() {
                             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                             <span className="font-bold text-stone-800">{res.rating?.toFixed(1) || '4.0'}</span>
                           </div>
-                          {res.city && (
-                            <div className="flex items-center gap-1 truncate">
-                              <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                              <span className="truncate">{res.city}</span>
-                            </div>
-                          )}
                         </div>
 
                         {/* Notes preview */}
@@ -458,15 +450,6 @@ function MainApp() {
                         </span>
 
                         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          {res.phone && (
-                            <a
-                              href={`tel:${res.phone}`}
-                              className="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition"
-                              title={`Trucar a ${res.phone}`}
-                            >
-                              <Phone className="w-3.5 h-3.5" />
-                            </a>
-                          )}
                           <button
                             onClick={() => setVisitTarget({ restaurant: res })}
                             className="p-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white hover:bg-emerald-700"
