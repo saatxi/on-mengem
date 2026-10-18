@@ -15,7 +15,7 @@ Ordre recomanat: **A → B → C → D → E**. Cal anar i tornar entre Supabase
 
 1. Entra a [supabase.com](https://supabase.com), inicia sessió i prem **New project**.
 2. Posa un nom (per exemple `on-menjem`), una contrasenya de base de dades (guarda-la) i la regió més propera (per exemple *West EU*). Prem **Create**. Tarda un parell de minuts.
-3. Quan estigui llest, ves a **SQL Editor → New query**, enganxa el contingut de [supabase/migrations/0001_init.sql](../supabase/migrations/0001_init.sql) i prem **Run**. Ha de dir "Success".
+3. Quan estigui llest, aplica les migracions amb la CLI (`supabase db push`, vegeu [Aplicar les migracions via CLI](#aplicar-les-migracions-via-cli-alternativa-al-sql-editor)). També pots anar a **SQL Editor → New query** i executar un per un, en ordre, els fitxers de [supabase/migrations/](../supabase/migrations/) (`0001_init.sql`, `0002_…`). Si ho fas així, la CLI no sabrà que ja estan aplicats i, a partir d'aquí, hauràs de continuar aplicant les migracions noves a mà.
 4. Ves a **Authentication → Sign In / Providers** i obre **Google**.
 5. Copia el camp **Callback URL (for OAuth)**. Té aquest aspecte: `https://abcdefgh.supabase.co/auth/v1/callback`.
 6. Deixa aquesta pestanya oberta.

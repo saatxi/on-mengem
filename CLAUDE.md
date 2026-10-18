@@ -28,7 +28,7 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client i conversió fila BD ↔ tipus de l'app.
 - `src/types/index.ts`: tipus compartits.
-- `supabase/migrations/0001_init.sql`: esquema, RLS i funcions.
+- `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
 - `docs/CONFIGURACIO.md` (guia de configuració) i `docs/SEGURETAT.md` (especificació de seguretat).
 
@@ -43,6 +43,7 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 
 ## Regles de domini i seguretat
 
+- L'app ja és en producció: **no modifiquis ni fusionis migracions existents**. Qualsevol canvi d'esquema, política o funció va en un fitxer nou a `supabase/migrations/` que s'aplica amb `supabase db push`.
 - RLS és el límit de seguretat. Si canvies una política, funció o trigger, actualitza `supabase/tests/rls.test.sql` i `docs/SEGURETAT.md` al mateix commit.
 - Mai `service_role` ni claus `sb_secret_` al client; només la clau pública (anon).
 - Files de BD en snake_case, tipus de l'app en camelCase: una columna nova implica actualitzar `mappers.ts` i `types/index.ts`.
