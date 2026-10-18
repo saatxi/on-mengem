@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Users } from 'lucide-react';
-import { supabase } from '../supabase/client';
 import { useAuth } from '../context/AuthContext';
+import { useGroupMembers } from '../hooks/useGroupMembers';
 import { Group } from '../types';
 
 interface Props {
@@ -10,35 +10,13 @@ interface Props {
   onCreateGroup: () => void;
 }
 
-interface MemberInfo {
-  nickname: string;
-  avatar: string;
-}
-
 export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGroup }) => {
   const { userProfile, leaveGroup, removeMember, transferOwnership, regenerateGroupCode, deleteGroup } = useAuth();
-  const [members, setMembers] = useState<Record<string, MemberInfo>>({});
+  const members = useGroupMembers(group);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const isOwner = group.ownerId === userProfile?.id;
-  const memberKey = group.memberUids.join(',');
-
-  // Els perfils dels companys de grup són visibles per RLS.
-  useEffect(() => {
-    let cancelled = false;
-    supabase
-      .from('profiles')
-      .select('id, nickname, avatar')
-      .in('id', group.memberUids)
-      .then(({ data }) => {
-        if (cancelled || !data) return;
-        setMembers(Object.fromEntries(data.map((p) => [p.id, { nickname: p.nickname, avatar: p.avatar }])));
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [memberKey]);
 
   const run = async (confirmText: string | null, action: () => Promise<unknown>) => {
     if (confirmText && !window.confirm(confirmText)) return;

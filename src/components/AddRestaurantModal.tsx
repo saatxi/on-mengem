@@ -11,7 +11,7 @@ import {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>, createVisitToday?: boolean) => Promise<void>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
 }
@@ -31,7 +31,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
-  const [visited, setVisited] = useState(restaurant?.visited ?? true);
+  // «Ja l'hem visitat» crea una visita d'avui en afegir el restaurant; no apareix en mode edició.
+  const [visitedToday, setVisitedToday] = useState(true);
   const [favorite, setFavorite] = useState(restaurant?.favorite ?? false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,20 +44,22 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
     setIsSubmitting(true);
     try {
-      await onSave({
-        name: name.trim().slice(0, 100),
-        cuisine,
-        priceRange,
-        city: city.trim().slice(0, 80),
-        address: address.trim().slice(0, 200),
-        phone: phone.trim().slice(0, 30),
-        rating,
-        notes: notes.trim().slice(0, 500),
-        link: link.trim().slice(0, 300),
-        instagram: toInstagramHandle(instagram),
-        visited,
-        favorite,
-      });
+      await onSave(
+        {
+          name: name.trim().slice(0, 100),
+          cuisine,
+          priceRange,
+          city: city.trim().slice(0, 80),
+          address: address.trim().slice(0, 200),
+          phone: phone.trim().slice(0, 30),
+          rating,
+          notes: notes.trim().slice(0, 500),
+          link: link.trim().slice(0, 300),
+          instagram: toInstagramHandle(instagram),
+          favorite,
+        },
+        !isEditing && visitedToday,
+      );
       onClose();
     } catch (err) {
       console.error(err);
@@ -262,15 +265,17 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
           {/* Checkboxes */}
           <div className="flex items-center gap-6 pt-1">
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700">
-              <input
-                type="checkbox"
-                checked={visited}
-                onChange={(e) => setVisited(e.target.checked)}
-                className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
-              />
-              <span>Ja l'hem visitat</span>
-            </label>
+            {!isEditing && (
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700">
+                <input
+                  type="checkbox"
+                  checked={visitedToday}
+                  onChange={(e) => setVisitedToday(e.target.checked)}
+                  className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
+                />
+                <span>Ja l'hem visitat</span>
+              </label>
+            )}
 
             <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700">
               <input

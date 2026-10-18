@@ -47,7 +47,10 @@ export function useRealtimeData() {
 
   const fetchRestaurants = useCallback(async () => {
     if (!uid) return;
-    let q = supabase.from('restaurants').select('*').order('created_at', { ascending: false });
+    let q = supabase
+      .from('restaurants')
+      .select('*, restaurant_visits(*, visit_attendees(user_id))')
+      .order('created_at', { ascending: false });
     q = groupId ? q.eq('group_id', groupId) : q.is('group_id', null).eq('created_by', uid);
     const { data, error } = await q;
     if (scopeRef.current !== scope) return;
@@ -100,7 +103,7 @@ export function useRealtimeData() {
       if (!cancelled) setLoading(false);
     });
 
-    // Els events DELETE no admeten filtres a Realtime: es rebin tots i es refresca amb debounce.
+    // Els events DELETE no admeten filtres a Realtime: es reben tots i es refresca amb debounce.
     const cancels: (() => void)[] = [];
     const debounced = (refresh: () => Promise<void>) => {
       let timer: ReturnType<typeof setTimeout> | undefined;
@@ -114,6 +117,8 @@ export function useRealtimeData() {
     const channel = supabase
       .channel(`data-${uid}-${groupId ?? 'personal'}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, debounced(fetchRestaurants))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_visits' }, debounced(fetchRestaurants))
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_attendees' }, debounced(fetchRestaurants))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'wishlist' }, debounced(fetchWishlist))
       .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, debounced(fetchAlerts))
       .subscribe();
@@ -126,29 +131,34 @@ export function useRealtimeData() {
   }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts]);
 
   // CRUD Restaurants
-  type NewRestaurant = Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'createdAt' | 'updatedAt'>;
+  type NewRestaurant = Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>;
 
-  /** Retorna si s'ha creat; així altres operacions poden dependre'n. */
-  const insertRestaurant = async (data: NewRestaurant): Promise<boolean> => {
-    if (!uid || !userProfile) return false;
-    const { error } = await supabase
+  /** Retorna l'id del restaurant creat, o null si hi ha hagut un error. */
+  const insertRestaurant = async (data: NewRestaurant): Promise<string | null> => {
+    if (!uid || !userProfile) return null;
+    const { data: rows, error } = await supabase
       .from('restaurants')
       .insert({
         ...restaurantToRow(data),
         group_id: groupId,
         created_by: uid,
         created_by_name: userProfile.nickname,
-      });
+      })
+      .select('id')
+      .single();
     if (error) {
       fail('addRestaurant', error);
-      return false;
+      return null;
     }
     await fetchRestaurants();
-    return true;
+    return rows.id as string;
   };
 
-  const addRestaurant = async (data: NewRestaurant) => {
-    await insertRestaurant(data);
+  const addRestaurant = async (data: NewRestaurant, createVisitToday?: boolean) => {
+    const newId = await insertRestaurant(data);
+    if (newId && createVisitToday) {
+      await saveVisit(newId, new Date().toISOString().slice(0, 10), undefined, '', [uid!], true);
+    }
   };
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
@@ -169,8 +179,39 @@ export function useRealtimeData() {
     await updateRestaurant(restaurant.id, { favorite: !restaurant.favorite });
   };
 
-  const toggleVisited = async (restaurant: Restaurant) => {
-    await updateRestaurant(restaurant.id, { visited: !restaurant.visited });
+  // Visites
+  const saveVisit = async (
+    restaurantId: string,
+    visitedOn: string | undefined,
+    rating: number | undefined,
+    notes: string,
+    attendeeIds: string[],
+    shared: boolean,
+    visitId?: string,
+  ) => {
+    if (!uid) return false;
+    const { error } = await supabase.rpc('save_visit', {
+      p_restaurant_id: restaurantId,
+      p_visited_on: visitedOn ?? null,
+      p_rating: rating ?? null,
+      p_notes: notes,
+      p_attendees: attendeeIds,
+      p_shared: shared,
+      p_visit_id: visitId ?? null,
+    });
+    if (error) {
+      fail('saveVisit', error);
+      return false;
+    }
+    await fetchRestaurants();
+    return true;
+  };
+
+  const deleteVisit = async (visitId: string) => {
+    if (!uid) return;
+    const { error } = await supabase.rpc('delete_visit', { p_visit_id: visitId });
+    if (error) fail('deleteVisit', error);
+    else await fetchRestaurants();
   };
 
   // CRUD Wishlist
@@ -223,7 +264,7 @@ export function useRealtimeData() {
     try {
       if (!(await updateWishlistItem(wishlistItem.id, { status: 'visited' }))) return;
 
-      const created = await insertRestaurant({
+      const newId = await insertRestaurant({
         name: wishlistItem.restaurantName,
         cuisine: wishlistItem.cuisine || '',
         priceRange: wishlistItem.priceRange || '€€',
@@ -231,10 +272,14 @@ export function useRealtimeData() {
         link: wishlistItem.link || '',
         instagram: wishlistItem.instagram || '',
         rating: 4.5,
-        visited: true,
         favorite: false,
       });
-      if (!created) await updateWishlistItem(wishlistItem.id, { status: wishlistItem.status });
+      if (!newId) {
+        await updateWishlistItem(wishlistItem.id, { status: wishlistItem.status });
+        return;
+      }
+      // Crea una visita d'avui amb l'usuari com a assistent.
+      await saveVisit(newId, new Date().toISOString().slice(0, 10), undefined, '', [uid], true);
     } finally {
       convertingRef.current.delete(wishlistItem.id);
     }
@@ -300,7 +345,8 @@ export function useRealtimeData() {
     updateRestaurant,
     deleteRestaurant,
     toggleFavorite,
-    toggleVisited,
+    saveVisit,
+    deleteVisit,
     addWishlistItem,
     updateWishlistItem,
     deleteWishlistItem,

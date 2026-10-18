@@ -5,6 +5,7 @@ select no_plan();
 
 -- ------------------------------------------------------------ Esquema
 select hasnt_column('public', 'restaurants', 'tags', 'els restaurants ja no tenen etiquetes');
+select hasnt_column('public', 'restaurants', 'visited', 'el booleà visited ha estat substituït per restaurant_visits');
 
 -- ------------------------------------------------------------ Dades de prova
 -- A = alice (propietària de G1), B = bob (membre de G1), C = carol (propietària de G2, aliena a G1)
@@ -381,6 +382,192 @@ select is((select count(*)::int from public.profiles where id = '00000000-0000-0
           'delete_my_account esborra el seu perfil');
 select is((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-00000000000d'), 1,
           'delete_my_account no toca els altres usuaris');
+
+-- ------------------------------------------------------------ Visites (com a Alice, propietària de G1)
+-- (carol s'ha afegit a G1 i alice ara és de nou propietària; reutilitzem el restaurant G1 resto)
+-- Cal refer la sessió perquè alice va ser esborrada a les proves d'esborrat.
+-- Nota: les proves de visites s'executen sobre un estat de BD posterior a l'esborrat de comptes,
+-- de manera que G1 és de carol (nova owner). Creem un nou restaurant per a les proves de visites.
+
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000a1', 'alice2@test.dev', '{"full_name":"Alice2"}'),
+  ('00000000-0000-0000-0000-0000000000b1', 'bob2@test.dev', '{"full_name":"Bob2"}');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1'),
+  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b1');
+
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000001',
+   'Visites test', '00000000-0000-0000-0000-0000000000a1');
+
+-- ---- Com a Alice2 (membre de G1)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+set local role authenticated;
+
+-- Pot registrar una visita grupal
+select lives_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date, 4.0, 'Molt bé!',
+    array['00000000-0000-0000-0000-0000000000a1'::uuid], true, null)
+$$, 'alice2 pot registrar una visita grupal');
+
+-- Visita privada d'alice2
+select lives_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date - 7, 3.5, 'Privada',
+    '{}'::uuid[], false, null)
+$$, 'alice2 pot registrar una visita privada');
+
+-- Comprova que s'han creat les dues visites
+select is((select count(*)::int from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000010'), 2,
+          'hi ha dues visites al restaurant de prova');
+
+-- No es pot escriure a la taula directament
+select throws_ok($$
+  insert into public.restaurant_visits (restaurant_id, group_id, created_by)
+  values ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000001',
+          '00000000-0000-0000-0000-0000000000a1')
+$$, '42501', null, 'no es pot inserir a restaurant_visits directament des del client');
+
+-- La visita grupal genera una alerta restaurant_reviewed
+select is((select count(*)::int from public.alerts
+           where group_id = '10000000-0000-0000-0000-000000000001'
+             and type = 'restaurant_reviewed'
+             and message like '%"Visites test"%'), 2,
+          'les dues visites han generat alertes restaurant_reviewed');
+
+reset role;
+
+-- ---- Com a Bob2 (membre de G1)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', true);
+set local role authenticated;
+
+-- Bob2 veu les dues visites (inclosa la privada d'alice2)
+select is((select count(*)::int from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000010'), 2,
+          'bob2 veu totes dues visites (inclosa la privada d''alice2)');
+
+-- Bob2 pot editar la visita grupal d'alice2
+select lives_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date, 4.5, 'Actualitzat per bob2',
+    array['00000000-0000-0000-0000-0000000000b1'::uuid], true,
+    (select id from public.restaurant_visits
+     where restaurant_id = '20000000-0000-0000-0000-000000000010'
+       and shared = true limit 1))
+$$, 'bob2 pot editar la visita grupal d''alice2');
+
+-- Bob2 no pot editar la visita privada d'alice2
+select throws_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date, 2.0, 'Intent de hackear',
+    '{}'::uuid[], false,
+    (select id from public.restaurant_visits
+     where restaurant_id = '20000000-0000-0000-0000-000000000010'
+       and shared = false limit 1))
+$$, 'P0001', null, 'bob2 no pot editar la visita privada d''alice2 (atac visita privada)');
+
+-- Bob2 no pot canviar shared de la visita privada d'alice2
+select throws_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date, 2.0, 'Intent canviar shared',
+    '{}'::uuid[], true,
+    (select id from public.restaurant_visits
+     where restaurant_id = '20000000-0000-0000-0000-000000000010'
+       and shared = false limit 1))
+$$, 'P0001', null, 'bob2 no pot canviar shared d''una visita privada d''alice2');
+
+-- Assistent fora del grup
+select throws_ok($$
+  select public.save_visit(
+    '20000000-0000-0000-0000-000000000010'::uuid,
+    current_date, 3.0, '',
+    array['00000000-0000-0000-0000-00000000000d'::uuid], true, null)
+$$, 'P0001', null, 'no es pot posar com a assistent algú que no és membre del grup');
+
+reset role;
+
+-- ---- Carol (nova owner de G1) no veu el restaurant personal d'alice2
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
+set local role authenticated;
+reset role;
+
+-- Esborrar el restaurant esborra les visites
+delete from public.restaurants where id = '20000000-0000-0000-0000-000000000010';
+select is((select count(*)::int from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000010'), 0,
+          'esborrar el restaurant esborra les seves visites (cascade)');
+
+-- move_to_group arrossega les visites; copy_to_groups no les copia
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000011', null, 'Moure amb visites', '00000000-0000-0000-0000-0000000000a1');
+insert into public.restaurant_visits (restaurant_id, group_id, created_by)
+values ('20000000-0000-0000-0000-000000000011', null, '00000000-0000-0000-0000-0000000000a1');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+set local role authenticated;
+select lives_ok($$
+  select public.move_to_group('restaurant', '20000000-0000-0000-0000-000000000011',
+                               '10000000-0000-0000-0000-000000000001')
+$$, 'alice2 mou un restaurant personal amb visites a G1');
+select is((select group_id from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000011'),
+          '10000000-0000-0000-0000-000000000001'::uuid,
+          'move_to_group arrossega les visites al grup nou');
+
+-- copy_to_groups: les visites no es copien
+select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000011',
+                                         array['10000000-0000-0000-0000-000000000002']::uuid[])), 0,
+          'alice2 no pot copiar a G2 (no és membre)');
+reset role;
+
+-- ------------------------------------------------------------ Visites a l'espai personal
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+set local role authenticated;
+
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000012', null, 'Personal visites', '00000000-0000-0000-0000-0000000000a1');
+select lives_ok($$
+  select public.save_visit('20000000-0000-0000-0000-000000000012'::uuid,
+    current_date, 4.0, '', '{}'::uuid[], true, null)
+$$, 'alice2 pot registrar una visita al seu espai personal');
+
+-- Afegir alice2 com a assistent al seu propi restaurant personal és vàlid
+select lives_ok($$
+  select public.save_visit('20000000-0000-0000-0000-000000000012'::uuid,
+    current_date, 4.0, '', array['00000000-0000-0000-0000-0000000000a1'::uuid], true, null)
+$$, 'a l''espai personal alice2 es pot afegir ella mateixa com a assistent');
+
+-- Un altre usuari no pot constar com a assistent a l'espai personal d'alice2
+select throws_ok($$
+  select public.save_visit('20000000-0000-0000-0000-000000000012'::uuid,
+    current_date, 4.0, '', array['00000000-0000-0000-0000-0000000000b1'::uuid], true, null)
+$$, 'P0001', null, 'a l''espai personal no es pot afegir un altre usuari com a assistent');
+
+-- Bob2 no veu ni pot modificar les visites de l'espai personal d'alice2
+select is((select count(*)::int from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000012'), 2,
+          'alice2 veu les seves visites personals');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', true);
+set local role authenticated;
+select is((select count(*)::int from public.restaurant_visits
+           where restaurant_id = '20000000-0000-0000-0000-000000000012'), 0,
+          'bob2 no veu les visites personals d''alice2');
+reset role;
 
 select * from finish();
 rollback;

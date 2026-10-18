@@ -21,6 +21,21 @@ export interface Group {
   updatedAt?: string;
 }
 
+export interface Visit {
+  id: string;
+  restaurantId: string;
+  groupId: string | null;
+  visitedOn?: string; // ISO date string, undefined = data desconeguda
+  rating?: number;
+  notes?: string;
+  shared: boolean; // true = grupal, false = privada
+  attendeeIds: string[];
+  createdBy?: string;
+  createdByName?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -36,8 +51,8 @@ export interface Restaurant {
   groupId: string | null; // null = espai personal
   createdBy: string;
   createdByName?: string;
-  visited?: boolean;
   favorite?: boolean;
+  visits: Visit[];
   createdAt?: string;
   updatedAt?: string;
 }

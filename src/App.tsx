@@ -17,8 +17,9 @@ import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { StatTiles } from './components/StatTiles';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
-import { Restaurant, WishlistItem } from './types';
-import { instagramUrl, isInstagramHandle } from './utils/restaurantFields';
+import { Restaurant, Visit, WishlistItem } from './types';
+import { instagramUrl, isInstagramHandle, isVisited } from './utils/restaurantFields';
+import { VisitModal } from './components/VisitModal';
 import {
   Utensils,
   BookmarkPlus,
@@ -62,7 +63,8 @@ function MainApp() {
     updateRestaurant,
     deleteRestaurant,
     toggleFavorite,
-    toggleVisited,
+    saveVisit,
+    deleteVisit,
     addWishlistItem,
     updateWishlistItem,
     deleteWishlistItem,
@@ -88,6 +90,8 @@ function MainApp() {
     | { mode: 'copy' | 'move'; type: 'restaurant' | 'wishlist'; id: string; name: string }
     | null
   >(null);
+  // Modal de visita: { restaurant, visit? (undefined = nova visita) }
+  const [visitTarget, setVisitTarget] = useState<{ restaurant: Restaurant; visit?: Visit } | null>(null);
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState('');
@@ -130,8 +134,8 @@ function MainApp() {
 
     if (!matchesSearch) return false;
     if (filterFavorite && !r.favorite) return false;
-    if (filterVisited === 'visited' && !r.visited) return false;
-    if (filterVisited === 'not_visited' && r.visited) return false;
+    if (filterVisited === 'visited' && !isVisited(r)) return false;
+    if (filterVisited === 'not_visited' && isVisited(r)) return false;
     if (selectedCuisine !== 'Tots' && r.cuisine !== selectedCuisine) return false;
     return true;
   });
@@ -396,9 +400,9 @@ function MainApp() {
                               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono">
                                 {res.priceRange || '—'}
                               </span>
-                              {res.visited && (
+                              {isVisited(res) && (
                                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
-                                  <Check className="w-2.5 h-2.5" /> Visitat
+                                  <Check className="w-2.5 h-2.5" /> {res.visits.length === 1 ? '1 visita' : `${res.visits.length} visites`}
                                 </span>
                               )}
                             </div>
@@ -461,13 +465,9 @@ function MainApp() {
                             </a>
                           )}
                           <button
-                            onClick={() => toggleVisited(res)}
-                            className={`p-1.5 rounded-lg text-xs font-semibold transition ${
-                              res.visited
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                            }`}
-                            title={res.visited ? 'Marcar com a no visitat' : 'Marcar com a visitat'}
+                            onClick={() => setVisitTarget({ restaurant: res })}
+                            className="p-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white hover:bg-emerald-700"
+                            title="Registrar visita"
                           >
                             <Check className="w-3.5 h-3.5" />
                           </button>
@@ -693,7 +693,7 @@ function MainApp() {
                   <div className="text-xs text-stone-400">Restaurants</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-black text-amber-400">{restaurants.filter((r) => r.visited).length}</div>
+                  <div className="text-2xl font-black text-amber-400">{restaurants.filter(isVisited).length}</div>
                   <div className="text-xs text-stone-400">Ja visitats</div>
                 </div>
                 <div>
@@ -749,7 +749,7 @@ function MainApp() {
       <AddRestaurantModal
         isOpen={showAddRestaurant}
         onClose={() => setShowAddRestaurant(false)}
-        onSave={addRestaurant}
+        onSave={(data, createVisitToday) => addRestaurant(data, createVisitToday)}
       />
 
       <AddWishlistModal
@@ -763,8 +763,9 @@ function MainApp() {
         onClose={() => setSelectedRestaurantId(null)}
         onEdit={setEditingRestaurant}
         onToggleFavorite={toggleFavorite}
-        onToggleVisited={toggleVisited}
         onDelete={deleteRestaurant}
+        onRegisterVisit={(r, v) => setVisitTarget({ restaurant: r, visit: v })}
+        onDeleteVisit={deleteVisit}
         onCopyToGroup={(r) => {
           setSelectedRestaurantId(null);
           setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
@@ -781,7 +782,7 @@ function MainApp() {
         restaurant={editingRestaurant}
         onClose={() => setEditingRestaurant(null)}
         onSave={async (data) => {
-          if (editingRestaurant) await updateRestaurant(editingRestaurant.id, data);
+          if (editingRestaurant) await updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>);
         }}
       />
 
@@ -811,6 +812,13 @@ function MainApp() {
       <ProfileModal
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
+      />
+
+      <VisitModal
+        restaurant={visitTarget?.restaurant ?? null}
+        visit={visitTarget?.visit}
+        onClose={() => setVisitTarget(null)}
+        onSave={saveVisit}
       />
 
       <ErrorToast message={dataError} onClose={clearError} />

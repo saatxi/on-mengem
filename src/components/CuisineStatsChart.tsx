@@ -11,6 +11,7 @@ import {
   Cell
 } from 'recharts';
 import { Restaurant } from '../types';
+import { isVisited } from '../utils/restaurantFields';
 import { Utensils, Award, CheckCircle, TrendingUp, Flame } from 'lucide-react';
 
 interface Props {
@@ -54,9 +55,8 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
         };
       }
       cuisineMap[cuisine].total += 1;
-      if (r.visited) {
-        cuisineMap[cuisine].visited += 1;
-      }
+      // «Vegades visitat» suma les visites reals de cada restaurant.
+      cuisineMap[cuisine].visited += r.visits.length;
       if (r.favorite) {
         cuisineMap[cuisine].favorites += 1;
       }
@@ -87,7 +87,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
     return sorted[0].favorites > 0 ? sorted[0] : null;
   }, [chartData]);
 
-  const totalVisited = restaurants.filter((r) => r.visited).length;
+  const totalVisited = restaurants.filter(isVisited).length;
 
   if (restaurants.length === 0) {
     return (

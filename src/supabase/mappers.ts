@@ -1,4 +1,4 @@
-import { Alert, Group, Restaurant, UserProfile, WishlistItem } from '../types';
+import { Alert, Group, Restaurant, UserProfile, Visit, WishlistItem } from '../types';
 
 // Les files de Postgres són snake_case; l'app treballa en camelCase.
 type Row = Record<string, any>;
@@ -28,6 +28,21 @@ export const toGroup = (r: Row): Group => ({
   updatedAt: r.updated_at,
 });
 
+export const toVisit = (r: Row): Visit => ({
+  id: r.id,
+  restaurantId: r.restaurant_id,
+  groupId: r.group_id ?? null,
+  visitedOn: orUndef(r.visited_on),
+  rating: r.rating == null ? undefined : Number(r.rating),
+  notes: orUndef(r.notes),
+  shared: r.shared ?? true,
+  attendeeIds: (r.visit_attendees ?? []).map((a: Row) => a.user_id),
+  createdBy: orUndef(r.created_by),
+  createdByName: orUndef(r.created_by_name),
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+});
+
 export const toRestaurant = (r: Row): Restaurant => ({
   id: r.id,
   name: r.name,
@@ -43,8 +58,16 @@ export const toRestaurant = (r: Row): Restaurant => ({
   groupId: r.group_id ?? null,
   createdBy: r.created_by,
   createdByName: orUndef(r.created_by_name),
-  visited: r.visited,
   favorite: r.favorite,
+  visits: (r.restaurant_visits ?? [])
+    .map(toVisit)
+    .sort((a: Visit, b: Visit) => {
+      // Visites sense data al final, ordenades per created_at descendent
+      if (!a.visitedOn && !b.visitedOn) return (b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1;
+      if (!a.visitedOn) return 1;
+      if (!b.visitedOn) return -1;
+      return b.visitedOn > a.visitedOn ? 1 : -1;
+    }),
   createdAt: r.created_at,
   updatedAt: r.updated_at,
 });
@@ -83,7 +106,7 @@ export const restaurantToRow = (d: Partial<Restaurant>): Row => {
   const m: Record<string, string> = {
     name: 'name', cuisine: 'cuisine', priceRange: 'price_range', address: 'address',
     city: 'city', phone: 'phone', rating: 'rating', notes: 'notes', link: 'link',
-    instagram: 'instagram', visited: 'visited', favorite: 'favorite',
+    instagram: 'instagram', favorite: 'favorite',
   };
   return pick(d, m);
 };
