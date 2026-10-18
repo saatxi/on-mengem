@@ -585,7 +585,7 @@ function MainApp() {
                               <span className="truncate">{item.address}</span>
                             </div>
                             <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([item.restaurantName, item.address].filter(Boolean).join(', '))}`}
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(item.address)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               onClick={(e) => e.stopPropagation()}

@@ -69,7 +69,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   };
 
   const mapsQuery = encodeURIComponent(
-    [restaurant.name, restaurant.address, restaurant.city].filter(Boolean).join(', ')
+    [restaurant.address, restaurant.city].filter(Boolean).join(', ')
   );
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
