@@ -137,7 +137,7 @@ supabase db push
 ```
 Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat al projecte remot.
 
-> **Per buidar la BD i tornar a aplicar des de zero:** ves al SQL Editor del Dashboard, executa `drop schema public cascade; create schema public;` i torna a fer `supabase db push`.
+> **Per buidar la BD i tornar a aplicar des de zero:** `supabase db reset --linked`. Esborra totes les dades i torna a aplicar les migracions. No facis servir `drop schema public cascade; create schema public;`: l'esquema nou no té els permisos per defecte de Supabase (`anon`, `authenticated`) i l'app falla amb `permission denied for schema public`. A més, `supabase db push` no torna a aplicar les migracions que ja consten com a aplicades.
 
 ---
 
@@ -151,6 +151,7 @@ Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat a
 | Redirigeix a una web equivocada | *Site URL* mal configurada | Corregeix-la a la part D |
 | "Falten VITE_SUPABASE_URL…" a la consola | Falta `.env` o no has reiniciat el servidor | Crea el `.env` i reinicia |
 | El client no connecta | La URL acaba en `/rest/v1/` | Treu aquest final (E1.4) |
+| `permission denied for schema public` (42501) | S'ha recreat l'esquema `public` a mà i ha perdut els permisos per defecte | `supabase db reset --linked`, o restaura els `grant` sobre l'esquema |
 
 ## Quan publiquis l'app a Cloudflare
 
