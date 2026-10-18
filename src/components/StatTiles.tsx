@@ -1,6 +1,7 @@
 import React from 'react';
 import { UtensilsCrossed, CheckCircle2, Star, Heart } from 'lucide-react';
 import { Restaurant } from '../types';
+import { isVisited } from '../utils/restaurantFields';
 
 interface Props {
   restaurants: Restaurant[];
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export const StatTiles: React.FC<Props> = ({ restaurants, wishlistCount }) => {
-  const visitedCount = restaurants.filter((r) => r.visited).length;
+  const visitedCount = restaurants.filter(isVisited).length;
   const ratedRestaurants = restaurants.filter((r) => r.rating != null && r.rating > 0);
   const avgRating =
     ratedRestaurants.length > 0
