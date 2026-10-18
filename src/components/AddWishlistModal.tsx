@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare, Instagram } from 'lucide-react';
+import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare, Instagram, MapPin } from 'lucide-react';
 import { WishlistItem } from '../types';
 import {
   CUISINES,
@@ -19,6 +19,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
   const [cuisine, setCuisine] = useState('Mediterrània');
   const [priceRange, setPriceRange] = useState('10-20 €');
   const [recommendedBy, setRecommendedBy] = useState('');
+  const [address, setAddress] = useState('');
   const [notes, setNotes] = useState('');
   const [link, setLink] = useState('');
   const [instagram, setInstagram] = useState('');
@@ -37,6 +38,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         cuisine,
         priceRange,
         recommendedBy: recommendedBy.trim().slice(0, 80),
+        address: address.trim().slice(0, 200),
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
         instagram: toInstagramHandle(instagram),
@@ -125,6 +127,21 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
               onChange={(e) => setRecommendedBy(e.target.value)}
               placeholder="Ex. El meu cosí, Guia Michelin, TikTok..."
               maxLength={80}
+              className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-amber-500 outline-hidden"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-stone-400" />
+              Adreça (opcional)
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Ex. Carrer de Provença 88, Barcelona"
+              maxLength={200}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-amber-500 outline-hidden"
             />
           </div>

@@ -66,6 +66,7 @@ export interface WishlistItem {
   priceRange?: string;
   recommendedBy?: string;
   notes?: string;
+  address?: string;
   link?: string;
   instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal
