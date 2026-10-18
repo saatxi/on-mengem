@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, Phone, DollarSign, FileText, Link2, Instagram } from 'lucide-react';
+import { X, Star, Utensils, MapPin, DollarSign, FileText, Link2, Instagram } from 'lucide-react';
 import { Restaurant } from '../types';
 import {
   CUISINES,
@@ -24,9 +24,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [name, setName] = useState(restaurant?.name ?? '');
   const [cuisine, setCuisine] = useState(CUISINES.includes(initialCuisine) ? initialCuisine : '');
   const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '10-20 €');
-  const [city, setCity] = useState(restaurant?.city ?? '');
   const [address, setAddress] = useState(restaurant?.address ?? '');
-  const [phone, setPhone] = useState(restaurant?.phone ?? '');
   const [rating, setRating] = useState<number | null>(restaurant?.rating ?? null);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
@@ -49,9 +47,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           name: name.trim().slice(0, 100),
           cuisine,
           priceRange,
-          city: city.trim().slice(0, 80),
           address: address.trim().slice(0, 200),
-          phone: phone.trim().slice(0, 30),
           rating: rating ?? undefined,
           notes: notes.trim().slice(0, 500),
           link: link.trim().slice(0, 300),
@@ -138,47 +134,17 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             </div>
           </div>
 
-          {/* Ubicació */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-stone-400" />
-                Població / Barri
-              </label>
-              <input
-                type="text"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                placeholder="Ex. Barcelona / Born, Girona..."
-                maxLength={80}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-                <Phone className="w-3.5 h-3.5 text-stone-400" />
-                Telèfon reserves
-              </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="Ex. 93 123 45 67"
-                maxLength={30}
-                className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
-              />
-            </div>
-          </div>
-
+          {/* Adreça */}
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-              Adreça exacta (opcional)
+            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 text-stone-400" />
+              Adreça (opcional)
             </label>
             <input
               type="text"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="Ex. Carrer de Provença, 120"
+              placeholder="Ex. Carrer de Provença, 120, Barcelona"
               maxLength={200}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
             />

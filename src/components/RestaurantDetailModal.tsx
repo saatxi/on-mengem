@@ -3,7 +3,6 @@ import {
   X,
   Star,
   MapPin,
-  Phone,
   Calendar,
   ExternalLink,
   Trash2,
@@ -68,10 +67,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     }
   };
 
-  const mapsQuery = encodeURIComponent(
-    [restaurant.name, restaurant.address, restaurant.city].filter(Boolean).join(', ')
-  );
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(restaurant.address ?? '')}`;
 
   const formatDate = (iso?: string) =>
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
@@ -121,12 +117,6 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               <span className="text-white font-bold text-sm">{restaurant.rating?.toFixed(1) || '4.0'}</span>
               <span>/ 5</span>
             </div>
-            {restaurant.city && (
-              <div className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
-                <span>{restaurant.city}</span>
-              </div>
-            )}
             {avgRating != null && (
               <div className="flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 text-amber-300" />
@@ -203,20 +193,6 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </div>
             )}
 
-            {restaurant.phone && (
-              <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200/80">
-                <div className="flex items-center gap-2.5 text-stone-700">
-                  <Phone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span className="text-xs font-mono font-medium">{restaurant.phone}</span>
-                </div>
-                <a
-                  href={`tel:${restaurant.phone}`}
-                  className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition"
-                >
-                  Trucar
-                </a>
-              </div>
-            )}
           </div>
 
           {/* Metadades */}
