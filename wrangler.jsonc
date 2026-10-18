@@ -1,0 +1,7 @@
+{
+    "vars": {
+        "NODE_VERSION": "24",
+        "VITE_SUPABASE_ANON_KEY": "sb_publishable_7UJKVEXkApSkELVtr-BSCA_SiAT5oRk",
+        "VITE_SUPABASE_URL": "https://ifgtrhqcnsrxafcoagxw.supabase.co"
+    }
+}
