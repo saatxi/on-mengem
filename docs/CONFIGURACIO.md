@@ -100,6 +100,47 @@ Obre `http://localhost:3000` i prem **Continua amb Google**. Si has de canviar e
 
 ---
 
+## Aplicar les migracions via CLI (alternativa al SQL Editor)
+
+Si prefereixes gestionar l'esquema des de la terminal en lloc del SQL Editor del Dashboard, pots fer-ho amb la CLI de Supabase.
+
+**Prerequisit:** tenir la CLI instal·lada.
+```bash
+npm install -g supabase
+```
+
+**1. Inicia sessió:**
+```bash
+supabase login
+```
+S'obrirà el navegador per autenticar-te. Un cop fet, la CLI guardarà el token localment.
+
+**2. Obtén el `project-ref`:**
+
+Ves a **Dashboard → Project Settings → General**. El `project-ref` és la cadena de la URL: `supabase.com/dashboard/project/**abcdefghijklmnop**`.
+
+**3. Enllaça el projecte local:**
+```bash
+supabase link --project-ref <project-ref>
+```
+Et demanarà la contrasenya de la base de dades (la que vas posar en crear el projecte). Si no la recordes, la pots restablir a **Project Settings → Database → Reset database password**.
+
+**4. Comprova l'enllaç:**
+```bash
+supabase status
+```
+Ha de mostrar el `project-ref` i la URL remota.
+
+**5. Aplica les migracions:**
+```bash
+supabase db push
+```
+Aplica tots els fitxers de `supabase/migrations/` que encara no s'han executat al projecte remot.
+
+> **Per buidar la BD i tornar a aplicar des de zero:** ves al SQL Editor del Dashboard, executa `drop schema public cascade; create schema public;` i torna a fer `supabase db push`.
+
+---
+
 ## Errors habituals
 
 | Error | Causa | Solució |
