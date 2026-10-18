@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, Smartphone, X, CheckCircle2 } from 'lucide-react';
 
@@ -39,9 +40,16 @@ export const PWAInstallButton: React.FC = () => {
           <span>Instal·lar</span>
         </button>
 
-        {showIOSGuide && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-            <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl border border-stone-200">
+        {/* Portal a body: el backdrop-filter del header faria que el fixed quedés confinat dins seu */}
+        {showIOSGuide && createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+            onClick={() => setShowIOSGuide(false)}
+          >
+            <div
+              className="w-full max-w-sm max-h-full overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-stone-200"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white font-bold text-sm">
@@ -84,7 +92,8 @@ export const PWAInstallButton: React.FC = () => {
                 Entesos
               </button>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </>
     );
