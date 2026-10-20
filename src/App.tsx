@@ -32,6 +32,7 @@ import {
   MapPin,
   CheckCircle,
   ExternalLink,
+  Globe,
   Instagram,
   Share2,
   Copy,
@@ -574,7 +575,7 @@ function MainApp() {
                                 className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
                                 title="Obrir enllaç"
                               >
-                                <ExternalLink className="w-4 h-4" />
+                                <Globe className="w-4 h-4" />
                               </a>
                             )}
                           </div>
