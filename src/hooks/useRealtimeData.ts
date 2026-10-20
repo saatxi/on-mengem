@@ -258,7 +258,15 @@ export function useRealtimeData() {
   // Primer es marca el desitjat com a visitat i, si el restaurant no es pot crear, es desfà;
   // així un error mai deixa un restaurant creat amb el desitjat encara pendent (duplicats en reintentar).
   const convertingRef = useRef<Set<string>>(new Set());
-  const convertWishlistToRestaurant = async (wishlistItem: WishlistItem) => {
+  interface VisitOverride {
+    visitedOn: string | undefined;
+    rating: number | undefined;
+    notes: string;
+    attendeeIds: string[];
+    shared: boolean;
+  }
+
+  const convertWishlistToRestaurant = async (wishlistItem: WishlistItem, visitOverride?: VisitOverride) => {
     if (!uid || !userProfile || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
     convertingRef.current.add(wishlistItem.id);
     try {
@@ -278,8 +286,14 @@ export function useRealtimeData() {
         await updateWishlistItem(wishlistItem.id, { status: wishlistItem.status });
         return;
       }
-      // Crea una visita d'avui amb l'usuari com a assistent.
-      await saveVisit(newId, new Date().toISOString().slice(0, 10), undefined, '', [uid], true);
+      await saveVisit(
+        newId,
+        visitOverride?.visitedOn ?? new Date().toISOString().slice(0, 10),
+        visitOverride?.rating,
+        visitOverride?.notes ?? '',
+        visitOverride?.attendeeIds ?? [uid],
+        visitOverride?.shared ?? true,
+      );
     } finally {
       convertingRef.current.delete(wishlistItem.id);
     }

@@ -95,6 +95,8 @@ function MainApp() {
   >(null);
   // Modal de visita: { restaurant, visit? (undefined = nova visita) }
   const [visitTarget, setVisitTarget] = useState<{ restaurant: Restaurant; visit?: Visit } | null>(null);
+  // Modal de conversió desitjat → restaurant
+  const [wishlistToConvert, setWishlistToConvert] = useState<WishlistItem | null>(null);
 
   // Filters state
   const [searchQuery, setSearchQuery] = useState('');
@@ -651,7 +653,7 @@ function MainApp() {
                           <strong className="text-[12px] text-stone-600">{item.userName || 'Membre'}</strong>
                           {item.status !== 'visited' && (
                             <button
-                              onClick={() => convertWishlistToRestaurant(item)}
+                              onClick={() => setWishlistToConvert(item)}
                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
                               title="Afegeix-lo directament a la llista de restaurants"
                             >
@@ -858,6 +860,25 @@ function MainApp() {
         visit={visitTarget?.visit}
         onClose={() => setVisitTarget(null)}
         onSave={saveVisit}
+      />
+
+      <VisitModal
+        restaurant={wishlistToConvert ? {
+          id: '__convert__',
+          name: wishlistToConvert.restaurantName,
+          cuisine: wishlistToConvert.cuisine,
+          priceRange: wishlistToConvert.priceRange,
+          groupId: wishlistToConvert.groupId,
+          createdBy: wishlistToConvert.userId,
+          visits: [],
+        } : null}
+        onClose={() => setWishlistToConvert(null)}
+        onSave={async (_id, visitedOn, rating, notes, attendeeIds, shared) => {
+          if (!wishlistToConvert) return false;
+          await convertWishlistToRestaurant(wishlistToConvert, { visitedOn, rating, notes, attendeeIds, shared });
+          setWishlistToConvert(null);
+          return true;
+        }}
       />
 
       <ErrorToast message={dataError} onClose={clearError} />
