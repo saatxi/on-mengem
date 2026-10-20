@@ -808,6 +808,7 @@ function MainApp() {
 
       {/* Modals */}
       <AddRestaurantModal
+        key={showAddRestaurant ? 'add-restaurant-open' : 'add-restaurant-closed'}
         isOpen={showAddRestaurant}
         onClose={() => setShowAddRestaurant(false)}
         onSave={(data, createVisitToday) => addRestaurant(data, createVisitToday)}

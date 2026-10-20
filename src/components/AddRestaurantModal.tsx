@@ -29,9 +29,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
-  // «Ja l'hem visitat» crea una visita d'avui en afegir el restaurant; no apareix en mode edició.
-  const [visitedToday, setVisitedToday] = useState(false);
-  const [favorite, setFavorite] = useState(restaurant?.favorite ?? false);
+  const visitedToday = false;
+  const favorite = restaurant?.favorite ?? false;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -242,33 +241,6 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               maxLength={500}
               className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
             />
-          </div>
-
-          {/* Checkboxes */}
-          <div className="flex items-center gap-6 pt-1">
-            {!isEditing && (
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700">
-                <input
-                  type="checkbox"
-                  checked={visitedToday}
-                  onChange={(e) => setVisitedToday(e.target.checked)}
-                  className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
-                />
-                <span>Ja l'hem visitat</span>
-              </label>
-            )}
-
-            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-stone-700">
-              <input
-                type="checkbox"
-                checked={favorite}
-                onChange={(e) => setFavorite(e.target.checked)}
-                className="w-4 h-4 rounded text-orange-600 focus:ring-orange-500"
-              />
-              <span className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-400" /> Preferit del grup
-              </span>
-            </label>
           </div>
 
           {/* Botons */}
