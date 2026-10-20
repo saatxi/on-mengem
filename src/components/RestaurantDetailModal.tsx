@@ -6,7 +6,6 @@ import {
   Calendar,
   ExternalLink,
   Trash2,
-  CheckCircle,
   Share2,
   Copy,
   ArrowRightLeft,
@@ -19,7 +18,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { Restaurant, Visit } from '../types';
-import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl } from '../utils/restaurantFields';
+import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 
@@ -68,7 +67,6 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   };
 
   const link = safeHttpUrl(restaurant.link);
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([restaurant.name, restaurant.address].filter(Boolean).join(', '))}`;
 
   const formatDate = (iso?: string) =>
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
@@ -152,7 +150,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                   <span className="text-xs font-medium">{restaurant.address}</span>
                 </div>
                 <a
-                  href={mapsUrl}
+                  href={mapsUrl(restaurant.name, restaurant.address)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-3 py-1 bg-stone-700 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition flex-shrink-0"

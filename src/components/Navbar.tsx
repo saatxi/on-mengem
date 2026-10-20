@@ -13,7 +13,6 @@ import { Alert } from '../types';
 
 interface Props {
   alerts: Alert[];
-  onOpenAddRestaurant: () => void;
   onOpenCreateGroup: () => void;
   onOpenJoinGroup: () => void;
   onOpenProfile: () => void;
@@ -23,7 +22,6 @@ interface Props {
 
 export const Navbar: React.FC<Props> = ({
   alerts,
-  onOpenAddRestaurant,
   onOpenCreateGroup,
   onOpenJoinGroup,
   onOpenProfile,

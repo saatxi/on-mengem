@@ -155,13 +155,7 @@ export function useRealtimeData() {
     return rows.id as string;
   };
 
-  const addRestaurant = async (data: NewRestaurant, createVisitToday?: boolean) => {
-    const newId = await insertRestaurant(data);
-    if (newId && createVisitToday) {
-      await saveVisit(newId, localToday(), undefined, '', [uid!], true);
-    }
-    return newId !== null;
-  };
+  const addRestaurant = async (data: NewRestaurant) => (await insertRestaurant(data)) !== null;
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return false;

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Download, Smartphone, X, CheckCircle2 } from 'lucide-react';
+import { Download, Smartphone, X } from 'lucide-react';
 
 export const PWAInstallButton: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();

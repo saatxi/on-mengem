@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, DollarSign, FileText, Link2, Instagram } from 'lucide-react';
+import { X, Star, Utensils, MapPin, FileText, Link2, Instagram } from 'lucide-react';
 import { Restaurant } from '../types';
 import {
   CUISINES,
+  DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
   INSTAGRAM_INPUT_PATTERN,
+  PRICE_RANGES,
   toInstagramHandle,
 } from '../utils/restaurantFields';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>, createVisitToday?: boolean) => Promise<boolean>;
+  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
 }
@@ -23,14 +25,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
   const [name, setName] = useState(restaurant?.name ?? '');
   const [cuisine, setCuisine] = useState(CUISINES.includes(initialCuisine) ? initialCuisine : '');
-  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || '10-20 €');
+  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || DEFAULT_PRICE_RANGE);
   const [address, setAddress] = useState(restaurant?.address ?? '');
   const [rating, setRating] = useState<number | null>(restaurant?.rating ?? null);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
-  const visitedToday = false;
-  const favorite = restaurant?.favorite ?? false;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -51,9 +51,9 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           notes: notes.trim().slice(0, 500),
           link: link.trim().slice(0, 300),
           instagram: toInstagramHandle(instagram),
-          favorite,
+          // En editar no es toca el favorit: es commuta des de la targeta i el detall
+          ...(isEditing ? {} : { favorite: false }),
         },
-        !isEditing && visitedToday,
       );
       if (ok) onClose();
     } catch (err) {
@@ -126,7 +126,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
                 onChange={(e) => setPriceRange(e.target.value)}
                 className="w-full rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition px-3 py-2.5"
               >
-                {['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'].map((p) => (
+                {PRICE_RANGES.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>

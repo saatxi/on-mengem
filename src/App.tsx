@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
 import { Navbar } from './components/Navbar';
 import { WelcomeOnboarding } from './components/WelcomeOnboarding';
 import { AddRestaurantModal } from './components/AddRestaurantModal';
-import { AddWishlistModal } from './components/AddWishlistModal';
-import { EditWishlistModal } from './components/EditWishlistModal';
+import { WishlistModal } from './components/WishlistModal';
 import { RestaurantDetailModal } from './components/RestaurantDetailModal';
 import { CreateGroupModal } from './components/CreateGroupModal';
 import { JoinGroupModal } from './components/JoinGroupModal';
@@ -18,36 +17,13 @@ import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { StatTiles } from './components/StatTiles';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
+import { RestaurantCard } from './components/RestaurantCard';
+import { WishlistCard } from './components/WishlistCard';
+import { TabButton } from './components/TabButton';
 import { Restaurant, Visit, WishlistItem } from './types';
-import { instagramUrl, isInstagramHandle, isVisited, safeHttpUrl, visitAverage } from './utils/restaurantFields';
+import { isVisited } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
-import {
-  Utensils,
-  BookmarkPlus,
-  Users,
-  Bell,
-  Search,
-  Plus,
-  Star,
-  MapPin,
-  CheckCircle,
-  ExternalLink,
-  Globe,
-  Instagram,
-  Share2,
-  Copy,
-  Check,
-  ShieldCheck,
-  Clock,
-  Sparkles,
-  ArrowRight,
-  Filter,
-  CheckCircle2,
-  BarChart3,
-  Copy as CopyIcon,
-  ArrowRightLeft,
-  Pencil
-} from 'lucide-react';
+import { Utensils, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
 
@@ -171,7 +147,6 @@ function MainApp() {
       {/* Top Navbar */}
       <Navbar
         alerts={alerts}
-        onOpenAddRestaurant={() => setShowAddRestaurant(true)}
         onOpenCreateGroup={() => setShowCreateGroup(true)}
         onOpenJoinGroup={() => setShowJoinGroup(true)}
         onOpenProfile={() => setShowProfile(true)}
@@ -183,68 +158,39 @@ function MainApp() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
         {/* Navigation Tabs */}
         <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 p-1.5 bg-stone-200/70 rounded-2xl mb-6 max-w-full overflow-x-auto">
-          <button
+          <TabButton
+            icon={Utensils}
+            label={`Restaurants (${restaurants.length})`}
+            active={effectiveTab === 'restaurants'}
             onClick={() => setCurrentTab('restaurants')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-              effectiveTab === 'restaurants'
-                ? 'bg-white text-orange-600 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <Utensils className="w-4 h-4" />
-            <span>Restaurants ({restaurants.length})</span>
-          </button>
-
-          <button
+          />
+          <TabButton
+            icon={BookmarkPlus}
+            label={`Desitjats (${wishlist.length})`}
+            active={effectiveTab === 'wishlist'}
             onClick={() => setCurrentTab('wishlist')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-              effectiveTab === 'wishlist'
-                ? 'bg-white text-orange-600 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <BookmarkPlus className="w-4 h-4" />
-            <span>Desitjats ({wishlist.length})</span>
-          </button>
-
+          />
           {!isPersonal && (
-          <button
-            onClick={() => setCurrentTab('group')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-              effectiveTab === 'group'
-                ? 'bg-white text-orange-600 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span>Grup ({activeGroup?.memberUids?.length || 1})</span>
-          </button>
+            <TabButton
+              icon={Users}
+              label={`Grup (${activeGroup?.memberUids?.length || 1})`}
+              active={effectiveTab === 'group'}
+              onClick={() => setCurrentTab('group')}
+            />
           )}
-
-          <button
+          <TabButton
+            icon={BarChart3}
+            label="Gràfic de Cuines"
+            active={effectiveTab === 'stats'}
             onClick={() => setCurrentTab('stats')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-              effectiveTab === 'stats'
-                ? 'bg-white text-orange-600 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <BarChart3 className="w-4 h-4" />
-            <span>Gràfic de Cuines</span>
-          </button>
-
+          />
           {!isPersonal && (
-          <button
-            onClick={() => setCurrentTab('alerts')}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition whitespace-nowrap ${
-              effectiveTab === 'alerts'
-                ? 'bg-white text-orange-600 shadow-xs'
-                : 'text-stone-600 hover:text-stone-900'
-            }`}
-          >
-            <Bell className="w-4 h-4" />
-            <span>Activitat ({alerts.length})</span>
-          </button>
+            <TabButton
+              icon={Bell}
+              label={`Activitat (${alerts.length})`}
+              active={effectiveTab === 'alerts'}
+              onClick={() => setCurrentTab('alerts')}
+            />
           )}
         </div>
 
@@ -387,132 +333,15 @@ function MainApp() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredRestaurants.map((res) => {
-                  return (
-                    <div
-                      key={res.id}
-                      onClick={() => setSelectedRestaurantId(res.id)}
-                      className="group bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs hover:shadow-md hover:border-orange-200 transition flex flex-col justify-between cursor-pointer"
-                    >
-                      <div>
-                        {/* Top Header */}
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
-                                {res.cuisine || 'Restaurant'}
-                              </span>
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono">
-                                {res.priceRange || '—'}
-                              </span>
-                              {isVisited(res) && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
-                                  <Check className="w-2.5 h-2.5" /> {res.visits.length === 1 ? '1 visita' : `${res.visits.length} visites`}
-                                </span>
-                              )}
-                            </div>
-                            <h3 className="text-base font-bold text-stone-900 group-hover:text-orange-600 transition">
-                              {res.name}
-                            </h3>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            {isInstagramHandle(res.instagram) && (
-                              <a
-                                href={instagramUrl(res.instagram)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
-                                title={`Obrir @${res.instagram} a Instagram`}
-                              >
-                                <Instagram className="w-4 h-4" />
-                              </a>
-                            )}
-                            {safeHttpUrl(res.link) && (
-                              <a
-                                href={safeHttpUrl(res.link)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
-                                title="Obrir enllaç"
-                              >
-                                <Globe className="w-4 h-4" />
-                              </a>
-                            )}
-                            {/* Favorite toggle button */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleFavorite(res);
-                              }}
-                              className={`p-1.5 rounded-full transition ${
-                                res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-stone-400'
-                              }`}
-                              title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
-                            >
-                              <Star className={`w-4 h-4 ${res.favorite ? 'fill-amber-400' : ''}`} />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Valoració: mitjana de les visites o, si no n'hi ha, la del restaurant */}
-                        {(visitAverage(res) ?? res.rating) != null && (
-                          <div className="flex items-center gap-3 text-xs text-stone-500 mb-2.5">
-                            <div className="flex items-center gap-1">
-                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                              <span className="font-bold text-stone-800">{(visitAverage(res) ?? res.rating)!.toFixed(1)}</span>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Adreça + Maps */}
-                        {res.address && (
-                          <div className="flex items-center justify-between gap-2 text-xs text-stone-500 mb-2">
-                            <div className="flex items-center gap-1 min-w-0">
-                              <MapPin className="w-3 h-3 shrink-0" />
-                              <span className="truncate">{res.address}</span>
-                            </div>
-                            <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([res.name, res.address].filter(Boolean).join(', '))}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-[11px] font-bold rounded-lg transition shrink-0"
-                            >
-                              Maps
-                            </a>
-                          </div>
-                        )}
-
-                        {/* Notes preview */}
-                        {res.notes && (
-                          <p className="text-xs text-stone-600 line-clamp-2 italic mb-3 bg-stone-50/80 p-2 rounded-xl">
-                            "{res.notes}"
-                          </p>
-                        )}
-                      </div>
-
-                      {/* Card Footer */}
-                      <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-                        <span className="text-[11px] text-stone-400">
-                          Per: <strong className="text-stone-600">{res.createdByName || 'Membre'}</strong>
-                        </span>
-
-                        <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => setVisitTarget({ restaurant: res })}
-                            className="p-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white hover:bg-emerald-700"
-                            title="Registrar visita"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {filteredRestaurants.map((res) => (
+                  <RestaurantCard
+                    key={res.id}
+                    res={res}
+                    onOpen={(r) => setSelectedRestaurantId(r.id)}
+                    onToggleFavorite={toggleFavorite}
+                    onRegisterVisit={(r) => setVisitTarget({ restaurant: r })}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -561,142 +390,17 @@ function MainApp() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {wishlist.map((item) => {
-                  return (
-                    <div
-                      key={item.id}
-                      className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs hover:border-amber-300 transition flex flex-col justify-between"
-                    >
-                      <div>
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div>
-                            <div className="flex items-center gap-1.5 mb-1">
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800">
-                                {item.cuisine || 'Pendent'}
-                              </span>
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono">
-                                {item.priceRange || '—'}
-                              </span>
-                              {item.status === 'visited' && (
-                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                                  Ja provat!
-                                </span>
-                              )}
-                            </div>
-                            <h3 className="text-lg font-bold text-stone-900">{item.restaurantName}</h3>
-                          </div>
-
-                          <div className="flex items-center gap-1.5">
-                            {isInstagramHandle(item.instagram) && (
-                              <a
-                                href={instagramUrl(item.instagram)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
-                                title={`Obrir @${item.instagram} a Instagram`}
-                              >
-                                <Instagram className="w-4 h-4" />
-                              </a>
-                            )}
-                            {safeHttpUrl(item.link) && (
-                              <a
-                                href={safeHttpUrl(item.link)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
-                                title="Obrir enllaç"
-                              >
-                                <Globe className="w-4 h-4" />
-                              </a>
-                            )}
-                          </div>
-                        </div>
-
-                        {item.address && (
-                          <div className="flex items-center justify-between gap-2 text-xs text-stone-500 mb-2">
-                            <div className="flex items-center gap-1 min-w-0">
-                              <MapPin className="w-3 h-3 shrink-0" />
-                              <span className="truncate">{item.address}</span>
-                            </div>
-                            <a
-                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([item.restaurantName, item.address].filter(Boolean).join(', '))}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              onClick={(e) => e.stopPropagation()}
-                              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-[11px] font-bold rounded-lg transition shrink-0"
-                            >
-                              Maps
-                            </a>
-                          </div>
-                        )}
-
-                        {item.recommendedBy && (
-                          <div className="text-xs text-amber-900 font-medium bg-amber-50/70 p-2 rounded-xl mb-2.5">
-                            💡 <strong>Recomanació:</strong> {item.recommendedBy}
-                          </div>
-                        )}
-
-                        {item.notes && (
-                          <p className="text-xs text-stone-600 mb-3 italic">
-                            "{item.notes}"
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="pt-3 border-t border-stone-100 space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[11px] text-stone-400">Proposat per:</span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setShareTarget({ mode: 'copy', type: 'wishlist', id: item.id, name: item.restaurantName })}
-                              className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
-                              title="Copiar a un grup"
-                            >
-                              <CopyIcon className="w-3.5 h-3.5" />
-                            </button>
-                            {isPersonal && (
-                              <button
-                                onClick={() => setShareTarget({ mode: 'move', type: 'wishlist', id: item.id, name: item.restaurantName })}
-                                className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
-                                title="Moure a un grup"
-                              >
-                                <ArrowRightLeft className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                            <button
-                              onClick={() => setEditingWishlist(item)}
-                              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition"
-                              title="Editar"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (confirm('Vols eliminar aquest desitjat?')) deleteWishlistItem(item.id);
-                              }}
-                              className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <strong className="text-[12px] text-stone-600">{item.userName || 'Membre'}</strong>
-                          {item.status !== 'visited' && (
-                            <button
-                              onClick={() => setWishlistToConvert(item)}
-                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs"
-                              title="Afegeix-lo directament a la llista de restaurants"
-                            >
-                              <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>Visitat!</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                {wishlist.map((item) => (
+                  <WishlistCard
+                    key={item.id}
+                    item={item}
+                    onCopy={(w) => setShareTarget({ mode: 'copy', type: 'wishlist', id: w.id, name: w.restaurantName })}
+                    onMove={isPersonal ? (w) => setShareTarget({ mode: 'move', type: 'wishlist', id: w.id, name: w.restaurantName }) : undefined}
+                    onEdit={setEditingWishlist}
+                    onDelete={deleteWishlistItem}
+                    onMarkVisited={setWishlistToConvert}
+                  />
+                ))}
               </div>
             )}
           </div>
@@ -816,19 +520,22 @@ function MainApp() {
         key={showAddRestaurant ? 'add-restaurant-open' : 'add-restaurant-closed'}
         isOpen={showAddRestaurant}
         onClose={() => setShowAddRestaurant(false)}
-        onSave={(data, createVisitToday) => addRestaurant(data, createVisitToday)}
+        onSave={addRestaurant}
       />
 
-      <AddWishlistModal
+      <WishlistModal
+        key={showAddWishlist ? 'add-wishlist-open' : 'add-wishlist-closed'}
         isOpen={showAddWishlist}
         onClose={() => setShowAddWishlist(false)}
-        onAdd={addWishlistItem}
+        onSave={addWishlistItem}
       />
 
-      <EditWishlistModal
+      <WishlistModal
+        key={editingWishlist?.id ?? 'edit-wishlist'}
+        isOpen={!!editingWishlist}
         item={editingWishlist}
         onClose={() => setEditingWishlist(null)}
-        onSave={updateWishlistItem}
+        onSave={async (data) => (editingWishlist ? updateWishlistItem(editingWishlist.id, data) : false)}
       />
 
       <RestaurantDetailModal
@@ -927,7 +634,7 @@ function MainApp() {
   );
 }
 
-export default function App() {
+export function App() {
   return (
     <AuthProvider>
       <MainApp />

@@ -25,6 +25,9 @@ export const CUISINES = [
   'Vegetariana',
 ];
 
+export const PRICE_RANGES = ['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'];
+export const DEFAULT_PRICE_RANGE = '10-20 €';
+
 // Patró de l'input: «@usuari», «usuari» o un enllaç a instagram.com (compatible amb la bandera `v`)
 export const INSTAGRAM_INPUT_PATTERN =
   '\\s*(@?[A-Za-z0-9._]{1,30}|(https?://)?(www\\.)?instagram\\.com/[A-Za-z0-9._]{1,30}(/.*|\\?.*)?)\\s*';
@@ -43,6 +46,10 @@ export const isInstagramHandle = (value?: string): value is string =>
   !!value && /^[A-Za-z0-9._]{1,30}$/.test(value);
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`;
+
+// Cerca a Google Maps pel nom i, si n'hi ha, l'adreça
+export const mapsUrl = (name: string, address?: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([name, address].filter(Boolean).join(', '))}`;
 
 // Data d'avui (AAAA-MM-DD) en hora local; toISOString() la donaria en UTC i entre les 00:00 i les 02:00 seria ahir
 export const localToday = () => {

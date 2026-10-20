@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Utensils, CheckCircle2, BookmarkPlus, Users, ArrowRight } from 'lucide-react';
+import { Utensils, CheckCircle2, BookmarkPlus, Users } from 'lucide-react';
 
 export const WelcomeOnboarding: React.FC = () => {
   const { loginWithGoogle } = useAuth();

@@ -1,57 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { X, BookmarkPlus, Link2, UserCheck, Utensils, DollarSign, MessageSquare, Instagram, MapPin } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, BookmarkPlus, Link2, UserCheck, MessageSquare, Instagram, MapPin } from 'lucide-react';
 import { WishlistItem } from '../types';
 import {
   CUISINES,
+  DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
   INSTAGRAM_INPUT_PATTERN,
+  PRICE_RANGES,
   toInstagramHandle,
 } from '../utils/restaurantFields';
+
+export type WishlistFormData = Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>;
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
+  /** Retorna cert si s'ha desat; si no, el formulari es manté obert. */
+  onSave: (data: WishlistFormData) => Promise<boolean>;
+  // Si es passa, el formulari edita aquest desitjat en lloc de crear-ne un de nou
+  item?: WishlistItem | null;
 }
 
-export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
-  const [restaurantName, setRestaurantName] = useState('');
-  const [cuisine, setCuisine] = useState('Mediterrània');
-  const [priceRange, setPriceRange] = useState('10-20 €');
-  const [recommendedBy, setRecommendedBy] = useState('');
-  const [address, setAddress] = useState('');
-  const [notes, setNotes] = useState('');
-  const [link, setLink] = useState('');
-  const [instagram, setInstagram] = useState('');
+// L'estat inicial surt de `item`: el pare canvia la `key` per tornar a muntar el formulari net en cada obertura.
+export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }) => {
+  const isEditing = !!item;
+  const [restaurantName, setRestaurantName] = useState(item?.restaurantName ?? '');
+  const [cuisine, setCuisine] = useState(item?.cuisine || 'Mediterrània');
+  const [priceRange, setPriceRange] = useState(item?.priceRange || DEFAULT_PRICE_RANGE);
+  const [recommendedBy, setRecommendedBy] = useState(item?.recommendedBy ?? '');
+  const [address, setAddress] = useState(item?.address ?? '');
+  const [notes, setNotes] = useState(item?.notes ?? '');
+  const [link, setLink] = useState(item?.link ?? '');
+  const [instagram, setInstagram] = useState(item?.instagram ? `@${item.instagram}` : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleClose = () => { reset(); onClose(); };
-
-  useEffect(() => {
-    if (isOpen) {
-      setRestaurantName('');
-      setCuisine('Mediterrània');
-      setPriceRange('10-20 €');
-      setRecommendedBy('');
-      setAddress('');
-      setNotes('');
-      setLink('');
-      setInstagram('');
-    }
-  }, [isOpen]);
-
   if (!isOpen) return null;
-
-  const reset = () => {
-    setRestaurantName('');
-    setCuisine('Mediterrània');
-    setPriceRange('10-20 €');
-    setRecommendedBy('');
-    setAddress('');
-    setNotes('');
-    setLink('');
-    setInstagram('');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +42,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
 
     setIsSubmitting(true);
     try {
-      const ok = await onAdd({
+      const ok = await onSave({
         restaurantName: restaurantName.trim().slice(0, 100),
         cuisine,
         priceRange,
@@ -68,11 +51,10 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
         instagram: toInstagramHandle(instagram),
-        status: 'pending',
+        // En editar no es toca l'estat (pendent, planificat o visitat)
+        ...(isEditing ? {} : { status: 'pending' as const }),
       });
-      if (!ok) return;
-      reset();
-      onClose();
+      if (ok) onClose();
     } catch (err) {
       console.error(err);
     } finally {
@@ -87,10 +69,10 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         <div className="flex items-center justify-between px-6 py-4 bg-amber-500 text-white">
           <div className="flex items-center gap-2">
             <BookmarkPlus className="w-5 h-5" />
-            <h2 className="text-base font-bold">Proposar Lloc Desitjat</h2>
+            <h2 className="text-base font-bold">{isEditing ? 'Editar Desitjat' : 'Proposar Lloc Desitjat'}</h2>
           </div>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="p-1.5 rounded-full text-amber-100 hover:text-white hover:bg-amber-600 transition"
           >
             <X className="w-5 h-5" />
@@ -100,7 +82,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-              Nom del restaurant pendent *
+              {isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}
             </label>
             <input
               type="text"
@@ -137,7 +119,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
                 onChange={(e) => setPriceRange(e.target.value)}
                 className="w-full rounded-xl border border-stone-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 text-sm text-stone-900 outline-hidden transition px-3 py-2.5"
               >
-                {['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'].map((p) => (
+                {PRICE_RANGES.map((p) => (
                   <option key={p} value={p}>{p}</option>
                 ))}
               </select>
@@ -227,7 +209,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
           <div className="flex gap-2 pt-2">
             <button
               type="button"
-              onClick={handleClose}
+              onClick={onClose}
               className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
             >
               Cancel·lar
@@ -237,7 +219,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
               disabled={isSubmitting || !restaurantName.trim()}
               className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
             >
-              {isSubmitting ? 'Guardant...' : 'Afegir a Desitjats'}
+              {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir a Desitjats'}
             </button>
           </div>
         </form>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Users, Sparkles } from 'lucide-react';
+import { X, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Props {
