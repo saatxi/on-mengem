@@ -44,6 +44,9 @@ export const isInstagramHandle = (value?: string): value is string =>
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`;
 
+// Retorna l'enllaç només si és http(s); qualsevol altre esquema (javascript:, data:…) es descarta
+export const safeHttpUrl = (url?: string) => (url && /^https?:\/\//i.test(url) ? url : undefined);
+
 // Helpers de visites
 import type { Restaurant, Visit } from '../types';
 

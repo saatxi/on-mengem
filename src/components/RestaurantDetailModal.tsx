@@ -19,7 +19,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { Restaurant, Visit } from '../types';
-import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit } from '../utils/restaurantFields';
+import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl } from '../utils/restaurantFields';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 
@@ -67,6 +67,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     }
   };
 
+  const link = safeHttpUrl(restaurant.link);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([restaurant.name, restaurant.address].filter(Boolean).join(', '))}`;
 
   const formatDate = (iso?: string) =>
@@ -157,14 +158,14 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </div>
             )}
 
-            {restaurant.link && (
+            {link && (
               <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200/80">
                 <div className="flex items-center gap-2.5 text-stone-700 min-w-0">
                   <Link2 className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                  <span className="text-xs font-medium truncate">{restaurant.link}</span>
+                  <span className="text-xs font-medium truncate">{link}</span>
                 </div>
                 <a
-                  href={restaurant.link}
+                  href={link}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"

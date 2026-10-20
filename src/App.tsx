@@ -19,7 +19,7 @@ import { StatTiles } from './components/StatTiles';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
 import { Restaurant, Visit, WishlistItem } from './types';
-import { instagramUrl, isInstagramHandle, isVisited } from './utils/restaurantFields';
+import { instagramUrl, isInstagramHandle, isVisited, safeHttpUrl } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
 import {
   Utensils,
@@ -162,7 +162,7 @@ function MainApp() {
     const text = encodeURIComponent(
       `Uneix-te al meu grup "${activeGroup.name}" a On menjem? amb el codi: ${activeGroup.code} per compartir restaurants i llistes de desitjats en temps real!`
     );
-    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -428,9 +428,9 @@ function MainApp() {
                                 <Instagram className="w-4 h-4" />
                               </a>
                             )}
-                            {res.link && /^https?:\/\//i.test(res.link) && (
+                            {safeHttpUrl(res.link) && (
                               <a
-                                href={res.link}
+                                href={safeHttpUrl(res.link)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 onClick={(e) => e.stopPropagation()}
@@ -595,9 +595,9 @@ function MainApp() {
                                 <Instagram className="w-4 h-4" />
                               </a>
                             )}
-                            {item.link && /^https?:\/\//i.test(item.link) && (
+                            {safeHttpUrl(item.link) && (
                               <a
-                                href={item.link}
+                                href={safeHttpUrl(item.link)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"

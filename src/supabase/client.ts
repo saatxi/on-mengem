@@ -9,4 +9,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// PKCE: Google torna un codi d'un sol ús (?code=) en lloc de deixar els tokens al fragment de la URL.
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { flowType: 'pkce' },
+});

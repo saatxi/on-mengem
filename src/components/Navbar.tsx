@@ -229,6 +229,7 @@ export const Navbar: React.FC<Props> = ({
             {authUser?.photoURL ? (
               <img
                 src={authUser.photoURL}
+                referrerPolicy="no-referrer"
                 alt="Avatar"
                 className="w-5 h-5 rounded-full object-cover"
               />

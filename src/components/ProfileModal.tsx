@@ -64,6 +64,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             {authUser?.photoURL ? (
               <img
                 src={authUser.photoURL}
+                referrerPolicy="no-referrer"
                 alt="Avatar"
                 className="w-9 h-9 rounded-full border-2 border-orange-500 object-cover"
               />

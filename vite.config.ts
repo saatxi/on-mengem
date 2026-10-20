@@ -17,7 +17,8 @@ function contentSecurityPolicy(supabaseUrl: string) {
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
         "font-src https://fonts.gstatic.com",
-        "img-src 'self' data: https:",
+        // L'única imatge externa és la foto del compte de Google.
+        "img-src 'self' data: https://*.googleusercontent.com",
         `connect-src ${["'self'", ...supabase].join(' ')}`,
         "manifest-src 'self'",
         "worker-src 'self'",
