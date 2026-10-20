@@ -85,7 +85,7 @@ export function useRealtimeData() {
     setAlerts((data ?? []).map(toAlert));
   }, [uid, groupId, scope]);
 
-  // Càrrega inicial i Realtime: qualsevol canvi a les taules refresca la llista (RLS filtra els events).
+  // Càrrega inicial i Realtime: els canvis de l'espai actiu refresquen la llista (RLS també filtra els events).
   useEffect(() => {
     if (!uid) {
       setRestaurants([]);
@@ -115,14 +115,24 @@ export function useRealtimeData() {
       };
     };
 
-    const channel = supabase
-      .channel(`data-${uid}-${groupId ?? 'personal'}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurants' }, debounced(fetchRestaurants))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'restaurant_visits' }, debounced(fetchRestaurants))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'visit_attendees' }, debounced(fetchRestaurants))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'wishlist' }, debounced(fetchWishlist))
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'alerts' }, debounced(fetchAlerts))
-      .subscribe();
+    const channel = supabase.channel(`data-${uid}-${groupId ?? 'personal'}`);
+    // INSERT i UPDATE només de l'espai actiu (abans qualsevol canvi en qualsevol grup refeia les llistes).
+    // Moure un ítem de l'espai personal a un grup és un UPDATE que coincideix amb els dos filtres.
+    const listen = (table: string, filter: string | undefined, refresh: () => void) => {
+      channel
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table, filter }, refresh)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table, filter }, refresh)
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table }, refresh);
+    };
+    const byGroupOr = (ownerColumn: string) => (groupId ? `group_id=eq.${groupId}` : `${ownerColumn}=eq.${uid}`);
+
+    const refreshRestaurants = debounced(fetchRestaurants);
+    listen('restaurants', byGroupOr('created_by'), refreshRestaurants);
+    listen('restaurant_visits', byGroupOr('created_by'), refreshRestaurants);
+    listen('visit_attendees', undefined, refreshRestaurants); // no té group_id
+    listen('wishlist', byGroupOr('user_id'), debounced(fetchWishlist));
+    if (groupId) listen('alerts', `group_id=eq.${groupId}`, debounced(fetchAlerts));
+    channel.subscribe();
 
     return () => {
       cancelled = true;

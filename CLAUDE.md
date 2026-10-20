@@ -4,7 +4,7 @@ PWA en català per guardar restaurants i llistes de desitjos, amb espai personal
 
 ## Stack
 
-React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `recharts`. Node >=24 (`.nvmrc`).
+React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `recharts`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
 
 ## Ordres
 

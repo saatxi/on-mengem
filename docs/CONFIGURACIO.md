@@ -202,7 +202,7 @@ Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. L
 
 ### Capçaleres de seguretat
 
-El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les imatges externes només poden venir de `*.googleusercontent.com` (la foto del compte de Google). Les capçaleres `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy` i `Cross-Origin-Opener-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
+El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les imatges externes només poden venir de `*.googleusercontent.com` (la foto del compte de Google). La font (Plus Jakarta Sans) s'empaqueta amb l'app (`@fontsource-variable/plus-jakarta-sans`), així que la CSP no autoritza cap domini de fonts extern. Les capçaleres `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy` i `Cross-Origin-Opener-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
 
 L'inici de sessió fa servir el flux **PKCE** (`src/supabase/client.ts`): Google torna a l'app amb un `?code=` d'un sol ús i els tokens no apareixen mai a la URL.
 
