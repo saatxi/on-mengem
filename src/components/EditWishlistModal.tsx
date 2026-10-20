@@ -11,7 +11,7 @@ import {
 interface Props {
   item: WishlistItem | null;
   onClose: () => void;
-  onSave: (id: string, data: Partial<WishlistItem>) => Promise<void>;
+  onSave: (id: string, data: Partial<WishlistItem>) => Promise<boolean>;
 }
 
 export const EditWishlistModal: React.FC<Props> = ({ item, onClose, onSave }) => {
@@ -46,7 +46,7 @@ export const EditWishlistModal: React.FC<Props> = ({ item, onClose, onSave }) =>
 
     setIsSubmitting(true);
     try {
-      await onSave(item.id, {
+      const ok = await onSave(item.id, {
         restaurantName: restaurantName.trim().slice(0, 100),
         cuisine,
         priceRange,
@@ -56,7 +56,7 @@ export const EditWishlistModal: React.FC<Props> = ({ item, onClose, onSave }) =>
         link: link.trim().slice(0, 300),
         instagram: toInstagramHandle(instagram),
       });
-      onClose();
+      if (ok) onClose();
     } catch (err) {
       console.error(err);
     } finally {

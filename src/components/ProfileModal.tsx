@@ -15,6 +15,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [avatar, setAvatar] = useState(userProfile?.avatar || '🍕');
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   if (!isOpen) return null;
@@ -39,8 +40,9 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nickname.trim()) return;
+    if (nickname.trim().length < 2) return;
     setIsSaving(true);
+    setSaveError(null);
     try {
       await updateProfile({
         nickname: nickname.trim().slice(0, 50),
@@ -50,6 +52,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setTimeout(() => setSavedSuccess(false), 2000);
     } catch (err) {
       console.error(err);
+      setSaveError('No s\'ha pogut desar el perfil. Comprova la connexió i torna-ho a provar.');
     } finally {
       setIsSaving(false);
     }
@@ -109,6 +112,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="El teu àlies o nom"
                 required
+                minLength={2}
                 maxLength={50}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-stone-900 text-sm font-medium outline-hidden"
               />
@@ -139,7 +143,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <div className="flex items-center justify-between pt-1">
               <button
                 type="submit"
-                disabled={isSaving || !nickname.trim()}
+                disabled={isSaving || nickname.trim().length < 2}
                 className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition"
               >
                 {isSaving ? 'Guardant...' : savedSuccess ? 'Guardat!' : 'Actualitzar Perfil'}
@@ -147,6 +151,11 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
               {savedSuccess && (
                 <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
                   <Check className="w-4 h-4" /> Dades desades
+                </span>
+              )}
+              {saveError && (
+                <span role="alert" className="text-xs text-red-600 font-semibold">
+                  {saveError}
                 </span>
               )}
             </div>

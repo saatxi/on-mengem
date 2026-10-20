@@ -8,6 +8,7 @@ import {
   wishlistToRow,
 } from '../supabase/mappers';
 import { useAuth } from '../context/AuthContext';
+import { localToday } from '../utils/restaurantFields';
 import { Restaurant, WishlistItem, Alert } from '../types';
 
 function logError(action: string, error: unknown) {
@@ -157,15 +158,25 @@ export function useRealtimeData() {
   const addRestaurant = async (data: NewRestaurant, createVisitToday?: boolean) => {
     const newId = await insertRestaurant(data);
     if (newId && createVisitToday) {
-      await saveVisit(newId, new Date().toISOString().slice(0, 10), undefined, '', [uid!], true);
+      await saveVisit(newId, localToday(), undefined, '', [uid!], true);
     }
+    return newId !== null;
   };
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
-    if (!uid) return;
-    const { error } = await supabase.from('restaurants').update(restaurantToRow(data)).eq('id', resId);
-    if (error) fail('updateRestaurant', error);
-    else await fetchRestaurants();
+    if (!uid) return false;
+    // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
+    const { data: rows, error } = await supabase
+      .from('restaurants')
+      .update(restaurantToRow(data))
+      .eq('id', resId)
+      .select('id');
+    if (error || !rows?.length) {
+      fail('updateRestaurant', error ?? 'Cap fila actualitzada (RLS?)');
+      return false;
+    }
+    await fetchRestaurants();
+    return true;
   };
 
   const deleteRestaurant = async (resId: string) => {
@@ -218,7 +229,7 @@ export function useRealtimeData() {
   const addWishlistItem = async (
     data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>
   ) => {
-    if (!uid || !userProfile) return;
+    if (!uid || !userProfile) return false;
     const { error } = await supabase
       .from('wishlist')
       .insert({
@@ -227,8 +238,12 @@ export function useRealtimeData() {
         user_id: uid,
         user_name: userProfile.nickname,
       });
-    if (error) return fail('addWishlistItem', error);
+    if (error) {
+      fail('addWishlistItem', error);
+      return false;
+    }
     await fetchWishlist();
+    return true;
   };
 
   const updateWishlistItem = async (wishlistId: string, data: Partial<WishlistItem>) => {
@@ -275,11 +290,11 @@ export function useRealtimeData() {
       const newId = await insertRestaurant({
         name: wishlistItem.restaurantName,
         cuisine: wishlistItem.cuisine || '',
-        priceRange: wishlistItem.priceRange || '€€',
+        priceRange: wishlistItem.priceRange || '',
+        address: wishlistItem.address || '',
         notes: wishlistItem.notes ? `(Desitjat original: ${wishlistItem.notes})` : '',
         link: wishlistItem.link || '',
         instagram: wishlistItem.instagram || '',
-        rating: 4.5,
         favorite: false,
       });
       if (!newId) {
@@ -288,7 +303,7 @@ export function useRealtimeData() {
       }
       await saveVisit(
         newId,
-        visitOverride?.visitedOn ?? new Date().toISOString().slice(0, 10),
+        visitOverride?.visitedOn ?? localToday(),
         visitOverride?.rating,
         visitOverride?.notes ?? '',
         visitOverride?.attendeeIds ?? [uid],

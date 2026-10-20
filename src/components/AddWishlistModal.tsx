@@ -11,7 +11,7 @@ import {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  onAdd: (data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
 }
 
 export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) => {
@@ -59,7 +59,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
 
     setIsSubmitting(true);
     try {
-      await onAdd({
+      const ok = await onAdd({
         restaurantName: restaurantName.trim().slice(0, 100),
         cuisine,
         priceRange,
@@ -70,6 +70,7 @@ export const AddWishlistModal: React.FC<Props> = ({ isOpen, onClose, onAdd }) =>
         instagram: toInstagramHandle(instagram),
         status: 'pending',
       });
+      if (!ok) return;
       reset();
       onClose();
     } catch (err) {

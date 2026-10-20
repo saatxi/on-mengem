@@ -168,8 +168,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (data.avatar !== undefined) row.avatar = data.avatar;
     if (Object.keys(row).length === 0) return;
     const { error } = await supabase.from('profiles').update(row).eq('id', uid);
-    if (error) console.error('Error actualitzant el perfil:', error);
-    else await fetchProfile();
+    if (error) {
+      console.error('Error actualitzant el perfil:', error);
+      throw error;
+    }
+    await fetchProfile();
   };
 
   const setActiveGroupId = async (groupId: string | null) => {

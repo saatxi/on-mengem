@@ -44,6 +44,12 @@ export const isInstagramHandle = (value?: string): value is string =>
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`;
 
+// Data d'avui (AAAA-MM-DD) en hora local; toISOString() la donaria en UTC i entre les 00:00 i les 02:00 seria ahir
+export const localToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
 // Retorna l'enllaç només si és http(s); qualsevol altre esquema (javascript:, data:…) es descarta
 export const safeHttpUrl = (url?: string) => (url && /^https?:\/\//i.test(url) ? url : undefined);
 

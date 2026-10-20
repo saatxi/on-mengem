@@ -11,7 +11,7 @@ import {
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>, createVisitToday?: boolean) => Promise<void>;
+  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>, createVisitToday?: boolean) => Promise<boolean>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
 }
@@ -41,7 +41,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
     setIsSubmitting(true);
     try {
-      await onSave(
+      const ok = await onSave(
         {
           name: name.trim().slice(0, 100),
           cuisine,
@@ -55,7 +55,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         },
         !isEditing && visitedToday,
       );
-      onClose();
+      if (ok) onClose();
     } catch (err) {
       console.error(err);
     } finally {

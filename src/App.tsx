@@ -19,7 +19,7 @@ import { StatTiles } from './components/StatTiles';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
 import { Restaurant, Visit, WishlistItem } from './types';
-import { instagramUrl, isInstagramHandle, isVisited, safeHttpUrl } from './utils/restaurantFields';
+import { instagramUrl, isInstagramHandle, isVisited, safeHttpUrl, visitAverage } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
 import {
   Utensils,
@@ -134,6 +134,7 @@ function MainApp() {
     const matchesSearch =
       r.name.toLowerCase().includes(q) ||
       (r.cuisine && r.cuisine.toLowerCase().includes(q)) ||
+      (r.address && r.address.toLowerCase().includes(q)) ||
       (r.notes && r.notes.toLowerCase().includes(q));
 
     if (!matchesSearch) return false;
@@ -260,7 +261,7 @@ function MainApp() {
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Cercar per nom, ciutat, cuina, notes..."
+                    placeholder="Cercar per nom, adreça, cuina, notes..."
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
                   />
                 </div>
@@ -456,13 +457,15 @@ function MainApp() {
                           </div>
                         </div>
 
-                        {/* Rating & City */}
-                        <div className="flex items-center gap-3 text-xs text-stone-500 mb-2.5">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                            <span className="font-bold text-stone-800">{res.rating?.toFixed(1) || '4.0'}</span>
+                        {/* Valoració: mitjana de les visites o, si no n'hi ha, la del restaurant */}
+                        {(visitAverage(res) ?? res.rating) != null && (
+                          <div className="flex items-center gap-3 text-xs text-stone-500 mb-2.5">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                              <span className="font-bold text-stone-800">{(visitAverage(res) ?? res.rating)!.toFixed(1)}</span>
+                            </div>
                           </div>
-                        </div>
+                        )}
 
                         {/* Adreça + Maps */}
                         {res.address && (
@@ -668,7 +671,9 @@ function MainApp() {
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
                             <button
-                              onClick={() => deleteWishlistItem(item.id)}
+                              onClick={() => {
+                                if (confirm('Vols eliminar aquest desitjat?')) deleteWishlistItem(item.id);
+                              }}
                               className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
                             >
                               Eliminar
@@ -849,9 +854,7 @@ function MainApp() {
         isOpen={!!editingRestaurant}
         restaurant={editingRestaurant}
         onClose={() => setEditingRestaurant(null)}
-        onSave={async (data) => {
-          if (editingRestaurant) await updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>);
-        }}
+        onSave={async (data) => (editingRestaurant ? updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>) : false)}
       />
 
       <ShareToGroupModal
@@ -878,6 +881,7 @@ function MainApp() {
       />
 
       <ProfileModal
+        key={showProfile ? 'profile-open' : 'profile-closed'}
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
       />

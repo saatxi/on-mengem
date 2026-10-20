@@ -85,7 +85,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                   {restaurant.cuisine || 'Restaurant'}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold font-mono">
-                  {restaurant.priceRange || '€€'}
+                  {restaurant.priceRange || '—'}
                 </span>
                 {visited && (
                   <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-xs font-bold">
@@ -113,11 +113,15 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           </div>
 
           <div className="mt-4 flex items-center gap-4 text-xs font-medium text-orange-100">
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
-              <span className="text-white font-bold text-sm">{restaurant.rating?.toFixed(1) || '4.0'}</span>
-              <span>/ 5</span>
-            </div>
+            {restaurant.rating != null ? (
+              <div className="flex items-center gap-1">
+                <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
+                <span className="text-white font-bold text-sm">{restaurant.rating.toFixed(1)}</span>
+                <span>/ 5</span>
+              </div>
+            ) : avgRating == null ? (
+              <span>Sense valorar</span>
+            ) : null}
             {avgRating != null && (
               <div className="flex items-center gap-1">
                 <Star className="w-3.5 h-3.5 text-amber-300" />

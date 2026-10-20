@@ -3,6 +3,7 @@ import { X, Calendar, Star, FileText, Users, Lock, Globe } from 'lucide-react';
 import { Restaurant, Visit } from '../types';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 import { useAuth } from '../context/AuthContext';
+import { localToday } from '../utils/restaurantFields';
 
 interface Props {
   restaurant: Restaurant | null;
@@ -26,7 +27,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
   const isEditing = !!visit;
   const isGroup = restaurant?.groupId != null;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localToday();
 
   const [visitedOn, setVisitedOn] = useState<string>(visit?.visitedOn ?? today);
   const [unknownDate, setUnknownDate] = useState<boolean>(!visit?.visitedOn && isEditing);
