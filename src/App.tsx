@@ -415,19 +415,45 @@ function MainApp() {
                             </h3>
                           </div>
 
-                          {/* Favorite toggle button */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(res);
-                            }}
-                            className={`p-1.5 rounded-full transition ${
-                              res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-stone-400'
-                            }`}
-                            title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
-                          >
-                            <Star className={`w-4 h-4 ${res.favorite ? 'fill-amber-400' : ''}`} />
-                          </button>
+                          <div className="flex items-center gap-1.5">
+                            {isInstagramHandle(res.instagram) && (
+                              <a
+                                href={instagramUrl(res.instagram)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
+                                title={`Obrir @${res.instagram} a Instagram`}
+                              >
+                                <Instagram className="w-4 h-4" />
+                              </a>
+                            )}
+                            {res.link && /^https?:\/\//i.test(res.link) && (
+                              <a
+                                href={res.link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition"
+                                title="Obrir enllaç"
+                              >
+                                <Globe className="w-4 h-4" />
+                              </a>
+                            )}
+                            {/* Favorite toggle button */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleFavorite(res);
+                              }}
+                              className={`p-1.5 rounded-full transition ${
+                                res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-stone-400'
+                              }`}
+                              title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
+                            >
+                              <Star className={`w-4 h-4 ${res.favorite ? 'fill-amber-400' : ''}`} />
+                            </button>
+                          </div>
                         </div>
 
                         {/* Rating & City */}
