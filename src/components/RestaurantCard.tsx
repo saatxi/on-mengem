@@ -36,7 +36,17 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
               )}
             </div>
             <h3 className="text-base font-bold text-stone-900 group-hover:text-orange-600 transition">
-              {res.name}
+              {/* Botó perquè el detall també s'obri amb el teclat (la targeta només respon al ratolí) */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpen(res);
+                }}
+                className="text-left rounded focus-visible:outline-2 focus-visible:outline-orange-500"
+              >
+                {res.name}
+              </button>
             </h3>
           </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Utensils,
   ChevronDown,
@@ -31,6 +31,28 @@ export const Navbar: React.FC<Props> = ({
   const { userProfile, activeGroup, userGroups, setActiveGroupId, authUser } = useAuth();
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [showAlertMenu, setShowAlertMenu] = useState(false);
+  const menusRef = useRef<HTMLDivElement>(null);
+
+  // Els desplegables es tanquen en clicar fora o amb Escape
+  useEffect(() => {
+    if (!showGroupMenu && !showAlertMenu) return;
+    const closeMenus = () => {
+      setShowGroupMenu(false);
+      setShowAlertMenu(false);
+    };
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!(e.target instanceof Node) || !menusRef.current?.contains(e.target)) closeMenus();
+    };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeMenus();
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showGroupMenu, showAlertMenu]);
 
   const unreadAlerts = alerts.filter(
     (a) => !authUser || !a.readBy?.includes(authUser.uid)
@@ -38,7 +60,7 @@ export const Navbar: React.FC<Props> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
-      <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
+      <div ref={menusRef} className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* Logo and Group Selector */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
