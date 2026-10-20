@@ -47,8 +47,10 @@ src/
 supabase/
   migrations/          Esquema, polítiques RLS i funcions
   tests/               Tests pgTAP de seguretat
-docs/                  Guia de configuració i especificació de seguretat
+docs/                  Guia de configuració, especificació de seguretat i millores pendents
 ```
+
+Les millores detectades que encara no s'han fet són a [docs/MILLORES_PENDENTS.md](docs/MILLORES_PENDENTS.md).
 
 ## Publicar
 

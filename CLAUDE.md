@@ -30,7 +30,7 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 - `src/types/index.ts`: tipus compartits.
 - `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
-- `docs/CONFIGURACIO.md` (guia de configuració) i `docs/SEGURETAT.md` (especificació de seguretat).
+- `docs/CONFIGURACIO.md` (guia de configuració), `docs/SEGURETAT.md` (especificació de seguretat) i `docs/MILLORES_PENDENTS.md` (millores detectades pendents de fer; treu-ne el punt quan el resolguis).
 
 ## Convencions de codi
 
