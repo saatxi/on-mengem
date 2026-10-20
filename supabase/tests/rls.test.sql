@@ -6,6 +6,7 @@ select no_plan();
 -- ------------------------------------------------------------ Esquema
 select hasnt_column('public', 'restaurants', 'tags', 'els restaurants ja no tenen etiquetes');
 select hasnt_column('public', 'restaurants', 'visited', 'el booleà visited ha estat substituït per restaurant_visits');
+select hasnt_column('public', 'profiles', 'email', 'el perfil no guarda l''email (els companys de grup no el poden llegir)');
 
 -- ------------------------------------------------------------ Dades de prova
 -- A = alice (propietària de G1), B = bob (membre de G1), C = carol (propietària de G2, aliena a G1)
@@ -170,8 +171,8 @@ select throws_ok($$ update public.profiles set active_group_id = '10000000-0000-
                  '42501', null, 'bob no pot activar un grup del qual no és membre');
 select is_empty($$ delete from public.profiles where id = '00000000-0000-0000-0000-00000000000b' returning 1 $$,
                 'bob no pot esborrar el seu perfil');
-select throws_ok($$ update public.profiles set email = 'x@y.z' where id = '00000000-0000-0000-0000-00000000000b' $$,
-                 '42501', null, 'bob no pot editar el seu email al perfil');
+select throws_ok($$ update public.profiles set photo_url = 'https://x.y/z.png' where id = '00000000-0000-0000-0000-00000000000b' $$,
+                 '42501', null, 'bob no pot editar la foto del seu perfil');
 select throws_ok($$ select public.regenerate_group_code('10000000-0000-0000-0000-000000000001') $$,
                  'P0001', null, 'bob (no owner) no pot regenerar el codi de G1');
 select throws_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-000000000001',
@@ -388,24 +389,24 @@ select is((select count(*)::int from public.profiles where id = '00000000-0000-0
 select is((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-00000000000d'), 1,
           'delete_my_account no toca els altres usuaris');
 
--- ------------------------------------------------------------ Visites (com a Alice, propietària de G1)
--- (carol s'ha afegit a G1 i alice ara és de nou propietària; reutilitzem el restaurant G1 resto)
--- Cal refer la sessió perquè alice va ser esborrada a les proves d'esborrat.
--- Nota: les proves de visites s'executen sobre un estat de BD posterior a l'esborrat de comptes,
--- de manera que G1 és de carol (nova owner). Creem un nou restaurant per a les proves de visites.
+-- ------------------------------------------------------------ Visites (G3, propietat d'alice2)
+-- Les proves d'esborrat de comptes han eliminat G1 (carol n'era l'última membre i el grup ha caigut pel cascade).
+-- Les proves de visites fan servir un grup nou, G3, amb usuaris nous (alice2 n'és la propietària).
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000a1', 'alice2@test.dev', '{"full_name":"Alice2"}'),
   ('00000000-0000-0000-0000-0000000000b1', 'bob2@test.dev', '{"full_name":"Bob2"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000003', 'G3', 'GGGGGG', '00000000-0000-0000-0000-0000000000a1', 'Alice2');
 insert into public.group_members (group_id, user_id) values
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000a1'),
-  ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-0000000000b1');
+  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000a1'),
+  ('10000000-0000-0000-0000-000000000003', '00000000-0000-0000-0000-0000000000b1');
 
 insert into public.restaurants (id, group_id, name, created_by) values
-  ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000001',
+  ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000003',
    'Visites test', '00000000-0000-0000-0000-0000000000a1');
 
--- ---- Com a Alice2 (membre de G1)
+-- ---- Com a Alice2 (propietària de G3)
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
 set local role authenticated;
@@ -434,20 +435,20 @@ select is((select count(*)::int from public.restaurant_visits
 -- No es pot escriure a la taula directament
 select throws_ok($$
   insert into public.restaurant_visits (restaurant_id, group_id, created_by)
-  values ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000001',
+  values ('20000000-0000-0000-0000-000000000010', '10000000-0000-0000-0000-000000000003',
           '00000000-0000-0000-0000-0000000000a1')
 $$, '42501', null, 'no es pot inserir a restaurant_visits directament des del client');
 
 -- La visita grupal genera una alerta restaurant_reviewed
 select is((select count(*)::int from public.alerts
-           where group_id = '10000000-0000-0000-0000-000000000001'
+           where group_id = '10000000-0000-0000-0000-000000000003'
              and type = 'restaurant_reviewed'
              and message like '%"Visites test"%'), 2,
           'les dues visites han generat alertes restaurant_reviewed');
 
 reset role;
 
--- ---- Com a Bob2 (membre de G1)
+-- ---- Com a Bob2 (membre de G3)
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', true);
 set local role authenticated;
@@ -500,12 +501,6 @@ $$, 'P0001', null, 'no es pot posar com a assistent algú que no és membre del 
 
 reset role;
 
--- ---- Carol (nova owner de G1) no veu el restaurant personal d'alice2
-select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000c","role":"authenticated"}', true);
-select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000c', true);
-set local role authenticated;
-reset role;
-
 -- Esborrar el restaurant esborra les visites
 delete from public.restaurants where id = '20000000-0000-0000-0000-000000000010';
 select is((select count(*)::int from public.restaurant_visits
@@ -523,17 +518,17 @@ select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1
 set local role authenticated;
 select lives_ok($$
   select public.move_to_group('restaurant', '20000000-0000-0000-0000-000000000011',
-                               '10000000-0000-0000-0000-000000000001')
-$$, 'alice2 mou un restaurant personal amb visites a G1');
+                               '10000000-0000-0000-0000-000000000003')
+$$, 'alice2 mou un restaurant personal amb visites a G3');
 select is((select group_id from public.restaurant_visits
            where restaurant_id = '20000000-0000-0000-0000-000000000011'),
-          '10000000-0000-0000-0000-000000000001'::uuid,
+          '10000000-0000-0000-0000-000000000003'::uuid,
           'move_to_group arrossega les visites al grup nou');
 
 -- copy_to_groups: les visites no es copien
-select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000011',
-                                         array['10000000-0000-0000-0000-000000000002']::uuid[])), 0,
-          'alice2 no pot copiar a G2 (no és membre)');
+select throws_ok($$ select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000011',
+                                                 array['10000000-0000-0000-0000-000000000002']::uuid[]) $$,
+                 'P0001', null, 'alice2 no pot copiar a G2 (no és membre)');
 reset role;
 
 -- ------------------------------------------------------------ Visites a l'espai personal
@@ -573,6 +568,33 @@ select is((select count(*)::int from public.restaurant_visits
            where restaurant_id = '20000000-0000-0000-0000-000000000012'), 0,
           'bob2 no veu les visites personals d''alice2');
 reset role;
+
+-- ------------------------------------------------------------ Canvi de nickname (sync_nickname_to_records)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+set local role authenticated;
+
+select lives_ok($$ select public.create_group('Grup d''Alice2') $$, 'alice2 crea un grup');
+insert into public.wishlist (group_id, restaurant_name, user_id) values
+  (null, 'Desitjat d''Alice2', '00000000-0000-0000-0000-0000000000a1');
+select lives_ok($$ update public.profiles set nickname = 'Alícia' where id = '00000000-0000-0000-0000-0000000000a1' $$,
+                'alice2 canvia el seu nickname');
+reset role;
+
+select is((select count(*)::int from public.restaurants
+           where created_by = '00000000-0000-0000-0000-0000000000a1' and created_by_name is distinct from 'Alícia'), 0,
+          'el nickname nou s''aplica als restaurants de l''autora');
+select is((select count(*)::int from public.restaurant_visits
+           where created_by = '00000000-0000-0000-0000-0000000000a1' and created_by_name is distinct from 'Alícia'), 0,
+          'el nickname nou s''aplica a les visites de l''autora');
+select is((select count(*)::int from public.wishlist
+           where user_id = '00000000-0000-0000-0000-0000000000a1' and user_name is distinct from 'Alícia'), 0,
+          'el nickname nou s''aplica als desitjats de l''autora');
+select is((select array_agg(owner_name order by name) from public.groups where owner_id = '00000000-0000-0000-0000-0000000000a1'),
+          array['Alícia', 'Alícia'],
+          'el nickname nou s''aplica a l''owner_name dels seus grups (G3 i el grup creat)');
+select isnt((select created_by_name from public.restaurants where name = 'Nom fals'), 'Alícia',
+            'el canvi de nickname no toca els registres d''altres usuaris');
 
 select * from finish();
 rollback;

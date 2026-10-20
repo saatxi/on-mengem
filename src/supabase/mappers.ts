@@ -8,7 +8,6 @@ const orUndef = <T,>(v: T | null | undefined) => (v ?? undefined);
 export const toProfile = (r: Row): UserProfile => ({
   id: r.id,
   nickname: r.nickname,
-  email: orUndef(r.email),
   avatar: r.avatar,
   photoURL: orUndef(r.photo_url),
   activeGroupId: orUndef(r.active_group_id),

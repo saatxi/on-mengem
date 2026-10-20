@@ -1,11 +1,11 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 92 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 126 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
 ## Invariants
-1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup. Només s'editen `nickname`, `avatar`, `active_group_id` (d'un grup propi) i `last_login_at`; el perfil no es pot esborrar.
+1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup, i no guarden l'email (el correu propi ve de la sessió d'Auth). Només s'editen `nickname`, `avatar`, `active_group_id` (d'un grup propi) i `last_login_at`; el perfil no es pot esborrar.
 2. **Usuari nou**: només es crea el perfil. Cap grup, cap alerta, cap dada d'exemple.
 3. **Espai personal** (`group_id IS NULL`): només el creador pot llegir, escriure i esborrar.
 4. **Grups**: llegir i escriure contingut de grup requereix ser membre (`is_group_member`).
@@ -15,7 +15,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 8. **Alertes**: les genera el servidor (triggers en afegir o moure ítems a un grup, en registrar visites, i les RPC de grups); cap client pot inserir-ne. Es purguen les de més de 90 dies. Les alertes es creen amb `read_by` buit: tots els membres del grup, inclòs l'autor, les veuen com a no llegides. `read_by` només s'actualitza via `mark_alerts_read`, que ignora els grups dels quals no ets membre.
 9. **Esborrar**: el creador de l'ítem o l'owner del grup. Només l'owner esborra o edita el grup.
 10. **Límits de mida i valors** via `CHECK` (noms, notes, `status` d'una llista tancada…). `cuisine` (restaurants i desitjats) usa el domini `public.cuisine`: buit o un dels tipus de la llista de l'app.
-11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i són immutables. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic. Des de l'app, un usuari només pot esborrar el seu propi compte amb `delete_my_account`, que usa `auth.uid()` i no accepta cap identificador.
+11. **Autoria i esborrat de comptes**: `created_by_name`/`user_name` els posa el servidor des del perfil i el client no els pot editar. Quan l'usuari canvia el nickname, el trigger `sync_nickname_to_records` actualitza els seus restaurants, visites, desitjats i l'`owner_name` dels grups que té. En esborrar un usuari es conserva el que va aportar als grups (`created_by` passa a `NULL`), s'elimina el seu espai personal i els grups que tenia passen al membre més antic. Des de l'app, un usuari només pot esborrar el seu propi compte amb `delete_my_account`, que usa `auth.uid()` i no accepta cap identificador.
 12. **Codis d'invitació**: 10 intents fallits cada 10 minuts per usuari (`join_attempts`); després, `join_group_by_code` retorna `TOO_MANY_ATTEMPTS`.
 13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` / `wishlist.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
 14. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
@@ -42,16 +42,19 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 15 | Inserir alertes falses | cap policy d'insert a `alerts` | "bob no pot inserir alertes directament" |
 | 16 | Enllaç `javascript:`/`data:` | `CHECK wishlist_link_http` / `restaurants_link_http` / `restaurants_instagram_handle` / `wishlist_instagram_handle` | "un enllaç (de restaurant) que no és http(s) és rebutjat", "un instagram (de desitjat) que no és un nom d'usuari és rebutjat" |
 | 17 | Falsificar el nom d'autor | trigger `set_author_name` + `lock_ownership` | "el created_by_name el posa el servidor", "created_by_name és immutable" |
-| 18 | Activar un grup aliè, esborrar el perfil o editar l'email | `profiles_update` amb `WITH CHECK`, privilegis per columna, sense `profiles_delete` | 3 tests de bob |
+| 18 | Activar un grup aliè, esborrar el perfil o editar la foto | `profiles_update` amb `WITH CHECK`, privilegis per columna, sense `profiles_delete` | 3 tests de bob |
 | 19 | Posar un codi a mà o deixar el grup orfe | privilegis per columna de `groups`; `members_delete` | "l'owner no pot posar un codi a mà", "l'owner no pot sortir del seu grup" |
 | 20 | Força bruta de codis d'invitació | límit d'intents a `join_group_by_code` | "després de 10 intents fallits…" |
 | 21 | Editar o esborrar una visita privada d'un altre membre | `can_edit_visit` a `save_visit` / `delete_visit` | "bob2 no pot editar la visita privada d'alice2" |
 | 22 | Canviar `shared` d'una visita que no és teva | verificació d'autor a `save_visit` | "bob2 no pot canviar shared d'una visita privada d'alice2" |
 | 23 | Afegir com a assistent algú fora del grup | comprovació de membres a `save_visit` | "no es pot posar com a assistent algú que no és membre del grup" |
 | 24 | Inserir directament a `restaurant_visits` | `REVOKE INSERT` al rol `authenticated` | "no es pot inserir a restaurant_visits directament des del client" |
+| 25 | Llegir l'email d'un company de grup | `profiles` no té columna `email` | "el perfil no guarda l'email…" |
+| 26 | Fer servir el canvi de nickname per reescriure el nom d'altres usuaris | `sync_nickname_to_records` només toca les files de `new.id` | "el canvi de nickname no toca els registres d'altres usuaris" |
 
 ## Notes
 - Els tests fixen tant `request.jwt.claims` com `request.jwt.claim.sub`, perquè algunes versions antigues de `auth.uid()` només llegeixen la segona.
 - Els tests ja van detectar un error real: el trigger `lock_ownership` fallava en moure ítems perquè avaluava `new.user_id` en una taula que no té aquest camp. Està corregit a la migració.
+- Les proves de visites fan servir un grup propi (G3): abans reutilitzaven G1, que ja s'havia esborrat a les proves d'esborrat de comptes, i la secció s'aturava amb un error sense que el resum ho fes evident.
 - `join_group_by_code` retorna `{error: …}` en lloc de llançar una excepció: una excepció desfaria el registre de l'intent fallit.
-- Fora d'abast: límit de peticions general, spam de grups i validació del contingut dels textos. Això caldria afegir-ho a part. Els companys de grup veuen l'email dels perfils (decisió de disseny pendent).
+- Fora d'abast: límit de peticions general, spam de grups i validació del contingut dels textos. Això caldria afegir-ho a part.

@@ -88,7 +88,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
             <div className="flex items-center gap-2 text-stone-700 font-semibold">
               <Mail className="w-3.5 h-3.5 text-orange-600 flex-shrink-0" />
-              <span className="truncate">{authUser?.email || userProfile?.email || 'Sense correu associat'}</span>
+              <span className="truncate">{authUser?.email || 'Sense correu associat'}</span>
             </div>
             <div className="flex items-center gap-2 text-stone-500 text-[11px]">
               <User className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
