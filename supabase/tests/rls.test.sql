@@ -596,5 +596,104 @@ select is((select array_agg(owner_name order by name) from public.groups where o
 select isnt((select created_by_name from public.restaurants where name = 'Nom fals'), 'Alícia',
             'el canvi de nickname no toca els registres d''altres usuaris');
 
+-- ------------------------------------------------------------ Quotes contra l'abús (Eve)
+select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),
+                public.quota_limit('owned_groups'), public.quota_limit('restaurant_visits'),
+                public.quota_limit('group_alerts_per_hour')],
+          array[2000, 5000, 20, 500, 50],
+          'quotes de producció: 2.000 per espai personal, 5.000 per grup, 20 grups, 500 visites i 50 alertes/hora');
+
+-- Límits petits per no haver d'inserir milers de files (el rollback final ho desfà).
+create or replace function public.quota_limit(p_name text)
+returns int language plpgsql stable set search_path = '' as $$
+begin
+  return case p_name
+    when 'personal_items' then 2
+    when 'group_items' then 3
+    when 'owned_groups' then 2
+    when 'restaurant_visits' then 2
+    when 'group_alerts_per_hour' then 3
+  end;
+end $$;
+
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000e1', 'eve@test.dev', '{"full_name":"Eve"}');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000e1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000e1', true);
+set local role authenticated;
+
+-- Espai personal
+insert into public.restaurants (id, name, created_by) values
+  ('20000000-0000-0000-0000-0000000000e1', 'Eve personal 1', '00000000-0000-0000-0000-0000000000e1'),
+  ('20000000-0000-0000-0000-0000000000e2', 'Eve personal 2', '00000000-0000-0000-0000-0000000000e1');
+select throws_ok($$
+  insert into public.restaurants (name, created_by) values ('Eve personal 3', '00000000-0000-0000-0000-0000000000e1')
+$$, 'OMQ01', null, 'no es poden afegir més restaurants personals que la quota');
+insert into public.wishlist (id, restaurant_name, user_id) values
+  ('30000000-0000-0000-0000-0000000000e1', 'Eve desitjat 1', '00000000-0000-0000-0000-0000000000e1'),
+  ('30000000-0000-0000-0000-0000000000e2', 'Eve desitjat 2', '00000000-0000-0000-0000-0000000000e1');
+select throws_ok($$
+  insert into public.wishlist (restaurant_name, user_id) values ('Eve desitjat 3', '00000000-0000-0000-0000-0000000000e1')
+$$, 'OMQ01', null, 'no es poden afegir més desitjats personals que la quota');
+select lives_ok($$
+  delete from public.restaurants where id = '20000000-0000-0000-0000-0000000000e2';
+  insert into public.restaurants (id, name, created_by) values
+    ('20000000-0000-0000-0000-0000000000e2', 'Eve personal 2 bis', '00000000-0000-0000-0000-0000000000e1')
+$$, 'esborrar un restaurant personal allibera quota');
+
+-- Grups
+select lives_ok($$ select public.create_group('Quota 1'); select public.create_group('Quota 2') $$,
+                'eve crea tants grups com permet la quota');
+select throws_ok($$ select public.create_group('Quota 3') $$, 'OMQ01', null,
+                 'no es poden crear més grups propis que la quota');
+
+-- Contingut de grup: la quota també s'aplica en moure i copiar ítems al grup
+select lives_ok($$
+  insert into public.restaurants (group_id, name, created_by)
+  select g.id, 'Eve grup ' || i, '00000000-0000-0000-0000-0000000000e1'
+    from public.groups g, generate_series(1, 3) i
+   where g.name = 'Quota 1'
+$$, 'eve omple el grup fins a la quota');
+select throws_ok($$
+  insert into public.restaurants (group_id, name, created_by)
+  select id, 'Eve grup 4', '00000000-0000-0000-0000-0000000000e1' from public.groups where name = 'Quota 1'
+$$, 'OMQ01', null, 'no es poden afegir més restaurants a un grup que la quota');
+select throws_ok($$
+  select public.move_to_group('restaurant', '20000000-0000-0000-0000-0000000000e1',
+                              (select id from public.groups where name = 'Quota 1'))
+$$, 'OMQ01', null, 'move_to_group respecta la quota del grup destí');
+select throws_ok($$
+  select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-0000000000e1',
+                               array[(select id from public.groups where name = 'Quota 1')])
+$$, 'OMQ01', null, 'copy_to_groups respecta la quota del grup destí');
+select lives_ok($$
+  select public.move_to_group('wishlist', '30000000-0000-0000-0000-0000000000e1',
+                              (select id from public.groups where name = 'Quota 1'))
+$$, 'la quota de desitjats del grup és independent de la de restaurants');
+
+-- Alertes: 1 de crear el grup + 3 restaurants + 1 desitjat = 5 intents, però només se'n guarden 3
+select is((select count(*)::int from public.alerts a join public.groups g on g.id = a.group_id
+            where g.name = 'Quota 1' and a.user_id = '00000000-0000-0000-0000-0000000000e1'), 3,
+          'les alertes que un usuari genera en un grup es limiten per hora');
+select is((select count(*)::int from public.wishlist w join public.groups g on g.id = w.group_id
+            where g.name = 'Quota 1'), 1,
+          'el límit d''alertes no impedeix l''acció que les genera');
+
+-- Visites
+select lives_ok($$
+  select public.save_visit('20000000-0000-0000-0000-0000000000e1', current_date, 4.0, '', '{}', true, null);
+  select public.save_visit('20000000-0000-0000-0000-0000000000e1', current_date, 3.0, '', '{}', true, null)
+$$, 'eve registra tantes visites com permet la quota');
+select throws_ok($$
+  select public.save_visit('20000000-0000-0000-0000-0000000000e1', current_date, 5.0, '', '{}', true, null)
+$$, 'OMQ01', null, 'no es poden registrar més visites d''un restaurant que la quota');
+select lives_ok($$
+  select public.save_visit('20000000-0000-0000-0000-0000000000e1', current_date, 5.0, 'editada', '{}', true,
+                           (select id from public.restaurant_visits
+                             where restaurant_id = '20000000-0000-0000-0000-0000000000e1' limit 1))
+$$, 'amb la quota plena es pot continuar editant una visita');
+reset role;
+
 select * from finish();
 rollback;

@@ -7,6 +7,7 @@ import {
   restaurantToRow,
   wishlistToRow,
 } from '../supabase/mappers';
+import { quotaErrorMessage } from '../supabase/errors';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
 import { Restaurant, WishlistItem, Alert } from '../types';
@@ -42,7 +43,7 @@ export function useRealtimeData() {
 
   const fail = (action: string, err: unknown) => {
     logError(action, err);
-    setError(ERROR_MESSAGE);
+    setError(quotaErrorMessage(err) ?? ERROR_MESSAGE);
   };
   const clearError = useCallback(() => setError(null), []);
 

@@ -1,6 +1,6 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 126 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 142 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
@@ -20,6 +20,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` / `wishlist.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
 14. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
 15. **Visites** (`restaurant_visits` i `visit_attendees`): les escriptures van exclusivament a través de `save_visit` i `delete_visit`. El client no pot fer `INSERT`, `UPDATE` ni `DELETE` directes. Cada membre del grup veu totes les visites (incloses les privades), però: una visita **grupal** la pot editar o esborrar qualsevol membre; una visita **privada** només la pot editar o esborrar l'autor (o qualsevol membre si l'autor ha esborrat el compte). Només l'autor pot canviar el camp `shared`. Els assistents han de ser membres del grup (o el propi usuari a l'espai personal). Les visites s'arrosseguen amb `move_to_group` però no es copien amb `copy_to_groups`. Esborrar el restaurant esborra les seves visites (cascade).
+16. **Quotes** (`0009_abuse_quotas.sql`): triggers `before insert` que compten les files i rebutgen l'operació amb l'errcode `OMQ01` (l'app en mostra el missatge): 2.000 restaurants i 2.000 desitjats a l'espai personal de cada usuari, 5.000 restaurants i 5.000 desitjats per grup (també en moure-hi o copiar-hi ítems amb `move_to_group` i `copy_to_groups`), 20 grups dels quals l'usuari és owner i 500 visites per restaurant. Un bloqueig consultiu per espai evita que dues insercions simultànies passin del límit. A més, cada usuari pot generar com a màxim 50 alertes per grup i hora; les que passen del límit es descarten en silenci, però l'acció que les provoca es fa igualment. Els límits són a `quota_limit()`.
 
 ## Atacs que han de ser denegats
 
@@ -51,10 +52,13 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 24 | Inserir directament a `restaurant_visits` | `REVOKE INSERT` al rol `authenticated` | "no es pot inserir a restaurant_visits directament des del client" |
 | 25 | Llegir l'email d'un company de grup | `profiles` no té columna `email` | "el perfil no guarda l'email…" |
 | 26 | Fer servir el canvi de nickname per reescriure el nom d'altres usuaris | `sync_nickname_to_records` només toca les files de `new.id` | "el canvi de nickname no toca els registres d'altres usuaris" |
+| 27 | Omplir la base de dades afegint files en bucle | triggers de quota a `restaurants`, `wishlist`, `groups` i `restaurant_visits` | "no es poden afegir més restaurants personals que la quota", "move_to_group respecta la quota del grup destí" |
+| 28 | Inundar un grup d'alertes afegint i esborrant ítems | trigger `throttle_alerts` | "les alertes que un usuari genera en un grup es limiten per hora" |
 
 ## Notes
 - Els tests fixen tant `request.jwt.claims` com `request.jwt.claim.sub`, perquè algunes versions antigues de `auth.uid()` només llegeixen la segona.
 - Els tests ja van detectar un error real: el trigger `lock_ownership` fallava en moure ítems perquè avaluava `new.user_id` en una taula que no té aquest camp. Està corregit a la migració.
 - Les proves de visites fan servir un grup propi (G3): abans reutilitzaven G1, que ja s'havia esborrat a les proves d'esborrat de comptes, i la secció s'aturava amb un error sense que el resum ho fes evident.
 - `join_group_by_code` retorna `{error: …}` en lloc de llançar una excepció: una excepció desfaria el registre de l'intent fallit.
-- Fora d'abast: límit de peticions general, spam de grups i validació del contingut dels textos. Això caldria afegir-ho a part.
+- Els tests de quotes substitueixen `quota_limit()` per límits petits (el rollback final ho desfà) i comproven a part els valors de producció.
+- Fora d'abast: límit de peticions general (cal configurar-lo a Supabase) i validació del contingut dels textos.
