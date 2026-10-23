@@ -4,7 +4,7 @@ PWA en català per guardar restaurants i llistes de desitjos, amb espai personal
 
 ## Stack
 
-React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `recharts`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
+React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `clsx` + `tailwind-merge`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
 
 ## Ordres
 
@@ -39,7 +39,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Text d'UI, errors, comentaris i documentació **en català**; identificadors (components, funcions, tipus, fitxers) **en anglès**.
 - Components: funcions `React.FC<Props>` amb `interface Props` local i export nomenat (sense `default`). Fitxers en PascalCase.
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
-- Estils amb classes Tailwind inline; icones de `lucide-react`; color d'accent `#ea580c`.
+- Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#ea580c`, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; classes condicionals amb `cn()` (`src/utils/cn.ts`).
 - Imports relatius (l'àlies `@/` existeix però no s'usa).
 - Respecta `.editorconfig` (UTF-8, LF, final de línia); imita l'estil dels fitxers veïns (cometes simples, punt i coma).
 
