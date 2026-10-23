@@ -10,3 +10,9 @@ Quan en facis una, treu-la d'aquí al mateix commit.
 - **Proposta:** afegir una vista de mapa a la pestanya de restaurants (p. ex. Leaflet amb tiles d'OpenStreetMap), geocodificant l'adreça en desar-la i guardant-ne les coordenades en una columna nova.
 - **Cal tenir en compte:** migració nova per a les coordenades, autoritzar el domini dels tiles a la Content-Security-Policy de `vite.config.ts` i decidir el servei de geocodificació (límits d'ús i privacitat).
 - **Prioritat:** baixa. **Esforç:** L.
+
+## Icones de l'app amb els colors nous
+
+- **Problema:** les icones de la PWA (`public/icon.svg`, `pwa-*.png`, `apple-touch-icon.png`, `favicon.ico`) encara fan servir el degradat taronja antic (`#EA580C` → `#FB923C`), mentre que la interfície ara usa l'accent `#f4511e` i el degradat de marca cap al rosa (`#ec4899`).
+- **Proposta:** actualitzar el degradat de `public/icon.svg` i regenerar-ne els PNG i el favicon.
+- **Prioritat:** baixa. **Esforç:** S.
