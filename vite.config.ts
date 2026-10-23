@@ -81,6 +81,10 @@ export default defineConfig(({mode}) => {
         },
       }),
     ],
+    build: {
+      // Les fonts van sempre en fitxer: la CSP (font-src 'self') bloqueja les que Vite incrustaria com a data:
+      assetsInlineLimit: (file: string) => (file.endsWith('.woff2') ? false : undefined),
+    },
     resolve: {
       alias: {
         '@': path.resolve(import.meta.dirname, '.'),
