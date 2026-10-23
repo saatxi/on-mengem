@@ -1,5 +1,6 @@
 import React from 'react';
-import { Check, Globe, Instagram, MapPin, Star } from 'lucide-react';
+import { Check, Globe, MapPin, Star } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { Restaurant } from '../types';
 import { instagramUrl, isInstagramHandle, isVisited, mapsUrl, safeHttpUrl, visitAverage } from '../utils/restaurantFields';
 
@@ -60,7 +61,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
                 className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
                 title={`Obrir @${res.instagram} a Instagram`}
               >
-                <Instagram className="w-4 h-4" />
+                <InstagramIcon className="w-4 h-4" />
               </a>
             )}
             {safeHttpUrl(res.link) && (

@@ -32,6 +32,7 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 | `npm run build` | Build de producció a `dist/` |
 | `npm run preview` | Serveix la build en local |
 | `npm run lint` | Comprova els tipus (`tsc --noEmit`) |
+| `npm test` | Tests de les funcions pures amb Vitest (`*.test.ts` al costat del codi) |
 | `npx supabase test db` | Tests de seguretat de la base de dades (cal Docker i `npx supabase start`) |
 | `npm version <x.y.z>` | Puja la versió, obre l'editor de git per escriure el missatge del commit (proposa `Release x.y.z`) i crea l'etiqueta `vx.y.z` (també: `make release patch|minor|major|x.y.z`) |
 

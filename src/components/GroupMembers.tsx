@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
+import { useConfirm } from './ConfirmDialog';
 import { Group } from '../types';
 
 interface Props {
@@ -15,11 +16,12 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
   const members = useGroupMembers(group);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const confirm = useConfirm();
 
   const isOwner = group.ownerId === userProfile?.id;
 
-  const run = async (confirmText: string | null, action: () => Promise<unknown>) => {
-    if (confirmText && !window.confirm(confirmText)) return;
+  const run = async (question: Parameters<typeof confirm>[0], action: () => Promise<unknown>) => {
+    if (!(await confirm(question))) return;
     setBusy(true);
     setError(null);
     try {
@@ -88,7 +90,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                       disabled={busy}
                       className={linkBtn}
                       onClick={() =>
-                        run(`Vols cedir el grup "${group.name}" a ${name}? Deixaràs de ser-ne el creador.`, () =>
+                        run({ message: `Vols cedir el grup "${group.name}" a ${name}?`, details: 'Deixaràs de ser-ne el creador.', confirmLabel: 'Cedir grup' }, () =>
                           transferOwnership(group.id, uid)
                         )
                       }
@@ -98,7 +100,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                     <button
                       disabled={busy}
                       className={`${linkBtn} text-red-600`}
-                      onClick={() => run(`Vols expulsar ${name} del grup?`, () => removeMember(group.id, uid))}
+                      onClick={() => run({ message: `Vols expulsar ${name} del grup?`, confirmLabel: 'Expulsar', destructive: true }, () => removeMember(group.id, uid))}
                     >
                       Expulsar
                     </button>
@@ -108,7 +110,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                   <button
                     disabled={busy}
                     className={`${linkBtn} text-red-600`}
-                    onClick={() => run(`Vols sortir del grup "${group.name}"?`, () => leaveGroup(group.id))}
+                    onClick={() => run({ message: `Vols sortir del grup "${group.name}"?`, confirmLabel: 'Sortir', destructive: true }, () => leaveGroup(group.id))}
                   >
                     Sortir del grup
                   </button>
@@ -125,7 +127,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
             disabled={busy}
             className={linkBtn}
             onClick={() =>
-              run('El codi actual deixarà de funcionar. Vols generar-ne un de nou?', () =>
+              run({ message: 'Vols generar un codi d\'invitació nou?', details: 'El codi actual deixarà de funcionar.', confirmLabel: 'Generar' }, () =>
                 regenerateGroupCode(group.id)
               )
             }
@@ -137,7 +139,12 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
             className={`${linkBtn} text-red-600`}
             onClick={() =>
               run(
-                `Esborrar "${group.name}" eliminarà per a tothom els seus restaurants, desitjats i alertes. Vols continuar?`,
+                {
+                  message: `Vols esborrar el grup "${group.name}"?`,
+                  details: 'S\'eliminaran per a tothom els seus restaurants, desitjats i alertes.',
+                  confirmLabel: 'Esborrar el grup',
+                  destructive: true,
+                },
                 () => deleteGroup(group.id)
               )
             }

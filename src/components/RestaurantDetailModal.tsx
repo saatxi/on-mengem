@@ -11,15 +11,17 @@ import {
   ArrowRightLeft,
   Pencil,
   Link2,
-  Instagram,
   Lock,
   Globe,
   Plus,
   ClipboardList,
 } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
+import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
 import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
+import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 
@@ -49,6 +51,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   const { authUser, activeGroup, userProfile } = useAuth();
   const uid = authUser?.uid ?? '';
   const members = useGroupMembers(activeGroup ?? null);
+  const confirm = useConfirm();
+  const showAlert = useAlert();
 
   if (!restaurant) return null;
 
@@ -59,11 +63,12 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
   const handleShare = () => {
     const text = `T'agrada aquest restaurant? Descobreix "${restaurant.name}" (${restaurant.cuisine || 'Cuina'}) a On menjem?!`;
+    const url = restaurantUrl(restaurant.id, window.location.origin);
     if (navigator.share) {
-      navigator.share({ title: restaurant.name, text, url: window.location.href }).catch(() => {});
+      navigator.share({ title: restaurant.name, text, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(`${text} ${window.location.href}`);
-      alert('Enllaç copiat al porta-retalls!');
+      navigator.clipboard.writeText(`${text} ${url}`);
+      showAlert('Enllaç copiat al porta-retalls!');
     }
   };
 
@@ -182,7 +187,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           {isInstagramHandle(restaurant.instagram) && (
             <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200/80">
               <div className="flex items-center gap-2.5 text-stone-700">
-                <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
+                <InstagramIcon className="w-4 h-4 text-pink-500 flex-shrink-0" />
                 <span className="text-xs font-medium">@{restaurant.instagram}</span>
               </div>
               <a
@@ -266,8 +271,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => {
-              if (confirm('Vols eliminar aquest restaurant?')) {
+            onClick={async () => {
+              if (await confirm({ message: 'Vols eliminar aquest restaurant?', details: 'També s\'esborraran totes les seves visites.', confirmLabel: 'Eliminar', destructive: true })) {
                 onDelete(restaurant.id);
                 onClose();
               }
@@ -338,8 +343,10 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => {
-                              if (confirm('Vols eliminar aquesta visita?')) onDeleteVisit(v.id);
+                            onClick={async () => {
+                              if (await confirm({ message: 'Vols eliminar aquesta visita?', confirmLabel: 'Eliminar', destructive: true })) {
+                                onDeleteVisit(v.id);
+                              }
                             }}
                             className="text-[11px] font-bold text-red-400 hover:text-red-600 transition"
                             title="Eliminar visita"

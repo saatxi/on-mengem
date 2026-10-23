@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, FileText, Link2, Instagram } from 'lucide-react';
+import { X, Star, Utensils, MapPin, FileText, Link2 } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
 import { Restaurant } from '../types';
 import {
@@ -168,7 +169,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <Instagram className="w-3.5 h-3.5 text-stone-400" />
+            <InstagramIcon className="w-3.5 h-3.5 text-stone-400" />
             Instagram (opcional)
           </label>
           <input
