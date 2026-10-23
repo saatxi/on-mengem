@@ -24,6 +24,7 @@ import { Restaurant, Visit, WishlistItem } from './types';
 import { isVisited } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
+import { DialogProvider } from './components/ConfirmDialog';
 import { Utensils, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
@@ -645,7 +646,9 @@ function MainApp() {
 export function App() {
   return (
     <AuthProvider>
-      <MainApp />
+      <DialogProvider>
+        <MainApp />
+      </DialogProvider>
     </AuthProvider>
   );
 }

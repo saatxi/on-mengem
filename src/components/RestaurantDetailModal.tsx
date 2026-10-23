@@ -18,6 +18,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import { Modal } from './Modal';
+import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
 import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
 import { restaurantUrl } from '../utils/restaurantLink';
@@ -50,6 +51,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   const { authUser, activeGroup, userProfile } = useAuth();
   const uid = authUser?.uid ?? '';
   const members = useGroupMembers(activeGroup ?? null);
+  const confirm = useConfirm();
+  const showAlert = useAlert();
 
   if (!restaurant) return null;
 
@@ -65,7 +68,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
       navigator.share({ title: restaurant.name, text, url }).catch(() => {});
     } else {
       navigator.clipboard.writeText(`${text} ${url}`);
-      alert('Enllaç copiat al porta-retalls!');
+      showAlert('Enllaç copiat al porta-retalls!');
     }
   };
 
@@ -268,8 +271,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => {
-              if (confirm('Vols eliminar aquest restaurant?')) {
+            onClick={async () => {
+              if (await confirm({ message: 'Vols eliminar aquest restaurant?', details: 'També s\'esborraran totes les seves visites.', confirmLabel: 'Eliminar', destructive: true })) {
                 onDelete(restaurant.id);
                 onClose();
               }
@@ -340,8 +343,10 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
                           <button
-                            onClick={() => {
-                              if (confirm('Vols eliminar aquesta visita?')) onDeleteVisit(v.id);
+                            onClick={async () => {
+                              if (await confirm({ message: 'Vols eliminar aquesta visita?', confirmLabel: 'Eliminar', destructive: true })) {
+                                onDeleteVisit(v.id);
+                              }
                             }}
                             className="text-[11px] font-bold text-red-400 hover:text-red-600 transition"
                             title="Eliminar visita"

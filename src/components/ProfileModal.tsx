@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, LogOut, Check, Mail, User, Trash2 } from 'lucide-react';
 import { Modal } from './Modal';
+import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
 
 interface Props {
@@ -18,15 +19,20 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const confirm = useConfirm();
+  const showAlert = useAlert();
 
   if (!isOpen) return null;
 
   const handleDeleteAccount = async () => {
-    const confirmed = confirm(
-      'Vols eliminar el teu compte?\n\n' +
+    const confirmed = await confirm({
+      message: 'Vols eliminar el teu compte?',
+      details:
         'Aquesta acció NO es pot desfer. S\'esborraran el teu perfil i totes les dades del teu espai personal (restaurants i llista de desitjos).\n\n' +
-        'El que hagis afegit als grups es mantindrà sense el teu nom d\'usuari, i els grups dels quals siguis propietari passaran al membre més antic.'
-    );
+        'El que hagis afegit als grups es mantindrà sense el teu nom d\'usuari, i els grups dels quals siguis propietari passaran al membre més antic.',
+      confirmLabel: 'Eliminar el compte',
+      destructive: true,
+    });
     if (!confirmed) return;
     setIsDeleting(true);
     try {
@@ -34,7 +40,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
       onClose();
     } catch (err) {
       console.error('Error eliminant el compte:', err);
-      alert('No s\'ha pogut eliminar el compte. Torna-ho a provar més tard.');
+      await showAlert('No s\'ha pogut eliminar el compte.', 'Torna-ho a provar més tard.');
       setIsDeleting(false);
     }
   };
@@ -169,7 +175,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
           </span>
           <button
             onClick={async () => {
-              if (confirm('Vols tancar la sessió del teu compte de Google?')) {
+              if (await confirm({ message: 'Vols tancar la sessió?', details: 'Hauràs de tornar a entrar amb el teu compte de Google.', confirmLabel: 'Tancar sessió' })) {
                 await logout();
                 onClose();
               }

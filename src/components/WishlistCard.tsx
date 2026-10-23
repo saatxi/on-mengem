@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowRightLeft, CheckCircle2, Copy, Globe, Instagram, MapPin, Pencil } from 'lucide-react';
 import { WishlistItem } from '../types';
+import { useConfirm } from './ConfirmDialog';
 import { instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
 
 interface Props {
@@ -13,7 +14,10 @@ interface Props {
   onMarkVisited: (item: WishlistItem) => void;
 }
 
-export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onMarkVisited }) => (
+export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onMarkVisited }) => {
+  const confirm = useConfirm();
+
+  return (
     <div
       className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs hover:border-amber-300 transition flex flex-col justify-between"
     >
@@ -121,8 +125,10 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
               <Pencil className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => {
-                if (confirm('Vols eliminar aquest desitjat?')) onDelete(item.id);
+              onClick={async () => {
+                if (await confirm({ message: 'Vols eliminar aquest desitjat?', confirmLabel: 'Eliminar', destructive: true })) {
+                  onDelete(item.id);
+                }
               }}
               className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
             >
@@ -145,4 +151,5 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
         </div>
       </div>
     </div>
-);
+  );
+};
