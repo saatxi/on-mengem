@@ -49,7 +49,7 @@ export default defineConfig(({mode}) => {
           name: 'On menjem? - Restaurants i Grups',
           short_name: 'On menjem?',
           description: 'On menjem? - Organitza i descobreix restaurants, llistes de desitjats i alertes en temps real amb els teus grups.',
-          theme_color: '#ea580c',
+          theme_color: '#f4511e',
           background_color: '#fafaf9',
           display: 'standalone',
           start_url: '/',
