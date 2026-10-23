@@ -4,16 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Comprovacions manuals al panell de Supabase
-
-**Problema.** Hi ha opcions de seguretat que no són al repositori, sinó al panell del projecte, i no es poden verificar des del codi.
-
-**Proposta.**
-- *Authentication → Providers*: si no es fa servir el proveïdor **Email**, desactiva'l. Si està actiu, qualsevol persona es pot registrar amb un correu i una contrasenya de 6 caràcters sense passar per Google.
-- *Authentication → URL Configuration*: a les *Redirect URLs* hi ha d'haver només la URL de producció exacta (i `localhost` si cal), sense comodins.
-
-**Prioritat:** alta · **Esforç:** S
-
 ## Quotes contra l'abús
 
 **Problema.** No hi ha cap límit de files per usuari o per grup, ni de grups creats per usuari. Un usuari autenticat pot omplir la base de dades (el pla gratuït de Supabase té 500 MB) o inundar un grup d'alertes afegint restaurants en bucle. `docs/SEGURETAT.md` ja indica que el límit de peticions i l'spam de grups queden fora d'abast.
