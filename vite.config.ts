@@ -42,7 +42,8 @@ export default defineConfig(({mode}) => {
       contentSecurityPolicy(env.VITE_SUPABASE_URL ?? ''),
       tailwindcss(),
       VitePWA({
-        registerType: 'autoUpdate',
+        // L'app avisa de les versions noves (UpdatePrompt) en lloc d'activar-les soles
+        registerType: 'prompt',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
           id: '/',

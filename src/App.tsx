@@ -12,6 +12,7 @@ import { JoinGroupModal } from './components/JoinGroupModal';
 import { ShareToGroupModal } from './components/ShareToGroupModal';
 import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
+import { UpdatePrompt } from './components/UpdatePrompt';
 import { Toast } from './components/Toast';
 import { GroupMembers } from './components/GroupMembers';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
@@ -749,6 +750,8 @@ export function App() {
       <AuthProvider>
         <DialogProvider>
           <MainApp />
+          {/* Fora de MainApp perquè el Service Worker es registri també a la càrrega i a l'onboarding */}
+          <UpdatePrompt />
         </DialogProvider>
       </AuthProvider>
     </ThemeProvider>

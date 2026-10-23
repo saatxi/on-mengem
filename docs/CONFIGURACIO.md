@@ -201,6 +201,14 @@ L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Buil
 
 Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. Les altres branques generen versions de previsualització que no es publiquen a producció. Per desplegar des de la terminal: `npm run build && npx wrangler deploy` (cal `npx wrangler login` abans i tenir les variables `VITE_*` al `.env`).
 
+### Com arriben les versions noves a l'app instal·lada
+
+Quan es publica una versió, el Service Worker nou es descarrega però no s'activa sol: l'app mostra l'avís «Hi ha una versió nova» amb el botó **Actualitza**, que l'activa i recarrega la pàgina (`src/components/UpdatePrompt.tsx`, `registerType: 'prompt'` a `vite.config.ts`). Si l'usuari el tanca, la versió nova s'aplica la propera vegada que obri l'app de zero.
+
+El navegador busca un `sw.js` nou en obrir l'app; a més, l'app ho comprova una vegada al dia, amb l'app oberta o en tornar-hi des de segon pla (una PWA que es reprèn no torna a navegar i, si no, podria quedar-se dies amb la versió vella). `public/_headers` marca `sw.js`, la pàgina i el manifest amb `Cache-Control: no-cache` perquè Cloudflare no en serveixi una còpia antiga.
+
+La icona i el nom de l'app instal·lada no depenen del Service Worker: Android els actualitza pel seu compte al cap d'uns dies i iOS no ho fa mai (cal treure l'app de la pantalla d'inici i tornar-la a afegir).
+
 ### Capçaleres de seguretat
 
 El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les imatges externes només poden venir de `*.googleusercontent.com` (la foto del compte de Google). La font (Plus Jakarta Sans) s'empaqueta amb l'app (`@fontsource-variable/plus-jakarta-sans`), així que la CSP no autoritza cap domini de fonts extern. Les capçaleres `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy` i `Cross-Origin-Opener-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
