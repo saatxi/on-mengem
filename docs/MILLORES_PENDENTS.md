@@ -4,14 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Tipus generats de la base de dades i `strict`
-
-**Problema.** `src/supabase/mappers.ts` treballa amb `Record<string, any>` i `tsconfig.json` no té `strict`. Si es reanomena una columna o es fa un error tipogràfic en un nom, ni el compilador ni el lint ho detecten.
-
-**Proposta.** Generar els tipus amb `npx supabase gen types typescript --local > src/supabase/database.types.ts`, passar-los a `createClient<Database>()` i tipar els mappers amb `Tables<'restaurants'>`, etc. Després, activar `strict` (o `strictNullChecks` primer) i anar corregint els errors.
-
-**Prioritat:** mitjana · **Esforç:** M
-
 ## Tests de les funcions pures
 
 **Problema.** No hi ha tests de JavaScript. Les funcions de `src/supabase/mappers.ts` i `src/utils/restaurantFields.ts` (ordenació de visites, `toInstagramHandle`, `safeHttpUrl`, `localToday`, `canEditVisit`) són fàcils de trencar sense adonar-se'n.
