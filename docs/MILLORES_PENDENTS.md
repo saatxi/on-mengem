@@ -4,14 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Enllaços directes a un restaurant
-
-**Problema.** El botó «Compartir» del detall comparteix `window.location.href`, que sempre és l'arrel de l'app: qui rep l'enllaç no arriba al restaurant.
-
-**Proposta.** Un paràmetre a la URL (p. ex. `?r=<id>`) que `App.tsx` llegeixi en carregar per obrir el detall, i que el botó de compartir l'inclogui. RLS ja garanteix que només el pot obrir qui hi té accés.
-
-**Prioritat:** baixa · **Esforç:** S
-
 ## Diàlegs propis en lloc de `alert()` i `confirm()`
 
 **Problema.** Les confirmacions (esborrar, sortir del grup, tancar sessió…) fan servir els diàlegs natius del navegador, que no segueixen l'estil de l'app i en algunes PWA instal·lades queden poc integrats.
