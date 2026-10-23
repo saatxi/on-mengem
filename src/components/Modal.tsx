@@ -21,6 +21,10 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), selec
 // Diàlegs oberts, de més antic a més nou: Escape només tanca el de sobre (p. ex. la visita oberta des del detall).
 const openModals: symbol[] = [];
 
+// Cada diàleg afegeix una entrada a l'historial perquè el botó enrere del mòbil el tanqui en lloc de sortir de l'app.
+// Quan es tanca d'una altra manera, es treu la seva entrada amb history.back(), i aquest popstate s'ha d'ignorar.
+let ignoreNextPopState = false;
+
 // Al mòbil és un full que puja des de baix; a partir de `sm`, un diàleg centrat.
 export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }) => {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -62,10 +66,28 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }
       }
     };
 
+    let closedByBack = false;
+    const handlePopState = () => {
+      if (ignoreNextPopState) {
+        ignoreNextPopState = false;
+        return;
+      }
+      if (!isTop()) return;
+      closedByBack = true;
+      onCloseRef.current();
+    };
+
     document.addEventListener('keydown', handleKeyDown);
+    window.history.pushState({ modal: true }, '');
+    window.addEventListener('popstate', handlePopState);
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('popstate', handlePopState);
+      if (!closedByBack) {
+        ignoreNextPopState = true;
+        window.history.back();
+      }
       openModals.splice(openModals.indexOf(id), 1);
       if (openModals.length === 0) document.body.style.overflow = '';
       previousFocus?.focus();
