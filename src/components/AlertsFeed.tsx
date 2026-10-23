@@ -1,23 +1,11 @@
 import React from 'react';
 import { Bell, UtensilsCrossed, Sparkles, Users, Star } from 'lucide-react';
 import { Alert } from '../types';
+import { timeAgo } from '../utils/time';
 
 interface Props {
   alerts: Alert[];
   markAllAlertsAsRead: () => void;
-}
-
-function timeAgo(dateStr?: string): string {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const min = Math.floor(diff / 60000);
-  if (min < 1) return 'ara mateix';
-  if (min < 60) return `fa ${min} min`;
-  const h = Math.floor(min / 60);
-  if (h < 24) return `fa ${h} h`;
-  const d = Math.floor(h / 24);
-  if (d === 1) return 'ahir';
-  return `fa ${d} dies`;
 }
 
 type AlertConfig = {

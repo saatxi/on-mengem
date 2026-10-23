@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { PWAInstallButton } from './PWAInstallButton';
 import { Alert } from '../types';
+import { timeAgo } from '../utils/time';
 
 interface Props {
   alerts: Alert[];
@@ -227,7 +228,7 @@ export const Navbar: React.FC<Props> = ({
                             <span className="font-bold text-stone-900">{alert.title}</span>
                             {alert.createdAt && (
                               <span className="text-xs text-stone-500">
-                                {new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {timeAgo(alert.createdAt)}
                               </span>
                             )}
                           </div>

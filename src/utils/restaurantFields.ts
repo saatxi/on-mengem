@@ -82,3 +82,49 @@ export const canEditVisit = (visit: Visit, uid: string): boolean => {
   if (visit.groupId === null) return visit.createdBy === uid;
   return visit.shared || visit.createdBy === uid || visit.createdBy == null;
 };
+
+// Cerca
+
+/** Text en minúscules i sense accents ni dièresis, per comparar «mediterrania» amb «Mediterrània». */
+export const normalizeText = (text: string) =>
+  text
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim();
+
+/** Retorna cert si algun dels camps conté la cerca (sense distingir majúscules ni accents). */
+export const matchesQuery = (query: string, fields: (string | undefined)[]) => {
+  const q = normalizeText(query);
+  return !q || fields.some((field) => !!field && normalizeText(field).includes(q));
+};
+
+// Ordenació
+
+export type RestaurantSort = 'recent' | 'name' | 'rating' | 'lastVisit';
+
+export const RESTAURANT_SORTS: Record<RestaurantSort, string> = {
+  recent: 'Afegits recentment',
+  name: 'Nom (A-Z)',
+  rating: 'Millor valorats',
+  lastVisit: 'Visitats fa menys',
+};
+
+const shownRating = (r: Restaurant) => visitAverage(r) ?? r.rating ?? null;
+
+/** Retorna una còpia ordenada; els que no tenen el valor (sense nota, sense visites) van al final. */
+export const sortRestaurants = (list: Restaurant[], sort: RestaurantSort): Restaurant[] => {
+  const byName = (a: Restaurant, b: Restaurant) => a.name.localeCompare(b.name, 'ca', { sensitivity: 'base' });
+  const desc = (a: string | number | null | undefined, b: string | number | null | undefined) => {
+    if (a == null) return b == null ? 0 : 1;
+    if (b == null) return -1;
+    return a < b ? 1 : a > b ? -1 : 0;
+  };
+  const compare: Record<RestaurantSort, (a: Restaurant, b: Restaurant) => number> = {
+    recent: (a, b) => desc(a.createdAt, b.createdAt) || byName(a, b),
+    name: byName,
+    rating: (a, b) => desc(shownRating(a), shownRating(b)) || byName(a, b),
+    lastVisit: (a, b) => desc(lastVisit(a)?.visitedOn, lastVisit(b)?.visitedOn) || byName(a, b),
+  };
+  return [...list].sort(compare[sort]);
+};

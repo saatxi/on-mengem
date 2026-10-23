@@ -5,7 +5,10 @@ import {
   INSTAGRAM_INPUT_PATTERN,
   isInstagramHandle,
   localToday,
+  matchesQuery,
+  normalizeText,
   safeHttpUrl,
+  sortRestaurants,
   toInstagramHandle,
   visitAverage,
 } from './restaurantFields';
@@ -116,5 +119,56 @@ describe('visitAverage', () => {
   it('ignora les valoracions de 0 i retorna null si no n\'hi ha cap', () => {
     expect(visitAverage(restaurant([visit({ rating: 0 }), visit({})]))).toBeNull();
     expect(visitAverage(restaurant([]))).toBeNull();
+  });
+});
+
+describe('normalizeText', () => {
+  it('treu accents, dièresis i majúscules', () => {
+    expect(normalizeText('  Mediterrània ')).toBe('mediterrania');
+    expect(normalizeText('Çà i Lluïsa')).toBe('ca i lluisa');
+  });
+});
+
+describe('matchesQuery', () => {
+  it('troba la cerca en qualsevol camp sense tenir en compte els accents', () => {
+    expect(matchesQuery('mediterrania', ['Can Pep', 'Mediterrània'])).toBe(true);
+    expect(matchesQuery('CAFÈ', ['El cafe de la plaça'])).toBe(true);
+    expect(matchesQuery('sushi', ['Can Pep', undefined])).toBe(false);
+  });
+
+  it('una cerca buida ho accepta tot', () => {
+    expect(matchesQuery('  ', [undefined])).toBe(true);
+  });
+});
+
+describe('sortRestaurants', () => {
+  const r = (overrides: Partial<Restaurant>): Restaurant => ({ id: overrides.name ?? 'r', name: 'R', groupId: null, visits: [], ...overrides });
+  const names = (list: Restaurant[]) => list.map((x) => x.name);
+
+  const list = [
+    r({ name: 'Bar Pinotxo', createdAt: '2026-01-02T10:00:00Z', rating: 3 }),
+    r({ name: 'àbac', createdAt: '2026-03-01T10:00:00Z', visits: [visit({ rating: 5, visitedOn: '2026-02-01' })] }),
+    r({ name: 'Can Culleretes', createdAt: '2026-02-01T10:00:00Z', visits: [visit({ visitedOn: '2026-05-01' })] }),
+  ];
+
+  it('per nom, sense distingir accents ni majúscules', () => {
+    expect(names(sortRestaurants(list, 'name'))).toEqual(['àbac', 'Bar Pinotxo', 'Can Culleretes']);
+  });
+
+  it('afegits recentment primer', () => {
+    expect(names(sortRestaurants(list, 'recent'))).toEqual(['àbac', 'Can Culleretes', 'Bar Pinotxo']);
+  });
+
+  it('per valoració, amb la mitjana de visites per davant de la nota pròpia i els no valorats al final', () => {
+    expect(names(sortRestaurants(list, 'rating'))).toEqual(['àbac', 'Bar Pinotxo', 'Can Culleretes']);
+  });
+
+  it('per darrera visita, amb els no visitats al final', () => {
+    expect(names(sortRestaurants(list, 'lastVisit'))).toEqual(['Can Culleretes', 'àbac', 'Bar Pinotxo']);
+  });
+
+  it('no modifica la llista original', () => {
+    sortRestaurants(list, 'name');
+    expect(names(list)).toEqual(['Bar Pinotxo', 'àbac', 'Can Culleretes']);
   });
 });
