@@ -2,7 +2,7 @@ import React from 'react';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import { WifiOff } from 'lucide-react';
 
-// A dalt, sota la capçalera: a baix xocaria amb la barra de navegació del mòbil
+// A dalt, sota la capçalera: a baix xocaria amb el botó flotant i la barra de navegació del mòbil
 export const OfflineIndicator: React.FC = () => {
   const isOnline = useOnlineStatus();
 

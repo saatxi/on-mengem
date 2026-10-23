@@ -225,7 +225,7 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col pb-[calc(var(--bottom-nav-h)+1.5rem)] sm:pb-12">
+    <div className="min-h-screen bg-stone-50 flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
       {/* Top Navbar */}
       <Navbar
         alerts={alerts}
@@ -298,7 +298,7 @@ function MainApp() {
                 {/* Add button */}
                 <button
                   onClick={() => setShowAddRestaurant(true)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-sm shadow-sm transition active:scale-95"
+                  className="hidden sm:flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-sm shadow-sm transition active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Afegir restaurant</span>
@@ -449,7 +449,7 @@ function MainApp() {
 
               <button
                 onClick={() => setShowAddWishlist(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-sm transition active:scale-95"
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-sm transition active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>Proposar desitjat</span>
@@ -598,6 +598,19 @@ function MainApp() {
         )}
       </main>
 
+      {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}
+      {(effectiveTab === 'restaurants' || effectiveTab === 'wishlist') && (
+        <button
+          onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
+          aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
+          className={cn(
+            'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-full text-white flex items-center justify-center shadow-2xl active:scale-90 transition animate-scale-in',
+            effectiveTab === 'wishlist' ? 'bg-amber-500 shadow-amber-500/40' : 'bg-gradient-to-tr from-accent to-amber-500 shadow-accent/40',
+          )}
+        >
+          <Plus className="w-7 h-7" />
+        </button>
+      )}
 
       {/* Modals */}
       <AddRestaurantModal
