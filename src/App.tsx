@@ -151,7 +151,7 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col selection:bg-orange-500 selection:text-white pb-24 sm:pb-12">
+    <div className="min-h-screen bg-stone-50 flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
       {/* Top Navbar */}
       <Navbar
         alerts={alerts}
@@ -517,7 +517,7 @@ function MainApp() {
       {/* Floating Add Restaurant Action for Mobile */}
       <button
         onClick={() => setShowAddRestaurant(true)}
-        className="fixed bottom-20 right-6 sm:hidden z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-accent to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-accent/40 active:scale-90 transition"
+        className="fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-accent to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-accent/40 active:scale-90 transition"
         title="Afegir restaurant"
       >
         <Plus className="w-7 h-7" />

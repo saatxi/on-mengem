@@ -59,7 +59,7 @@ export const Navbar: React.FC<Props> = ({
   );
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+    <header className="sticky top-0 z-40 pt-[env(safe-area-inset-top)] bg-surface/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
       <div ref={menusRef} className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* Logo and Group Selector */}
         <div className="flex items-center gap-3 min-w-0">
