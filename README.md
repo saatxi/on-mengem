@@ -10,7 +10,9 @@ PWA en català per guardar restaurants i llistes de desitjats en un **espai pers
 - L'**espai personal** és privat: només el veus tu.
 - Pots **crear un grup** o **unir-te'n** a un amb el seu codi de 6 caràcters, i canviar d'espai des del selector de la barra superior.
 - Des de qualsevol restaurant o desitjat de l'espai personal pots **copiar-lo** a un o varis grups, o **moure'l** a un grup.
-- Dins d'un grup hi ha una activitat amb alertes (restaurants i desitjats afegits, nous membres) i un gràfic de cuines.
+- Dins d'un grup hi ha una activitat amb alertes (restaurants i desitjats afegits, nous membres). La pestanya **Resum** mostra les xifres i les cuines de qualsevol espai.
+- Els restaurants es poden cercar (sense tenir en compte els accents), filtrar, ordenar i obrir-ne un a l'atzar; els desitjats es poden marcar com a planificats. L'app recorda la pestanya, els filtres i l'ordre en aquest navegador.
+- Té mode fosc: per defecte segueix el sistema i es pot fixar des del perfil.
 - La seguretat es fa amb Row Level Security a Postgres (vegeu [docs/SEGURETAT.md](docs/SEGURETAT.md)).
 
 ## Posada en marxa
