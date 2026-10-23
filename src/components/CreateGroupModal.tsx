@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Users } from 'lucide-react';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { useAuth } from '../context/AuthContext';
 import { quotaErrorMessage } from '../supabase/errors';
+import { FIELD, LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -47,7 +49,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1">
+          <label className={LABEL}>
             Nom del grup *
           </label>
           <input
@@ -57,12 +59,12 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             placeholder="Ex. Gourmet BCN, Sopars de Divendres, Família..."
             required
             maxLength={80}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1">
+          <label className={LABEL}>
             Descripció o propòsit (opcional)
           </label>
           <textarea
@@ -71,31 +73,35 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Ex. Restaurants recomanats per a reunions i sortides de cap de setmana."
             maxLength={300}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
-        <div className="p-3 rounded-xl bg-orange-50 text-xs text-orange-900 border border-orange-200">
+        <div className="p-3 rounded-2xl bg-accent-soft text-xs text-orange-900 border border-orange-200">
           Es generarà automàticament un <strong>codi d'invitació de 6 caràcters</strong> que podràs compartir per WhatsApp o missatgeria amb els teus amics perquè s'hi uneixin a l'instant.
         </div>
 
         {error && <p role="alert" className="text-xs font-semibold text-red-600">{error}</p>}
 
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             type="button"
             onClick={handleClose}
-            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent-hover text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
             {isSubmitting ? 'Creant...' : 'Crear grup'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

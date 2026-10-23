@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { CalendarCheck, Calendar, Star, FileText, Users, Lock, Globe } from 'lucide-react';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Restaurant, Visit } from '../types';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
+import { FIELD, LABEL } from '../utils/ui';
+import { cn } from '../utils/cn';
 
 interface Props {
   restaurant: Restaurant | null;
@@ -88,7 +91,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5">
         {/* Data */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-2 flex items-center gap-1">
+          <label className={cn(LABEL, 'mb-2')}>
             <Calendar className="w-3.5 h-3.5 text-stone-500" />
             Data de la visita
           </label>
@@ -108,7 +111,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                 value={visitedOn}
                 max={today}
                 onChange={(e) => setVisitedOn(e.target.value)}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+                className={FIELD}
               />
             )}
           </div>
@@ -116,7 +119,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
 
         {/* Valoració */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-2">
+          <label className={cn(LABEL, 'mb-2')}>
             Valoració {rating > 0 ? `(${rating} / 5)` : '(opcional)'}
           </label>
           <div className="flex items-center gap-1">
@@ -139,7 +142,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-2 flex items-center gap-1">
+          <label className={cn(LABEL, 'mb-2')}>
             <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes (opcional)
           </label>
@@ -149,14 +152,14 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Impressions, plats provats, per repetir..."
             maxLength={1000}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         {/* Assistents (només en grups) */}
         {isGroup && Object.keys(members).length > 0 && (
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-2 flex items-center gap-1">
+            <label className={cn(LABEL, 'mb-2')}>
               <Users className="w-3.5 h-3.5 text-stone-500" />
               Qui hi va anar
             </label>
@@ -182,13 +185,13 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {/* Grupal / privada (només en grups) */}
         {isGroup && canToggleShared && (
           <div>
-            <p className="text-xs font-semibold text-stone-600 mb-2">Visibilitat</p>
-            <div className="flex rounded-xl border border-stone-200 overflow-hidden text-xs font-bold">
+            <p className={cn(LABEL, 'mb-2')}>Visibilitat</p>
+            <div className="flex gap-1 p-1 rounded-full bg-stone-100 text-xs font-semibold">
               <button
                 type="button"
                 onClick={() => setShared(true)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 transition ${
-                  shared ? 'bg-emerald-600 text-white' : 'bg-surface text-stone-600 hover:bg-stone-50'
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
+                  shared ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -197,8 +200,8 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
               <button
                 type="button"
                 onClick={() => setShared(false)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 transition border-l border-stone-200 ${
-                  !shared ? 'bg-inverse text-on-inverse' : 'bg-surface text-stone-600 hover:bg-stone-50'
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
+                  !shared ? 'bg-inverse text-on-inverse shadow-md' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 <Lock className="w-3.5 h-3.5" />
@@ -215,20 +218,24 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
 
         {/* Botons */}
         <div className="flex gap-2 pt-1">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="success"
+            size="lg"
+            className="flex-1"
           >
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Registrar visita'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 import { useConfirm } from './ConfirmDialog';
 import { Group } from '../types';
+import { cn } from '../utils/cn';
+import { CARD } from '../utils/ui';
 
 interface Props {
   group: Group;
@@ -36,9 +38,9 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
   const linkBtn = 'text-xs font-bold px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
 
   return (
-    <div className="bg-surface p-6 rounded-3xl border border-stone-200/80 shadow-xs">
+    <div className={cn(CARD, 'p-5 sm:p-7')}>
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-stone-800 flex items-center gap-2">
           <Users className="w-4 h-4 text-accent" />
           Membres ({group.memberUids.length})
         </h3>
@@ -46,13 +48,13 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
         <div className="flex gap-2">
           <button
             onClick={onJoinGroup}
-            className="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-bold text-stone-700 transition"
+            className="px-3.5 py-1.5 rounded-full ring-1 ring-stone-200 hover:bg-stone-100 text-xs font-semibold text-stone-700 transition-colors"
           >
             + Unir-se a un altre grup
           </button>
           <button
             onClick={onCreateGroup}
-            className="px-3 py-1.5 rounded-xl bg-inverse hover:opacity-90 text-on-inverse text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-2xl bg-inverse hover:opacity-90 text-on-inverse text-xs font-bold transition"
           >
             + Crear nou grup
           </button>
@@ -70,13 +72,13 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
           return (
             <div key={uid} className="py-3 flex items-center justify-between gap-2 flex-wrap">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-lg">
+                <div className="w-10 h-10 rounded-2xl bg-accent-soft flex items-center justify-center text-lg">
                   {info?.avatar ?? (isCurrent ? userProfile?.avatar : null) ?? '👤'}
                 </div>
                 <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
                   <span>{isCurrent ? `${name} (Tu)` : name}</span>
                   {isGroupOwner && (
-                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
+                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">
                       Creador
                     </span>
                   )}

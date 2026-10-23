@@ -1,5 +1,6 @@
 import React from 'react';
 import { Utensils, BookmarkPlus, Users, BarChart3, Bell } from 'lucide-react';
+import { cn } from '../utils/cn';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
 
@@ -25,24 +26,24 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
   });
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 flex sm:hidden bg-surface/95 backdrop-blur-md border-t border-stone-200 h-(--bottom-nav-h) pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 inset-x-0 z-50 flex sm:hidden bg-surface/85 backdrop-blur-xl border-t border-stone-900/5 h-(--bottom-nav-h) pb-[env(safe-area-inset-bottom)]">
       {tabs.map(({ id, label, icon: Icon }) => {
         const isActive = activeTab === id;
         return (
           <button
             key={id}
             onClick={() => onTabChange(id)}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5 transition active:scale-95"
+            className="flex-1 flex flex-col items-center justify-center gap-1 transition-transform active:scale-[0.94]"
           >
-            <div className="relative">
-              <Icon className={`size-5 ${isActive ? 'text-accent' : 'text-stone-500'}`} />
+            <div className={cn('relative flex items-center justify-center w-14 h-8 rounded-full transition-colors', isActive && 'bg-accent-soft')}>
+              <Icon className={cn('size-5', isActive ? 'text-accent' : 'text-stone-500')} />
               {id === 'alerts' && alertCount > 0 && (
-                <span className="absolute -top-1 -right-1.5 min-w-[1rem] h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center px-0.5">
+                <span className="absolute top-0 right-2.5 min-w-[1rem] h-4 rounded-full bg-brand text-white text-[9px] font-bold ring-2 ring-surface flex items-center justify-center px-0.5">
                   {alertCount > 9 ? '9+' : alertCount}
                 </span>
               )}
             </div>
-            <span className={`text-xs font-bold ${isActive ? 'text-accent' : 'text-stone-500'}`}>
+            <span className={cn('text-[11px]', isActive ? 'font-bold text-accent' : 'font-medium text-stone-500')}>
               {label}
             </span>
           </button>

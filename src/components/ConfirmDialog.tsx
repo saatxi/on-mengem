@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
+import { Button } from './Button';
 import { Modal } from './Modal';
 
 interface ConfirmOptions {
@@ -76,18 +77,20 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           </div>
           <div className="flex gap-2 px-6 pb-6">
             {!request.alertOnly && (
-              <button
+              <Button
                 type="button"
                 onClick={() => close(false)}
-                className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+                variant="secondary"
+                size="lg"
+                className="flex-1"
               >
                 Cancel·lar
-              </button>
+              </Button>
             )}
             <button
               type="button"
               onClick={() => close(true)}
-              className={`flex-1 py-3 rounded-xl text-sm font-bold text-white shadow-md transition ${
+              className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white shadow-md transition ${
                 request.destructive ? 'bg-red-600 hover:bg-red-700' : 'bg-accent hover:bg-accent-hover'
               }`}
             >

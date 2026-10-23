@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Star, Utensils, MapPin, FileText, Link2, AlertTriangle } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Restaurant } from '../types';
 import {
@@ -12,6 +13,7 @@ import {
   PRICE_RANGES,
   toInstagramHandle,
 } from '../utils/restaurantFields';
+import { FIELD, LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -77,7 +79,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         {/* Nom */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1">
+          <label className={LABEL}>
             Nom del restaurant *
           </label>
           <input
@@ -87,7 +89,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             placeholder="Ex. Can Vador, Bar del Pla, Xemei..."
             required
             maxLength={100}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
           {isDuplicate && (
             <p role="status" className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-800">
@@ -100,14 +102,14 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Cuina i Preu */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className={LABEL}>
               Tipus de cuina
             </label>
             <select
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
               required
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+              className={FIELD}
             >
               <option value="" disabled>Tria una cuina...</option>
               {CUISINES.map((c) => (
@@ -117,13 +119,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className={LABEL}>
               Nivell de preu
             </label>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+              className={FIELD}
             >
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -134,7 +136,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Adreça */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
@@ -144,12 +146,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Ex. Carrer de Provença, 120, Barcelona"
             maxLength={200}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
@@ -161,12 +163,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://..."
             maxLength={300}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
@@ -179,14 +181,14 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             pattern={INSTAGRAM_INPUT_PATTERN}
             placeholder="@nomdelrestaurant"
             maxLength={200}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         {/* Puntuació */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs font-semibold text-stone-600">
+            <label className="text-sm font-semibold text-stone-700">
               {rating !== null ? `Puntuació (${rating} de 5)` : 'Puntuació (sense valorar)'}
             </label>
             <div className="flex items-center gap-2">
@@ -228,7 +230,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes i recomanacions de plats
           </label>
@@ -238,26 +240,30 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Ex. Demanar el tàrtar de tonyina i els bunyols de bacallà. Atenció de 10!"
             maxLength={500}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         {/* Botons */}
         <div className="flex gap-2 pt-3">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent-hover text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir restaurant'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { useAuth } from '../context/AuthContext';
+import { LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -46,7 +48,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1">
+          <label className={LABEL}>
             Codi d'invitació
           </label>
           <input
@@ -56,7 +58,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             placeholder="Ex. 6 caràcters (ex. BCN79X)"
             required
             maxLength={12}
-            className="w-full px-3.5 py-3 rounded-xl border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
+            className="w-full px-3.5 py-3 rounded-2xl border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-400 focus:border-accent focus:ring-4 focus:ring-accent/15 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
           />
           <p className="mt-1 text-xs text-stone-500 text-center">
             Demana el codi a l'administrador o creador del grup.
@@ -65,7 +67,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {feedback && (
           <div
-            className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+            className={`p-3 rounded-2xl text-xs font-medium flex items-center gap-2 ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                 : 'bg-red-50 text-red-800 border border-red-200'
@@ -81,20 +83,24 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         )}
 
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !code.trim()}
-            className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent-hover text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
             {isSubmitting ? 'Connectant...' : 'Unir-me al grup'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

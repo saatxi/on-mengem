@@ -30,6 +30,8 @@ import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersi
 import { DialogProvider } from './components/ConfirmDialog';
 import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices } from 'lucide-react';
 import { cn } from './utils/cn';
+import { CARD, FIELD } from './utils/ui';
+import { Button } from './components/Button';
 
 const TABS = ['restaurants', 'wishlist', 'group', 'stats', 'alerts'] as const;
 type TabType = (typeof TABS)[number];
@@ -44,7 +46,15 @@ type WishlistFilter = keyof typeof WISHLIST_FILTERS;
 const UNDO_DELETE_MS = 5000;
 
 const segmentClass = (active: boolean) =>
-  cn('px-3 py-1.5 rounded-lg font-semibold transition', active ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900');
+  cn('px-3.5 py-1.5 rounded-full font-semibold transition-[background-color,color,box-shadow]', active ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-600 hover:text-stone-900');
+
+// Botons i selectors petits de la barra de filtres
+const CHIP = 'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
+const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
+const CHIP_SELECT = 'px-3.5 py-2 rounded-full bg-surface ring-1 ring-stone-200 text-xs text-stone-700 font-medium focus:ring-2 focus:ring-accent outline-hidden';
+
+// Estat buit d'una llista
+const EMPTY_STATE = cn(CARD, 'py-16 px-8 text-center space-y-3');
 
 const keysOf = <T extends object>(obj: T) => Object.keys(obj) as (keyof T & string)[];
 
@@ -126,8 +136,8 @@ function MainApp() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 rounded-2xl bg-accent flex items-center justify-center text-white animate-pulse mb-4">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="w-14 h-14 rounded-2xl bg-brand shadow-lg shadow-accent/30 flex items-center justify-center text-white animate-pulse mb-4">
           <Utensils className="w-6 h-6" />
         </div>
         <p className="text-sm font-semibold text-stone-600">Connectant amb On menjem?...</p>
@@ -225,7 +235,7 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
+    <div className="min-h-screen flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
       {/* Top Navbar */}
       <Navbar
         alerts={alerts}
@@ -239,7 +249,7 @@ function MainApp() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
         {/* Navigation Tabs */}
-        <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 p-1.5 bg-stone-200/70 rounded-2xl mb-6 max-w-full overflow-x-auto">
+        <div className="hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto">
           <TabButton
             icon={Utensils}
             label={`Restaurants (${restaurants.length})`}
@@ -280,34 +290,31 @@ function MainApp() {
         {effectiveTab === 'restaurants' && (
           <div className="space-y-5">
             {/* Search & Filter Header */}
-            <div className="bg-surface p-4 rounded-2xl border border-stone-200/80 shadow-xs space-y-3">
-              <div className="flex flex-col sm:flex-row gap-2.5 justify-between">
+            <div className={cn(CARD, 'p-4 sm:p-5 space-y-3')}>
+              <div className="flex flex-col sm:flex-row gap-3 justify-between">
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-stone-500 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cercar per nom, adreça, cuina, notes..."
                     aria-label="Cercar restaurants"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-surface placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
+                    className={cn(FIELD, 'pl-11 bg-stone-50')}
                   />
                 </div>
 
                 {/* Add button */}
-                <button
-                  onClick={() => setShowAddRestaurant(true)}
-                  className="hidden sm:flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-sm shadow-sm transition active:scale-95"
-                >
+                <Button onClick={() => setShowAddRestaurant(true)} variant="brand" className="hidden sm:inline-flex">
                   <Plus className="w-4 h-4" />
                   <span>Afegir restaurant</span>
-                </button>
+                </Button>
               </div>
 
               {/* Filtres */}
               <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-100 text-xs">
-                <div className="flex items-center rounded-xl bg-stone-100 p-0.5" role="group" aria-label="Estat de visita">
+                <div className="flex items-center rounded-full bg-stone-100 p-1" role="group" aria-label="Estat de visita">
                   {keysOf(VISITED_FILTERS).map((key) => (
                     <button key={key} onClick={() => setFilterVisited(key)} aria-pressed={filterVisited === key} className={segmentClass(filterVisited === key)}>
                       {VISITED_FILTERS[key]}
@@ -319,11 +326,7 @@ function MainApp() {
                 <button
                   onClick={() => setFilterFavorite(!filterFavorite)}
                   aria-pressed={filterFavorite}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold transition border ${
-                    filterFavorite
-                      ? 'bg-amber-500 text-white border-amber-600'
-                      : 'bg-surface text-stone-700 border-stone-200 hover:bg-stone-50'
-                  }`}
+                  className={cn(CHIP, filterFavorite ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' : CHIP_IDLE)}
                 >
                   <Star className={`w-3.5 h-3.5 ${filterFavorite ? 'fill-white' : 'fill-amber-400 text-amber-500'}`} />
                   <span>Favorits</span>
@@ -335,7 +338,7 @@ function MainApp() {
                     value={cuisineFilter}
                     onChange={(e) => setSelectedCuisine(e.target.value)}
                     aria-label="Cuina"
-                    className="px-2.5 py-2 rounded-xl bg-surface border border-stone-200 text-xs text-stone-700 font-medium focus:border-orange-500 outline-hidden"
+                    className={CHIP_SELECT}
                   >
                     {availableCuisines.map((c) => (
                       <option key={c} value={c}>
@@ -350,7 +353,7 @@ function MainApp() {
                   onClick={openRandomRestaurant}
                   disabled={filteredRestaurants.length === 0}
                   title="Obre un dels restaurants de la llista a l'atzar"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold border border-stone-200 bg-surface text-stone-700 hover:bg-stone-50 disabled:opacity-40 transition active:scale-95"
+                  className={cn(CHIP, CHIP_IDLE, 'disabled:opacity-40')}
                 >
                   <Dices className="w-3.5 h-3.5 text-accent" />
                   <span>Sorprèn-me</span>
@@ -360,7 +363,7 @@ function MainApp() {
                   value={sort}
                   onChange={(e) => setSort(e.target.value as RestaurantSort)}
                   aria-label="Ordena per"
-                  className="px-2.5 py-2 rounded-xl bg-surface border border-stone-200 text-xs text-stone-700 font-medium focus:border-orange-500 outline-hidden"
+                  className={CHIP_SELECT}
                 >
                   {keysOf(RESTAURANT_SORTS).map((key) => (
                     <option key={key} value={key}>
@@ -372,7 +375,7 @@ function MainApp() {
                 {hasRestaurantFilters && (
                   <button
                     onClick={clearRestaurantFilters}
-                    className="flex items-center gap-1 px-2.5 py-2 rounded-xl font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition"
+                    className={cn(CHIP, 'gap-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100')}
                   >
                     <X className="w-3.5 h-3.5" />
                     <span>Netejar filtres</span>
@@ -389,30 +392,24 @@ function MainApp() {
             {dataLoading ? (
               <CardSkeletons className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />
             ) : filteredRestaurants.length === 0 ? (
-              <div className="py-16 text-center bg-surface rounded-3xl border border-stone-200/80 p-8 space-y-3">
-                <div className="w-16 h-16 rounded-2xl bg-orange-100 text-accent flex items-center justify-center mx-auto">
+              <div className={EMPTY_STATE}>
+                <div className="w-16 h-16 rounded-3xl bg-brand text-white shadow-lg shadow-accent/30 flex items-center justify-center mx-auto -rotate-6">
                   <UtensilsCrossed className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold text-stone-800">Cap restaurant trobat</h3>
-                <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Cap restaurant trobat</h3>
+                <p className="text-sm text-stone-500 max-w-sm mx-auto">
                   {hasRestaurantFilters
                     ? 'No hi ha resultats amb els filtres seleccionats.'
                     : isPersonal ? 'El teu espai personal és buit. Afegeix els teus restaurants i després comparteix-los amb els teus grups!' : 'Encara no hi ha restaurants al grup. Sigues el primer a afegir-ne un!'}
                 </p>
                 {hasRestaurantFilters ? (
-                  <button
-                    onClick={clearRestaurantFilters}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-100 transition"
-                  >
+                  <Button onClick={clearRestaurantFilters} variant="secondary">
                     <X className="w-4 h-4" /> Netejar filtres
-                  </button>
+                  </Button>
                 ) : (
-                  <button
-                    onClick={() => setShowAddRestaurant(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-bold text-xs hover:bg-accent-hover transition"
-                  >
+                  <Button onClick={() => setShowAddRestaurant(true)} variant="brand">
                     <Plus className="w-4 h-4" /> Afegir el primer restaurant
-                  </button>
+                  </Button>
                 )}
               </div>
             ) : (
@@ -434,42 +431,41 @@ function MainApp() {
         {/* TAB 2: WISHLIST (LLISTA DE DESITJATS) */}
         {effectiveTab === 'wishlist' && (
           <div className="space-y-5">
-            <div className="bg-surface p-4 rounded-2xl border border-stone-200/80 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
               <div>
-                <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                  <BookmarkPlus className="w-5 h-5 text-amber-500" />
+                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 flex items-center gap-2.5">
+                  <span className="size-10 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center">
+                    <BookmarkPlus className="w-5 h-5" />
+                  </span>
                   Llista de desitjats
                 </h2>
-                <p className="text-xs text-stone-500">
+                <p className="mt-1 text-sm text-stone-500">
                   {isPersonal
                     ? 'Llocs que vols provar, només visibles per a tu.'
                     : 'Restaurants pendents que algú del grup ha recomanat o vol anar a provar.'}
                 </p>
               </div>
 
-              <button
-                onClick={() => setShowAddWishlist(true)}
-                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-sm transition active:scale-95"
-              >
+              <Button onClick={() => setShowAddWishlist(true)} variant="wish" className="hidden sm:inline-flex">
                 <Plus className="w-4 h-4" />
                 <span>Proposar desitjat</span>
-              </button>
+              </Button>
             </div>
 
             {visibleWishlist.length > 0 && (
-              <div className="flex flex-col sm:flex-row gap-2.5 sm:items-center text-xs">
+              <div className="flex flex-col sm:flex-row gap-3 sm:items-center text-xs">
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-stone-500 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="search"
                     value={wishlistQuery}
                     onChange={(e) => setWishlistQuery(e.target.value)}
                     placeholder="Cercar per nom, cuina, qui ho recomana..."
                     aria-label="Cercar desitjats"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-surface placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
+                    className={cn(FIELD, 'pl-11')}
                   />
                 </div>
-                <div className="flex items-center self-start rounded-xl bg-stone-200/70 p-0.5 overflow-x-auto max-w-full" role="group" aria-label="Estat del desitjat">
+                <div className="flex items-center self-start rounded-full bg-stone-200/60 p-1 overflow-x-auto max-w-full" role="group" aria-label="Estat del desitjat">
                   {keysOf(WISHLIST_FILTERS).map((key) => (
                     <button key={key} onClick={() => setWishlistFilter(key)} aria-pressed={wishlistFilter === key} className={cn(segmentClass(wishlistFilter === key), 'whitespace-nowrap')}>
                       {WISHLIST_FILTERS[key]}
@@ -482,31 +478,25 @@ function MainApp() {
             {dataLoading ? (
               <CardSkeletons count={4} className="grid grid-cols-1 md:grid-cols-2 gap-4" />
             ) : visibleWishlist.length === 0 ? (
-              <div className="py-16 text-center bg-surface rounded-3xl border border-stone-200 p-8 space-y-3">
-                <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+              <div className={EMPTY_STATE}>
+                <div className="w-16 h-16 rounded-3xl bg-violet-600 text-white shadow-lg shadow-violet-600/30 flex items-center justify-center mx-auto -rotate-6">
                   <Sparkles className="w-7 h-7" />
                 </div>
-                <h3 className="text-base font-bold text-stone-800">No hi ha llocs desitjats pendents</h3>
-                <p className="text-xs text-stone-500 max-w-sm mx-auto">
+                <h3 className="text-lg font-extrabold tracking-tight text-stone-900">No hi ha llocs desitjats pendents</h3>
+                <p className="text-sm text-stone-500 max-w-sm mx-auto">
                   T'han recomanat un restaurant interessant? Afegeix-lo aquí perquè el grup el pugui provar!
                 </p>
-                <button
-                  onClick={() => setShowAddWishlist(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition"
-                >
+                <Button onClick={() => setShowAddWishlist(true)} variant="wish">
                   <Plus className="w-4 h-4" /> Afegir el primer desitjat
-                </button>
+                </Button>
               </div>
             ) : filteredWishlist.length === 0 ? (
-              <div className="py-12 text-center bg-surface rounded-3xl border border-stone-200 p-8 space-y-3">
-                <h3 className="text-base font-bold text-stone-800">Cap desitjat amb aquests filtres</h3>
+              <div className={cn(EMPTY_STATE, 'py-12')}>
+                <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Cap desitjat amb aquests filtres</h3>
                 {hasWishlistFilters && (
-                  <button
-                    onClick={clearWishlistFilters}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-100 transition"
-                  >
+                  <Button onClick={clearWishlistFilters} variant="secondary">
                     <X className="w-4 h-4" /> Netejar filtres
-                  </button>
+                  </Button>
                 )}
               </div>
             ) : (
@@ -532,13 +522,13 @@ function MainApp() {
         {effectiveTab === 'group' && (
           <div className="space-y-6">
             {/* Grup actiu i codi d'invitació */}
-            <div className="bg-surface p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-xs">
+            <div className={cn(CARD, 'p-5 sm:p-7')}>
               <div className="flex flex-col md:flex-row justify-between gap-5">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-accent">
+                  <p className="text-sm font-semibold text-accent">
                     Grup actiu{activeGroup?.ownerName ? ` · creat per ${activeGroup.ownerName}` : ''}
                   </p>
-                  <h2 className="mt-1 text-2xl font-black text-stone-900 tracking-tight break-words">
+                  <h2 className="mt-1 text-3xl font-extrabold text-stone-900 tracking-tight break-words">
                     {activeGroup?.name}
                   </h2>
                   {activeGroup?.description && (
@@ -546,27 +536,21 @@ function MainApp() {
                   )}
                 </div>
 
-                <div className="w-full md:w-72 shrink-0 p-4 rounded-2xl bg-orange-50 border border-orange-100">
-                  <p className="text-xs font-semibold text-orange-900 mb-2">Codi d'invitació</p>
+                <div className="w-full md:w-80 shrink-0 p-4 rounded-3xl bg-accent-soft">
+                  <p className="text-sm font-semibold text-orange-900 mb-2">Codi d'invitació</p>
                   <div className="flex items-center gap-2">
-                    <span className="flex-1 px-3 py-2 rounded-xl bg-surface border border-orange-200 font-mono text-xl font-black tracking-widest text-stone-900 text-center">
+                    <span className="flex-1 px-3 py-2 rounded-2xl bg-surface font-mono text-xl font-bold tracking-[0.3em] text-stone-900 text-center shadow-card">
                       {activeGroup?.code}
                     </span>
-                    <button
-                      onClick={handleCopyGroupCode}
-                      className="flex items-center gap-1.5 px-3 py-3 rounded-xl bg-accent hover:bg-accent-hover text-white text-xs font-bold transition active:scale-95"
-                    >
+                    <Button onClick={handleCopyGroupCode} size="lg" className="px-4">
                       {copiedGroupCode ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       <span>{copiedGroupCode ? 'Copiat' : 'Copiar'}</span>
-                    </button>
+                    </Button>
                   </div>
-                  <button
-                    onClick={handleShareGroupWhatsApp}
-                    className="mt-2 w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition"
-                  >
-                    <Share2 className="w-3.5 h-3.5" />
+                  <Button onClick={handleShareGroupWhatsApp} variant="success" className="mt-2 w-full">
+                    <Share2 className="w-4 h-4" />
                     <span>Compartir per WhatsApp</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -604,8 +588,8 @@ function MainApp() {
           onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
           aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
           className={cn(
-            'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-full text-white flex items-center justify-center shadow-2xl active:scale-90 transition animate-scale-in',
-            effectiveTab === 'wishlist' ? 'bg-amber-500 shadow-amber-500/40' : 'bg-gradient-to-tr from-accent to-amber-500 shadow-accent/40',
+            'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl active:scale-90 transition-transform animate-scale-in',
+            effectiveTab === 'wishlist' ? 'bg-violet-600 shadow-violet-600/40' : 'bg-brand shadow-accent/40',
           )}
         >
           <Plus className="w-7 h-7" />

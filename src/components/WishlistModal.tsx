@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { BookmarkPlus, Link2, UserCheck, MessageSquare, MapPin } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { WishlistItem } from '../types';
 import {
@@ -11,6 +12,7 @@ import {
   PRICE_RANGES,
   toInstagramHandle,
 } from '../utils/restaurantFields';
+import { FIELD, LABEL } from '../utils/ui';
 
 export type WishlistFormData = Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>;
 
@@ -66,11 +68,11 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
   return (
     <Modal label={isEditing ? 'Editar desitjat' : 'Proposar desitjat'} onClose={onClose}>
-      <ModalHeader title={isEditing ? 'Editar desitjat' : 'Proposar desitjat'} icon={BookmarkPlus} iconClassName="bg-amber-100 text-amber-600" onClose={onClose} />
+      <ModalHeader title={isEditing ? 'Editar desitjat' : 'Proposar desitjat'} icon={BookmarkPlus} iconClassName="bg-violet-100 text-violet-700" onClose={onClose} />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1">
+          <label className={LABEL}>
             {isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}
           </label>
           <input
@@ -80,19 +82,19 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             placeholder="Ex. Gresca, Suculent, Bar Brutal..."
             required
             maxLength={100}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className={LABEL}>
               Cuina
             </label>
             <select
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+              className={FIELD}
             >
               {CUISINES.map((c) => (
                 <option key={c} value={c}>{c}</option>
@@ -100,13 +102,13 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             </select>
           </div>
           <div>
-            <label className="block text-xs font-semibold text-stone-600 mb-1">
+            <label className={LABEL}>
               Preu estimat
             </label>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+              className={FIELD}
             >
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -116,7 +118,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <UserCheck className="w-3.5 h-3.5 text-stone-500" />
             Qui ho ha recomanat?
           </label>
@@ -126,12 +128,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             onChange={(e) => setRecommendedBy(e.target.value)}
             placeholder="Ex. El meu cosí, Guia Michelin, TikTok..."
             maxLength={80}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
@@ -141,12 +143,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Ex. Carrer de Provença 88, Barcelona"
             maxLength={200}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <MessageSquare className="w-3.5 h-3.5 text-stone-500" />
             Motiu / Per què hi volem anar?
           </label>
@@ -156,12 +158,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Ex. Diuen que fan el millor pastís de formatge de la ciutat i tenen un menú degustació assequible."
             maxLength={500}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
@@ -173,12 +175,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://..."
             maxLength={300}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-stone-600 mb-1 flex items-center gap-1">
+          <label className={LABEL}>
             <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
@@ -191,25 +193,29 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             pattern={INSTAGRAM_INPUT_PATTERN}
             placeholder="@nomdelrestaurant"
             maxLength={200}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+            className={FIELD}
           />
         </div>
 
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !restaurantName.trim()}
-            className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="wish"
+            size="lg"
+            className="flex-1"
           >
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir als desitjats'}
-          </button>
+          </Button>
         </div>
       </form>
     </Modal>

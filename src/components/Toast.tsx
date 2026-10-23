@@ -28,7 +28,7 @@ export const Toast: React.FC<Props> = ({ message, onClose, variant = 'error', ac
     <div
       role={isError ? 'alert' : 'status'}
       className={cn(
-        'fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 w-max max-w-[calc(100vw-2rem)] rounded-xl px-4 py-3 text-sm font-medium shadow-xl animate-fade-in',
+        'fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 w-max max-w-[calc(100vw-2rem)] rounded-2xl px-4 py-3 text-sm font-medium shadow-xl animate-fade-in',
         isError ? 'bg-red-600 text-white' : 'bg-inverse text-on-inverse',
       )}
     >

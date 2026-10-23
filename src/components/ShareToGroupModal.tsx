@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Copy, ArrowRightLeft, Users } from 'lucide-react';
+import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Group } from '../types';
 
@@ -64,7 +65,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
         </p>
 
         {groups.length === 0 ? (
-          <div className="p-4 rounded-xl bg-stone-50 border border-stone-200 text-xs text-stone-500 text-center">
+          <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 text-xs text-stone-500 text-center">
             Encara no ets membre de cap grup. Crea'n un o uneix-te amb un codi.
           </div>
         ) : (
@@ -74,8 +75,8 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
               return (
                 <label
                   key={g.id}
-                  className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition ${
-                    checked ? 'border-orange-400 bg-orange-50' : 'border-stone-200 hover:bg-stone-50'
+                  className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition ${
+                    checked ? 'border-accent bg-accent-soft' : 'border-stone-200 hover:bg-stone-50'
                   }`}
                 >
                   <input
@@ -98,13 +99,15 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
 
         {error && <div className="text-xs text-red-600 font-medium">{error}</div>}
 
-        <button
+        <Button
           onClick={submit}
           disabled={busy || selected.length === 0}
-          className="w-full py-3 rounded-xl bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-sm font-bold transition"
+          variant="primary"
+          size="lg"
+          className="w-full"
         >
           {busy ? 'Processant…' : isMove ? 'Moure' : `Copiar${selected.length > 1 ? ` a ${selected.length} grups` : ''}`}
-        </button>
+        </Button>
       </div>
     </Modal>
   );

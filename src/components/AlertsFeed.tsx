@@ -2,6 +2,8 @@ import React from 'react';
 import { Bell, UtensilsCrossed, Sparkles, Users, Star } from 'lucide-react';
 import { Alert } from '../types';
 import { timeAgo } from '../utils/time';
+import { cn } from '../utils/cn';
+import { CARD } from '../utils/ui';
 
 interface Props {
   alerts: Alert[];
@@ -15,18 +17,18 @@ type AlertConfig = {
 };
 
 const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
-  restaurant_added: { icon: UtensilsCrossed, iconBg: 'bg-orange-100', iconColor: 'text-accent' },
-  wishlist_added: { icon: Sparkles, iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
+  restaurant_added: { icon: UtensilsCrossed, iconBg: 'bg-accent-soft', iconColor: 'text-accent' },
+  wishlist_added: { icon: Sparkles, iconBg: 'bg-violet-100', iconColor: 'text-violet-700' },
   group_joined: { icon: Users, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
   restaurant_reviewed: { icon: Star, iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
 };
 
 export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => {
   return (
-    <div className="bg-surface p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+    <div className={cn(CARD, 'p-5 sm:p-7 space-y-4')}>
       <div className="flex items-center justify-between pb-3 border-b border-stone-100">
         <div>
-          <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
+          <h2 className="text-lg font-extrabold tracking-tight text-stone-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
             Activitat del grup
           </h2>
@@ -37,7 +39,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
         {alerts.length > 0 && (
           <button
             onClick={markAllAlertsAsRead}
-            className="px-3 py-1.5 rounded-xl border border-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+            className="px-3 py-1.5 rounded-full ring-1 ring-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
           >
             Marcar tot com a llegit
           </button>
@@ -56,10 +58,10 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
             return (
               <div
                 key={alert.id}
-                className="p-4 rounded-2xl bg-stone-50 border border-stone-200/80 flex items-start gap-3 hover:bg-orange-50/40 transition"
+                className="p-4 rounded-2xl bg-stone-50 flex items-start gap-3 hover:bg-accent-soft/50 transition-colors"
               >
                 <div
-                  className={`size-9 rounded-xl ${config.iconBg} flex items-center justify-center flex-shrink-0`}
+                  className={`size-9 rounded-2xl ${config.iconBg} flex items-center justify-center flex-shrink-0`}
                 >
                   <Icon className={`size-4 ${config.iconColor}`} />
                 </div>

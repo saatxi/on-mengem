@@ -95,7 +95,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-xs sm:p-4 animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/40 backdrop-blur-sm sm:p-4 animate-fade-in">
       <div
         ref={panelRef}
         role="dialog"
@@ -105,7 +105,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }
         className={cn(
           'relative w-full flex flex-col overflow-y-auto overscroll-contain bg-surface shadow-2xl outline-hidden',
           'max-h-[calc(100dvh-1.5rem)] rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up',
-          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-3xl sm:pb-0 sm:border sm:border-stone-200 sm:animate-scale-in',
+          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:pb-0 sm:ring-1 sm:ring-stone-900/5 sm:animate-scale-in',
           SIZES[size],
         )}
       >
@@ -127,23 +127,23 @@ interface HeaderProps {
 
 // Capçalera comuna dels diàlegs: es queda fixa a dalt quan el contingut es desplaça
 export const ModalHeader: React.FC<HeaderProps> = ({ title, subtitle, icon: Icon, iconClassName, onClose }) => (
-  <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-surface/95 backdrop-blur-md border-b border-stone-100">
+  <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-surface/90 backdrop-blur-md border-b border-stone-100">
     <div className="flex items-center gap-3 min-w-0">
       {Icon && (
-        <span className={cn('size-10 shrink-0 rounded-xl flex items-center justify-center bg-orange-100 text-accent', iconClassName)}>
+        <span className={cn('size-11 shrink-0 rounded-2xl flex items-center justify-center bg-accent-soft text-accent', iconClassName)}>
           <Icon className="size-5" />
         </span>
       )}
       <div className="min-w-0">
-        <h2 className="text-base font-bold text-stone-900 truncate">{title}</h2>
-        {subtitle && <p className="text-xs text-stone-500 truncate">{subtitle}</p>}
+        <h2 className="text-lg font-extrabold tracking-tight text-stone-900 truncate">{title}</h2>
+        {subtitle && <p className="text-sm text-stone-500 truncate">{subtitle}</p>}
       </div>
     </div>
     <button
       type="button"
       onClick={onClose}
       aria-label="Tanca"
-      className="p-2 -mr-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition"
+      className="p-2 -mr-2 rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 hover:bg-stone-200 active:scale-[0.96] transition-[background-color,color,transform]"
     >
       <X className="size-5" />
     </button>

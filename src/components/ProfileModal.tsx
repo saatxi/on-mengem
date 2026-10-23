@@ -5,6 +5,7 @@ import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
 import { useTheme, type ThemePreference } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
+import { FIELD, LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -89,7 +90,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
               className="size-10 rounded-full object-cover shrink-0"
             />
           ) : (
-            <span className="size-10 rounded-full bg-orange-100 flex items-center justify-center text-xl shrink-0">
+            <span className="size-10 rounded-full bg-accent-soft flex items-center justify-center text-xl shrink-0">
               {userProfile?.avatar || '🍕'}
             </span>
           )}
@@ -102,7 +103,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
         {/* Form to update display name / avatar */}
         <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+            <label className={LABEL}>
               Nom que veuran els altres membres del grup
             </label>
             <input
@@ -113,12 +114,12 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
               required
               minLength={2}
               maxLength={50}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
+              className={FIELD}
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+            <label className={cn(LABEL, 'mb-2')}>
               Tria el teu avatar culinari
             </label>
             <div className="grid grid-cols-6 gap-2">
@@ -127,9 +128,9 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   key={emoji}
                   type="button"
                   onClick={() => setAvatar(emoji)}
-                  className={`h-10 rounded-xl text-xl flex items-center justify-center transition ${
+                  className={`h-10 rounded-2xl text-xl flex items-center justify-center transition ${
                     avatar === emoji
-                      ? 'bg-orange-100 ring-2 ring-orange-500 scale-105'
+                      ? 'bg-accent-soft ring-2 ring-accent scale-105'
                       : 'bg-stone-100 hover:bg-stone-200'
                   }`}
                 >
@@ -143,7 +144,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               disabled={isSaving || nickname.trim().length < 2}
-              className="px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white text-xs font-bold shadow-xs disabled:opacity-50 transition"
+              className="px-4 py-2.5 rounded-2xl bg-accent hover:bg-accent-hover text-white text-xs font-bold shadow-card disabled:opacity-50 transition"
             >
               {isSaving ? 'Guardant...' : savedSuccess ? 'Guardat!' : 'Desar el perfil'}
             </button>
@@ -162,8 +163,8 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {/* Tema (només en aquest navegador) */}
         <div>
-          <p className="text-xs font-semibold text-stone-600 mb-1.5">Aparença</p>
-          <div className="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Aparença">
+          <p className={LABEL}>Aparença</p>
+          <div className="grid grid-cols-3 gap-1 rounded-2xl bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Aparença">
             {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -172,7 +173,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
                 aria-pressed={theme === value}
                 className={cn(
                   'flex items-center justify-center gap-1.5 py-2 rounded-lg transition',
-                  theme === value ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900',
+                  theme === value ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-600 hover:text-stone-900',
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -203,7 +204,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="p-4 rounded-2xl border border-red-200 bg-red-50/50 space-y-3">
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-red-700">Eliminar el compte</h3>
+            <h3 className="text-xs font-semibold text-red-700">Eliminar el compte</h3>
             <p className="mt-1 text-xs text-stone-600">
               Esborra el teu perfil i el teu espai personal. Aquesta acció no es pot desfer.
             </p>
@@ -212,7 +213,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <button
               onClick={handleDeleteAccount}
               disabled={isDeleting}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-300 bg-surface text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-red-300 bg-surface text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>{isDeleting ? 'Eliminant...' : 'Eliminar compte'}</span>
