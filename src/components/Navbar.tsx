@@ -188,7 +188,7 @@ export const Navbar: React.FC<Props> = ({
             >
               <Bell className="w-5 h-5" />
               {unreadAlerts.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-accent text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-accent text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-surface">
                   {unreadAlerts.length > 9 ? '9+' : unreadAlerts.length}
                 </span>
               )}

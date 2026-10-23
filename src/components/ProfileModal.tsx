@@ -1,18 +1,27 @@
 import React, { useState } from 'react';
-import { LogOut, Check, Trash2, UserRound } from 'lucide-react';
+import { LogOut, Check, Trash2, UserRound, Monitor, Sun, Moon } from 'lucide-react';
 import { Modal, ModalHeader } from './Modal';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
+import { useTheme, type ThemePreference } from '../context/ThemeContext';
+import { cn } from '../utils/cn';
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.FC<{ className?: string }> }[] = [
+  { value: 'system', label: 'Sistema', icon: Monitor },
+  { value: 'light', label: 'Clar', icon: Sun },
+  { value: 'dark', label: 'Fosc', icon: Moon },
+];
+
 const FOOD_AVATARS = ['🍕', '🍣', '🥘', '🍷', '🌮', '🍔', '🥗', '🍜', '🥑', '🥞', '☕', '🍰'];
 
 export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const { userProfile, updateProfile, logout, deleteAccount, authUser } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [nickname, setNickname] = useState(userProfile?.nickname || '');
   const [avatar, setAvatar] = useState(userProfile?.avatar || '🍕');
   const [isSaving, setIsSaving] = useState(false);
@@ -150,6 +159,28 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             )}
           </div>
         </form>
+
+        {/* Tema (només en aquest navegador) */}
+        <div>
+          <p className="text-xs font-semibold text-stone-600 mb-1.5">Aparença</p>
+          <div className="grid grid-cols-3 gap-1 rounded-xl bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Aparença">
+            {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setTheme(value)}
+                aria-pressed={theme === value}
+                className={cn(
+                  'flex items-center justify-center gap-1.5 py-2 rounded-lg transition',
+                  theme === value ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900',
+                )}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Sign out */}
         <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">

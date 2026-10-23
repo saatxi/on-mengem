@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
 import { Navbar } from './components/Navbar';
 import { WelcomeOnboarding } from './components/WelcomeOnboarding';
@@ -743,10 +744,12 @@ function MainApp() {
 
 export function App() {
   return (
-    <AuthProvider>
-      <DialogProvider>
-        <MainApp />
-      </DialogProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <DialogProvider>
+          <MainApp />
+        </DialogProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

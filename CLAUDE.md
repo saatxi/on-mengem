@@ -25,7 +25,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 - `src/App.tsx`: pantalla principal (pestanyes i estat dels modals).
 - `src/components/`: components i modals.
-- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`).
+- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
 - `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
@@ -39,7 +39,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Text d'UI, errors, comentaris i documentació **en català**; identificadors (components, funcions, tipus, fitxers) **en anglès**.
 - Components: funcions `React.FC<Props>` amb `interface Props` local i export nomenat (sense `default`). Fitxers en PascalCase.
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
-- Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#ea580c`, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; classes condicionals amb `cn()` (`src/utils/cn.ts`).
+- Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#ea580c`, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; classes condicionals amb `cn()` (`src/utils/cn.ts`). El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
 - Imports relatius (l'àlies `@/` existeix però no s'usa).
 - Respecta `.editorconfig` (UTF-8, LF, final de línia); imita l'estil dels fitxers veïns (cometes simples, punt i coma).
 
