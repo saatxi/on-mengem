@@ -78,66 +78,61 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} panelClassName="relative w-full max-w-lg bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6">
-      {/* Header Banner */}
-      <div className="p-6 bg-gradient-to-r from-accent via-orange-500 to-amber-500 text-white relative">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-1 flex-wrap">
-              <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-semibold">
-                {restaurant.cuisine || 'Restaurant'}
+    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} size="lg">
+      {/* Capçalera */}
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-3 px-5 sm:px-6 pt-4 pb-3 bg-surface/95 backdrop-blur-md border-b border-stone-100">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 mb-1.5 flex-wrap text-xs font-semibold">
+            <span className="px-2 py-0.5 rounded-md bg-orange-50 text-orange-800">
+              {restaurant.cuisine || 'Restaurant'}
+            </span>
+            {restaurant.priceRange && (
+              <span className="px-2 py-0.5 rounded-md bg-stone-100 text-stone-700">{restaurant.priceRange}</span>
+            )}
+            {visited && (
+              <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800">
+                {visitCount === 1 ? '1 visita' : `${visitCount} visites`}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold font-mono">
-                {restaurant.priceRange || '—'}
-              </span>
-              {visited && (
-                <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-xs font-bold">
-                  {visitCount === 1 ? '1 visita' : `${visitCount} visites`}
-                </span>
-              )}
-            </div>
-            <h2 className="text-2xl font-black text-white tracking-tight">{restaurant.name}</h2>
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onEdit(restaurant)}
-              className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
-              title="Editar restaurant"
-              aria-label="Editar restaurant"
-            >
-              <Pencil className="w-5 h-5" />
-            </button>
-            <button
-              onClick={onClose}
-              aria-label="Tanca"
-              className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
-            >
-              <X className="w-5 h-5" />
-            </button>
+          <h2 className="text-xl font-black text-stone-900 tracking-tight">{restaurant.name}</h2>
+          <div className="mt-1 flex items-center gap-3 flex-wrap text-xs text-stone-500">
+            {restaurant.rating != null && (
+              <span className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                <strong className="text-stone-800">{restaurant.rating.toFixed(1)}</strong> valoració
+              </span>
+            )}
+            {avgRating != null && (
+              <span className="flex items-center gap-1">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                <strong className="text-stone-800">{avgRating.toFixed(1)}</strong> mitjana de les visites
+              </span>
+            )}
+            {restaurant.rating == null && avgRating == null && <span>Sense valorar</span>}
           </div>
         </div>
-
-        <div className="mt-4 flex items-center gap-4 text-xs font-medium text-orange-100">
-          {restaurant.rating != null ? (
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
-              <span className="text-white font-bold text-sm">{restaurant.rating.toFixed(1)}</span>
-              <span>/ 5</span>
-            </div>
-          ) : avgRating == null ? (
-            <span>Sense valorar</span>
-          ) : null}
-          {avgRating != null && (
-            <div className="flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 text-amber-300" />
-              <span>Nota visites: <strong className="text-white">{avgRating.toFixed(1)}</strong></span>
-            </div>
-          )}
+        <div className="flex items-center gap-1 -mr-2 shrink-0">
+          <button
+            onClick={() => onEdit(restaurant)}
+            className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition"
+            title="Editar restaurant"
+            aria-label="Editar restaurant"
+          >
+            <Pencil className="w-5 h-5" />
+          </button>
+          <button
+            onClick={onClose}
+            aria-label="Tanca"
+            className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-4">
+      <div className="p-5 sm:p-6 space-y-4">
         {/* Notes */}
         {restaurant.notes ? (
           <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-100">
@@ -160,9 +155,10 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 href={mapsUrl(restaurant.name, restaurant.address)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1 bg-stone-700 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition flex-shrink-0"
+                className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover flex-shrink-0"
               >
-                Maps
+                <span>Mapa</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
             </div>
           )}
@@ -220,7 +216,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         <div className="pt-3 grid grid-cols-2 gap-2">
           <button
             onClick={() => onRegisterVisit(restaurant)}
-            className="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700 transition"
+            className="py-3 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700 transition"
           >
             <Plus className="w-4 h-4" />
             <span>Registrar visita</span>
@@ -228,7 +224,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
           <button
             onClick={() => onToggleFavorite(restaurant)}
-            className={`py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition ${
+            className={`py-3 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition ${
               restaurant.favorite
                 ? 'bg-amber-100 text-amber-800 border border-amber-300'
                 : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
@@ -244,7 +240,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             {onCopyToGroup && (
               <button
                 onClick={() => onCopyToGroup(restaurant)}
-                className="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
+                className="py-3 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
               >
                 <Copy className="w-4 h-4" />
                 <span>Copiar a un grup</span>
@@ -253,7 +249,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             {onMoveToGroup && (
               <button
                 onClick={() => onMoveToGroup(restaurant)}
-                className="py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
+                className="py-3 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 bg-stone-100 text-stone-700 hover:bg-stone-200 transition"
               >
                 <ArrowRightLeft className="w-4 h-4" />
                 <span>Moure a un grup</span>

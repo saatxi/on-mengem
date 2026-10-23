@@ -68,7 +68,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         <Modal
           label={request.message}
           onClose={() => close(false)}
-          panelClassName="relative w-full max-w-sm bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6"
+          size="sm"
         >
           <div className="p-6 space-y-3">
             <p className="text-base font-bold text-stone-900">{request.message}</p>
@@ -79,7 +79,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               <button
                 type="button"
                 onClick={() => close(false)}
-                className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
+                className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
               >
                 Cancel·lar
               </button>
@@ -87,7 +87,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             <button
               type="button"
               onClick={() => close(true)}
-              className={`flex-1 py-2.5 rounded-xl text-xs font-bold text-white shadow-md transition ${
+              className={`flex-1 py-3 rounded-xl text-sm font-bold text-white shadow-md transition ${
                 request.destructive ? 'bg-red-600 hover:bg-red-700' : 'bg-accent hover:bg-accent-hover'
               }`}
             >

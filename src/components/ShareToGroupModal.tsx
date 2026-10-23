@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Copy, ArrowRightLeft, Users } from 'lucide-react';
-import { Modal } from './Modal';
+import { Copy, ArrowRightLeft, Users } from 'lucide-react';
+import { Modal, ModalHeader } from './Modal';
 import { Group } from '../types';
 
 interface Props {
@@ -48,18 +48,13 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
   };
 
   return (
-    <Modal label={isMove ? 'Moure a un grup' : 'Copiar a un grup'} onClose={close} panelClassName="w-full max-w-sm bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden" overlayClassName="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      <div className="flex items-center justify-between px-5 py-4 bg-stone-900 text-white">
-        <div className="flex items-center gap-2 min-w-0">
-          {isMove ? <ArrowRightLeft className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-          <h3 className="text-sm font-bold truncate">
-            {isMove ? 'Moure' : 'Copiar'} "{itemName}" a…
-          </h3>
-        </div>
-        <button onClick={close} aria-label="Tanca" className="p-1 rounded-full hover:bg-white/10">
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+    <Modal label={isMove ? 'Moure a un grup' : 'Copiar a un grup'} onClose={close} size="sm">
+      <ModalHeader
+        title={isMove ? 'Moure a un grup' : 'Copiar a un grup'}
+        subtitle={itemName}
+        icon={isMove ? ArrowRightLeft : Copy}
+        onClose={close}
+      />
 
       <div className="p-5 space-y-3">
         <p className="text-xs text-stone-500">
@@ -106,7 +101,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
         <button
           onClick={submit}
           disabled={busy || selected.length === 0}
-          className="w-full py-2.5 rounded-xl bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-sm font-bold transition"
+          className="w-full py-3 rounded-xl bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-sm font-bold transition"
         >
           {busy ? 'Processant…' : isMove ? 'Moure' : `Copiar${selected.length > 1 ? ` a ${selected.length} grups` : ''}`}
         </button>

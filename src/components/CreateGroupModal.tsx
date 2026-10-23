@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Users } from 'lucide-react';
-import { Modal } from './Modal';
+import { Users } from 'lucide-react';
+import { Modal, ModalHeader } from './Modal';
 import { useAuth } from '../context/AuthContext';
 import { quotaErrorMessage } from '../supabase/errors';
 
@@ -43,23 +43,11 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Modal label="Crear un grup" onClose={handleClose}>
-      <div className="flex items-center justify-between px-6 py-4 bg-stone-900 text-white">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-orange-500" />
-          <h2 className="text-base font-bold">Crear Nou Grup Culinari</h2>
-        </div>
-        <button
-          onClick={handleClose}
-          aria-label="Tanca"
-          className="p-1.5 rounded-full text-stone-500 hover:text-white transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+      <ModalHeader title="Crear un grup" icon={Users} onClose={handleClose} />
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+          <label className="block text-xs font-semibold text-stone-600 mb-1">
             Nom del grup *
           </label>
           <input
@@ -69,12 +57,12 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             placeholder="Ex. Gourmet BCN, Sopars de Divendres, Família..."
             required
             maxLength={80}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-stone-900 text-sm font-medium outline-hidden"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+          <label className="block text-xs font-semibold text-stone-600 mb-1">
             Descripció o propòsit (opcional)
           </label>
           <textarea
@@ -83,12 +71,12 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Ex. Restaurants recomanats per a reunions i sortides de cap de setmana."
             maxLength={300}
-            className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
           />
         </div>
 
         <div className="p-3 rounded-xl bg-orange-50 text-xs text-orange-900 border border-orange-200">
-          Es generarà automàticament un <strong>Codi d'Invitació de 6 lletres</strong> que podràs compartir per WhatsApp o missatgeria amb els teus amics perquè s'hi uneixin a l'instant.
+          Es generarà automàticament un <strong>codi d'invitació de 6 caràcters</strong> que podràs compartir per WhatsApp o missatgeria amb els teus amics perquè s'hi uneixin a l'instant.
         </div>
 
         {error && <p role="alert" className="text-xs font-semibold text-red-600">{error}</p>}
@@ -97,16 +85,16 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <button
             type="button"
             onClick={handleClose}
-            className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
+            className="flex-1 py-3 rounded-xl border border-stone-200 text-sm font-bold text-stone-700 hover:bg-stone-100 transition"
           >
             Cancel·lar
           </button>
           <button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
+            className="flex-1 py-3 rounded-xl bg-accent hover:bg-accent-hover text-sm font-bold text-white shadow-md disabled:opacity-50 transition"
           >
-            {isSubmitting ? 'Creant...' : 'Crear Grup'}
+            {isSubmitting ? 'Creant...' : 'Crear grup'}
           </button>
         </div>
       </form>
