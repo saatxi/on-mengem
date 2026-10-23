@@ -28,7 +28,7 @@ import { VisitModal } from './components/VisitModal';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
 import { DialogProvider } from './components/ConfirmDialog';
-import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X } from 'lucide-react';
+import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices } from 'lucide-react';
 import { cn } from './utils/cn';
 
 const TABS = ['restaurants', 'wishlist', 'group', 'stats', 'alerts'] as const;
@@ -167,6 +167,13 @@ function MainApp() {
     setFilterFavorite(false);
     setFilterVisited('all');
     setSelectedCuisine('Tots');
+  };
+
+  // «On menjem avui?»: obre un restaurant a l'atzar d'entre els que es veuen amb els filtres actuals
+  const openRandomRestaurant = () => {
+    if (filteredRestaurants.length === 0) return;
+    const pick = filteredRestaurants[Math.floor(Math.random() * filteredRestaurants.length)];
+    setSelectedRestaurantId(pick.id);
   };
 
   const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
@@ -338,6 +345,16 @@ function MainApp() {
                   </select>
                 )}
 
+
+                <button
+                  onClick={openRandomRestaurant}
+                  disabled={filteredRestaurants.length === 0}
+                  title="Obre un dels restaurants de la llista a l'atzar"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold border border-stone-200 bg-surface text-stone-700 hover:bg-stone-50 disabled:opacity-40 transition active:scale-95"
+                >
+                  <Dices className="w-3.5 h-3.5 text-accent" />
+                  <span>Sorprèn-me</span>
+                </button>
 
                 <select
                   value={sort}
