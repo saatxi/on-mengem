@@ -23,6 +23,7 @@ import { TabButton } from './components/TabButton';
 import { Restaurant, Visit, WishlistItem } from './types';
 import { isVisited } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
+import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { Utensils, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
@@ -81,6 +82,12 @@ function MainApp() {
   const [selectedCuisine, setSelectedCuisine] = useState<string>('Tots');
   const [copiedGroupCode, setCopiedGroupCode] = useState(false);
   const [showInlineChart, setShowInlineChart] = useState(false);
+
+  // Enllaç directe (?r=<id>): el hook canvia a l'espai del restaurant i aquí se n'obre el detall.
+  const { error: linkError, clearError: clearLinkError } = useRestaurantLink((restaurantId) => {
+    setCurrentTab('restaurants');
+    setSelectedRestaurantId(restaurantId);
+  });
 
   // En l'espai personal no hi ha pestanyes de grup ni activitat
   const effectiveTab: TabType =
@@ -620,6 +627,7 @@ function MainApp() {
       />
 
       <ErrorToast message={dataError} onClose={clearError} />
+      <ErrorToast message={dataError ? null : linkError} onClose={clearLinkError} />
 
       <BottomNav
         activeTab={effectiveTab}

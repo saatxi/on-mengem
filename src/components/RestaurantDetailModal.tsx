@@ -20,6 +20,7 @@ import {
 import { Modal } from './Modal';
 import { Restaurant, Visit } from '../types';
 import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
+import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 
@@ -59,10 +60,11 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
   const handleShare = () => {
     const text = `T'agrada aquest restaurant? Descobreix "${restaurant.name}" (${restaurant.cuisine || 'Cuina'}) a On menjem?!`;
+    const url = restaurantUrl(restaurant.id, window.location.origin);
     if (navigator.share) {
-      navigator.share({ title: restaurant.name, text, url: window.location.href }).catch(() => {});
+      navigator.share({ title: restaurant.name, text, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(`${text} ${window.location.href}`);
+      navigator.clipboard.writeText(`${text} ${url}`);
       alert('Enllaç copiat al porta-retalls!');
     }
   };
