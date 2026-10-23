@@ -92,7 +92,7 @@ export const WelcomeOnboarding: React.FC = () => {
           )}
         </button>
 
-        <p className="mt-4 text-[11px] text-stone-400">
+        <p className="mt-4 text-xs text-stone-500">
           Autenticació oficial segura amb el teu compte de Google.
         </p>
       </div>

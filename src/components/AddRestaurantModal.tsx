@@ -137,7 +137,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Adreça */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-stone-400" />
+            <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
           <input
@@ -152,7 +152,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <Link2 className="w-3.5 h-3.5 text-stone-400" />
+            <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
           <input
@@ -169,7 +169,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <InstagramIcon className="w-3.5 h-3.5 text-stone-400" />
+            <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
           <input
@@ -207,7 +207,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
                 <button
                   type="button"
                   onClick={() => setRating(null)}
-                  className="text-[10px] text-stone-400 hover:text-stone-600 transition"
+                  className="text-xs text-stone-500 hover:text-stone-600 transition"
                   title="Treure puntuació"
                 >
                   ✕
@@ -231,7 +231,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Notes */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5 text-stone-400" />
+            <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes i recomanacions de plats
           </label>
           <textarea

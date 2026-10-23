@@ -14,7 +14,7 @@ const ALL_TABS: { id: TabType; label: string; icon: React.FC<{ className?: strin
   { id: 'restaurants', label: 'Restaurants', icon: Utensils },
   { id: 'wishlist', label: 'Desitjats', icon: BookmarkPlus },
   { id: 'group', label: 'Grup', icon: Users },
-  { id: 'stats', label: 'Gràfic', icon: BarChart3 },
+  { id: 'stats', label: 'Resum', icon: BarChart3 },
   { id: 'alerts', label: 'Activitat', icon: Bell },
 ];
 
@@ -35,14 +35,14 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
             className="flex-1 flex flex-col items-center justify-center gap-0.5 transition active:scale-95"
           >
             <div className="relative">
-              <Icon className={`size-5 ${isActive ? 'text-accent' : 'text-stone-400'}`} />
+              <Icon className={`size-5 ${isActive ? 'text-accent' : 'text-stone-500'}`} />
               {id === 'alerts' && alertCount > 0 && (
                 <span className="absolute -top-1 -right-1.5 min-w-[1rem] h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center px-0.5">
                   {alertCount > 9 ? '9+' : alertCount}
                 </span>
               )}
             </div>
-            <span className={`text-[10px] font-bold ${isActive ? 'text-accent' : 'text-stone-400'}`}>
+            <span className={`text-xs font-bold ${isActive ? 'text-accent' : 'text-stone-500'}`}>
               {label}
             </span>
           </button>

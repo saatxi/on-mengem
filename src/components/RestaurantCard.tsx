@@ -24,14 +24,14 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
+              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-stone-100 text-stone-600">
                 {res.cuisine || 'Restaurant'}
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono">
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-800 font-mono">
                 {res.priceRange || '—'}
               </span>
               {isVisited(res) && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
+                <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800 flex items-center gap-0.5">
                   <Check className="w-2.5 h-2.5" /> {res.visits.length === 1 ? '1 visita' : `${res.visits.length} visites`}
                 </span>
               )}
@@ -83,7 +83,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
                 onToggleFavorite(res);
               }}
               className={`p-1.5 rounded-full transition ${
-                res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-stone-400'
+                res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-stone-500'
               }`}
               title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
             >
@@ -114,7 +114,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-[11px] font-bold rounded-lg transition shrink-0"
+              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition shrink-0"
             >
               Maps
             </a>
@@ -131,7 +131,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
 
       {/* Card Footer */}
       <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
-        <span className="text-[11px] text-stone-400">
+        <span className="text-xs text-stone-500">
           Per: <strong className="text-stone-600">{res.createdByName || 'Membre'}</strong>
         </span>
 

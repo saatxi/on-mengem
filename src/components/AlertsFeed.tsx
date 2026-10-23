@@ -40,10 +40,10 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
         <div>
           <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
-            Activitat i Alertes del Grup en Temps Real
+            Activitat del grup
           </h2>
           <p className="text-xs text-stone-500">
-            Notificacions instantànies dels canvis compartits al grup.
+            Els darrers canvis que ha fet la gent del grup.
           </p>
         </div>
         {alerts.length > 0 && (
@@ -57,8 +57,8 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
       </div>
 
       {alerts.length === 0 ? (
-        <div className="py-12 text-center text-xs text-stone-400">
-          Cap moviment recent al grup. Afegeix un restaurant o proposa un desitjat per generar alertes!
+        <div className="py-12 text-center text-xs text-stone-500">
+          Encara no hi ha activitat. Quan algú afegeixi un restaurant o un desitjat, ho veuràs aquí.
         </div>
       ) : (
         <div className="space-y-3">
@@ -78,7 +78,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-0.5">
                     <h4 className="text-sm font-bold text-stone-900">{alert.title}</h4>
-                    <span className="text-[11px] text-stone-400 whitespace-nowrap flex-shrink-0">
+                    <span className="text-xs text-stone-500 whitespace-nowrap flex-shrink-0">
                       {timeAgo(alert.createdAt)}
                     </span>
                   </div>

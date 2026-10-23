@@ -25,7 +25,7 @@ import { isVisited } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { DialogProvider } from './components/ConfirmDialog';
-import { Utensils, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
+import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
 
 type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
 
@@ -188,7 +188,7 @@ function MainApp() {
           )}
           <TabButton
             icon={BarChart3}
-            label="Gràfic de Cuines"
+            label="Resum"
             active={effectiveTab === 'stats'}
             onClick={() => setCurrentTab('stats')}
           />
@@ -210,7 +210,7 @@ function MainApp() {
               <div className="flex flex-col sm:flex-row gap-2.5 justify-between">
                 {/* Search Bar */}
                 <div className="relative flex-1">
-                  <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -226,7 +226,7 @@ function MainApp() {
                   className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Afegir Restaurant</span>
+                  <span>Afegir restaurant</span>
                 </button>
               </div>
 
@@ -302,7 +302,7 @@ function MainApp() {
                   <span>{showInlineChart ? 'Amagar Gràfic' : 'Gràfic de Cuines'}</span>
                 </button>
 
-                <span className="ml-auto text-stone-400 text-[11px] font-medium">
+                <span className="ml-auto text-stone-500 text-xs font-medium">
                   {filteredRestaurants.length} de {restaurants.length} llocs
                 </span>
               </div>
@@ -318,13 +318,13 @@ function MainApp() {
 
             {/* Restaurant Cards Grid */}
             {dataLoading ? (
-              <div className="py-12 text-center text-sm text-stone-400">
+              <div className="py-12 text-center text-sm text-stone-500">
                 Sincronitzant restaurants en temps real...
               </div>
             ) : filteredRestaurants.length === 0 ? (
               <div className="py-16 text-center bg-surface rounded-3xl border border-stone-200/80 p-8 space-y-3">
-                <div className="w-16 h-16 rounded-2xl bg-orange-100 text-accent flex items-center justify-center mx-auto text-2xl">
-                  🍽️
+                <div className="w-16 h-16 rounded-2xl bg-orange-100 text-accent flex items-center justify-center mx-auto">
+                  <UtensilsCrossed className="w-7 h-7" />
                 </div>
                 <h3 className="text-base font-bold text-stone-800">Cap restaurant trobat</h3>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
@@ -362,7 +362,7 @@ function MainApp() {
               <div>
                 <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
                   <BookmarkPlus className="w-5 h-5 text-amber-500" />
-                  Llista de Desitjats Culinària
+                  Llista de desitjats
                 </h2>
                 <p className="text-xs text-stone-500">
                   {isPersonal
@@ -376,14 +376,14 @@ function MainApp() {
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
               >
                 <Plus className="w-4 h-4" />
-                <span>Proposar Desitjat</span>
+                <span>Proposar desitjat</span>
               </button>
             </div>
 
             {wishlist.length === 0 ? (
               <div className="py-16 text-center bg-surface rounded-3xl border border-stone-200 p-8 space-y-3">
-                <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-2xl">
-                  ✨
+                <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
+                  <Sparkles className="w-7 h-7" />
                 </div>
                 <h3 className="text-base font-bold text-stone-800">No hi ha llocs desitjats pendents</h3>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
@@ -425,7 +425,7 @@ function MainApp() {
                     <span className="px-3 py-1 rounded-full bg-orange-500/20 text-orange-400 text-xs font-bold tracking-wide uppercase border border-orange-500/30">
                       Grup Actiu
                     </span>
-                    <span className="text-xs text-stone-400">
+                    <span className="text-xs text-stone-500">
                       Creador: {activeGroup?.ownerName || 'Administrador'}
                     </span>
                   </div>
@@ -439,7 +439,7 @@ function MainApp() {
 
                 {/* Shareable Invite Box */}
                 <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15 w-full md:w-auto">
-                  <div className="text-[11px] font-bold text-stone-300 uppercase tracking-wider mb-1">
+                  <div className="text-xs font-bold text-stone-300 uppercase tracking-wider mb-1">
                     Codi d'Invitació del Grup
                   </div>
                   <div className="flex items-center gap-2 mb-2.5">
@@ -468,15 +468,15 @@ function MainApp() {
               <div className="grid grid-cols-3 gap-3 pt-6 mt-6 border-t border-white/10 text-center">
                 <div>
                   <div className="text-2xl font-black text-white">{restaurants.length}</div>
-                  <div className="text-xs text-stone-400">Restaurants</div>
+                  <div className="text-xs text-stone-500">Restaurants</div>
                 </div>
                 <div>
                   <div className="text-2xl font-black text-amber-400">{restaurants.filter(isVisited).length}</div>
-                  <div className="text-xs text-stone-400">Ja visitats</div>
+                  <div className="text-xs text-stone-500">Ja visitats</div>
                 </div>
                 <div>
                   <div className="text-2xl font-black text-orange-400">{wishlist.length}</div>
-                  <div className="text-xs text-stone-400">Desitjats pendents</div>
+                  <div className="text-xs text-stone-500">Desitjats pendents</div>
                 </div>
               </div>
             </div>

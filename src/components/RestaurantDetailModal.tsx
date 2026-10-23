@@ -103,6 +103,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               onClick={() => onEdit(restaurant)}
               className="p-1.5 rounded-full bg-black/20 hover:bg-black/30 text-white transition"
               title="Editar restaurant"
+              aria-label="Editar restaurant"
             >
               <Pencil className="w-5 h-5" />
             </button>
@@ -141,7 +142,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         {restaurant.notes ? (
           <div className="p-4 rounded-2xl bg-orange-50/70 border border-orange-100">
             <h3 className="text-xs font-bold uppercase tracking-wider text-orange-900 mb-1">
-              Notes & Recomanacions de plats
+              Notes i plats recomanats
             </h3>
             <p className="text-sm text-stone-700 leading-relaxed">{restaurant.notes}</p>
           </div>
@@ -205,7 +206,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         </div>
 
         {/* Metadades */}
-        <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-400">
+        <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
           <span>Afegit per: <strong className="text-stone-600">{restaurant.createdByName || 'Membre del grup'}</strong></span>
           {restaurant.createdAt && (
             <span className="flex items-center gap-1">
@@ -234,7 +235,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             }`}
           >
             <Star className={`w-4 h-4 ${restaurant.favorite ? 'fill-amber-500 text-amber-500' : ''}`} />
-            <span>{restaurant.favorite ? 'Preferit ★' : 'Afegir a favorits'}</span>
+            <span>{restaurant.favorite ? 'Als favorits' : 'Afegir a favorits'}</span>
           </button>
         </div>
 
@@ -293,7 +294,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 Visites ({visitCount})
               </h3>
               {last?.visitedOn && (
-                <span className="text-[11px] text-stone-400">
+                <span className="text-xs text-stone-500">
                   Darrera: {formatDate(last.visitedOn)}
                 </span>
               )}
@@ -323,12 +324,12 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                           </span>
                         )}
                         {!v.shared && (
-                          <span className="flex items-center gap-0.5 text-[10px] text-stone-500 font-semibold">
+                          <span className="flex items-center gap-0.5 text-xs text-stone-500 font-semibold">
                             <Lock className="w-3 h-3" /> Privada
                           </span>
                         )}
                         {v.shared && restaurant.groupId && (
-                          <span className="flex items-center gap-0.5 text-[10px] text-emerald-600 font-semibold">
+                          <span className="flex items-center gap-0.5 text-xs text-emerald-600 font-semibold">
                             <Globe className="w-3 h-3" /> Grupal
                           </span>
                         )}
@@ -337,8 +338,9 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button
                             onClick={() => onRegisterVisit(restaurant, v)}
-                            className="text-[11px] font-bold text-stone-500 hover:text-stone-800 transition"
+                            className="text-xs font-bold text-stone-500 hover:text-stone-800 transition"
                             title="Editar visita"
+                            aria-label="Editar visita"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -348,8 +350,9 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                                 onDeleteVisit(v.id);
                               }
                             }}
-                            className="text-[11px] font-bold text-red-400 hover:text-red-600 transition"
+                            className="text-xs font-bold text-red-400 hover:text-red-600 transition"
                             title="Eliminar visita"
+                            aria-label="Eliminar visita"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -359,7 +362,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                     {v.notes && (
                       <p className="text-xs text-stone-600 leading-relaxed">{v.notes}</p>
                     )}
-                    <div className="text-[11px] text-stone-400 flex flex-wrap gap-x-3 gap-y-0.5">
+                    <div className="text-xs text-stone-500 flex flex-wrap gap-x-3 gap-y-0.5">
                       {v.createdByName && (
                         <span>Per: <strong className="text-stone-500">{v.createdByName}</strong></span>
                       )}

@@ -102,7 +102,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {/* Data */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2 flex items-center gap-1">
-            <Calendar className="w-3.5 h-3.5 text-stone-400" />
+            <Calendar className="w-3.5 h-3.5 text-stone-500" />
             Data de la visita
           </label>
           <div className="space-y-2">
@@ -153,7 +153,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {/* Notes */}
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2 flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5 text-stone-400" />
+            <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes (opcional)
           </label>
           <textarea
@@ -170,7 +170,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {isGroup && Object.keys(members).length > 0 && (
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2 flex items-center gap-1">
-              <Users className="w-3.5 h-3.5 text-stone-400" />
+              <Users className="w-3.5 h-3.5 text-stone-500" />
               Qui hi va anar
             </label>
             <div className="space-y-1.5">
@@ -218,7 +218,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                 Privada
               </button>
             </div>
-            <p className="mt-1.5 text-[11px] text-stone-400">
+            <p className="mt-1.5 text-xs text-stone-500">
               {shared
                 ? 'Tothom del grup la pot editar i esborrar.'
                 : 'Tothom del grup la veu, però només tu la pots editar.'}

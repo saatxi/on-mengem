@@ -51,7 +51,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         <button
           onClick={handleClose}
           aria-label="Tanca"
-          className="p-1.5 rounded-full text-stone-400 hover:text-white transition"
+          className="p-1.5 rounded-full text-stone-500 hover:text-white transition"
         >
           <X className="w-5 h-5" />
         </button>

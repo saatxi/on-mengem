@@ -59,7 +59,7 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlistCount }) => {
           </div>
           <div>
             <p className="text-2xl font-black text-stone-900 leading-none">{value}</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-stone-400 mt-0.5">{label}</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-stone-500 mt-0.5">{label}</p>
           </div>
         </div>
       ))}

@@ -26,14 +26,14 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
         <div className="flex items-start justify-between gap-2 mb-2">
           <div>
             <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800">
+              <span className="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-800">
                 {item.cuisine || 'Pendent'}
               </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono">
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-700 font-mono">
                 {item.priceRange || '—'}
               </span>
               {item.status === 'visited' && (
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
                   Ja provat!
                 </span>
               )}
@@ -78,7 +78,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-[11px] font-bold rounded-lg transition shrink-0"
+              className="px-2 py-0.5 bg-stone-700 hover:bg-stone-800 text-white text-xs font-bold rounded-lg transition shrink-0"
             >
               Maps
             </a>
@@ -100,11 +100,11 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
 
       <div className="pt-3 border-t border-stone-100 space-y-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-stone-400">Proposat per:</span>
+          <span className="text-xs text-stone-500">Proposat per:</span>
           <div className="flex items-center gap-1">
             <button
               onClick={() => onCopy(item)}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-accent hover:bg-orange-50 transition"
+              className="p-1.5 rounded-lg text-stone-500 hover:text-accent hover:bg-orange-50 transition"
               title="Copiar a un grup"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -112,7 +112,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             {onMove && (
               <button
                 onClick={() => onMove?.(item)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-accent hover:bg-orange-50 transition"
+                className="p-1.5 rounded-lg text-stone-500 hover:text-accent hover:bg-orange-50 transition"
                 title="Moure a un grup"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
@@ -120,7 +120,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             )}
             <button
               onClick={() => onEdit(item)}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-amber-600 hover:bg-amber-50 transition"
+              className="p-1.5 rounded-lg text-stone-500 hover:text-amber-600 hover:bg-amber-50 transition"
               title="Editar"
             >
               <Pencil className="w-3.5 h-3.5" />
@@ -131,7 +131,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
                   onDelete(item.id);
                 }
               }}
-              className="text-xs text-stone-400 hover:text-red-600 px-2 py-1 rounded transition"
+              className="text-xs text-stone-500 hover:text-red-600 px-2 py-1 rounded transition"
             >
               Eliminar
             </button>

@@ -130,7 +130,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <UserCheck className="w-3.5 h-3.5 text-stone-400" />
+            <UserCheck className="w-3.5 h-3.5 text-stone-500" />
             Qui ho ha recomanat?
           </label>
           <input
@@ -145,7 +145,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-stone-400" />
+            <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
           <input
@@ -160,7 +160,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <MessageSquare className="w-3.5 h-3.5 text-stone-400" />
+            <MessageSquare className="w-3.5 h-3.5 text-stone-500" />
             Motiu / Per què hi volem anar?
           </label>
           <textarea
@@ -175,7 +175,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <Link2 className="w-3.5 h-3.5 text-stone-400" />
+            <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
           <input
@@ -192,7 +192,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <InstagramIcon className="w-3.5 h-3.5 text-stone-400" />
+            <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
           <input

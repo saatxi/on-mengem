@@ -90,10 +90,10 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
                     onChange={() => toggle(g.id)}
                     className="accent-accent"
                   />
-                  <Users className="w-4 h-4 text-stone-400 flex-shrink-0" />
+                  <Users className="w-4 h-4 text-stone-500 flex-shrink-0" />
                   <div className="min-w-0">
                     <div className="text-sm font-semibold text-stone-900 truncate">{g.name}</div>
-                    <div className="text-[10px] text-stone-400">{g.memberUids.length} membres</div>
+                    <div className="text-xs text-stone-500">{g.memberUids.length} membres</div>
                   </div>
                 </label>
               );

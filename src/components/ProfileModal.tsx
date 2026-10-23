@@ -82,13 +82,13 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
           )}
           <div>
             <h2 className="text-base font-bold">Compte Google</h2>
-            <p className="text-xs text-stone-400">Usuari verificat a On menjem?</p>
+            <p className="text-xs text-stone-500">Usuari verificat a On menjem?</p>
           </div>
         </div>
         <button
           onClick={onClose}
           aria-label="Tanca"
-          className="p-1.5 rounded-full text-stone-400 hover:text-white transition"
+          className="p-1.5 rounded-full text-stone-500 hover:text-white transition"
         >
           <X className="w-5 h-5" />
         </button>
@@ -101,8 +101,8 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <Mail className="w-3.5 h-3.5 text-accent flex-shrink-0" />
             <span className="truncate">{authUser?.email || 'Sense correu associat'}</span>
           </div>
-          <div className="flex items-center gap-2 text-stone-500 text-[11px]">
-            <User className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
+          <div className="flex items-center gap-2 text-stone-500 text-xs">
+            <User className="w-3.5 h-3.5 text-stone-500 flex-shrink-0" />
             <span className="truncate">{authUser?.displayName || userProfile?.nickname}</span>
           </div>
         </div>
@@ -170,7 +170,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {/* Sign out */}
         <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
-          <span className="text-stone-400 text-[10px] font-mono">
+          <span className="text-stone-500 text-xs font-mono">
             Versió {__APP_VERSION__} · UID: {authUser?.uid.slice(0, 8)}...
           </span>
           <button

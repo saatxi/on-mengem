@@ -40,7 +40,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
           <Users className="w-4 h-4 text-accent" />
-          Membres sincronitzats ({group.memberUids.length})
+          Membres ({group.memberUids.length})
         </h3>
 
         <div className="flex gap-2">
@@ -48,11 +48,11 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
             onClick={onJoinGroup}
             className="px-3 py-1.5 rounded-xl border border-stone-200 hover:bg-stone-50 text-xs font-bold text-stone-700 transition"
           >
-            + Unir-se a altre grup
+            + Unir-se a un altre grup
           </button>
           <button
             onClick={onCreateGroup}
-            className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-white text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-xl bg-inverse hover:opacity-90 text-on-inverse text-xs font-bold transition"
           >
             + Crear nou grup
           </button>
@@ -76,7 +76,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                 <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
                   <span>{isCurrent ? `${name} (Tu)` : name}</span>
                   {isGroupOwner && (
-                    <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
+                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
                       Creador
                     </span>
                   )}

@@ -19,10 +19,11 @@ export const PWAInstallButton: React.FC = () => {
       <button
         onClick={install}
         className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-accent hover:to-amber-600 p-1.5 sm:px-3 text-xs font-semibold text-white shadow-sm transition active:scale-95"
-        title="Instal·la On menjem? al teu dispositiu com a aplicació nativa"
+        title="Instal·la On menjem? al teu dispositiu"
+        aria-label="Instal·lar app"
       >
         <Download className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Instal·la App</span>
+        <span className="hidden sm:inline">Instal·lar app</span>
       </button>
     );
   }
@@ -35,6 +36,7 @@ export const PWAInstallButton: React.FC = () => {
           onClick={() => setShowIOSGuide(true)}
           className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/80 p-1.5 sm:px-2.5 sm:py-1 text-xs font-medium text-orange-800 hover:bg-orange-100 transition active:scale-95"
           title={isIOS ? 'Instal·la a iPhone o iPad' : 'Instal·la a Android'}
+          aria-label="Instal·lar app"
         >
           <Smartphone className="w-3.5 h-3.5 text-accent" />
           <span className="hidden sm:inline">Instal·lar</span>
@@ -59,7 +61,8 @@ export const PWAInstallButton: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setShowIOSGuide(false)}
-                  className="rounded-full p-1 text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition"
+                  aria-label="Tanca"
+                  className="rounded-full p-1 text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -87,7 +90,7 @@ export const PWAInstallButton: React.FC = () => {
 
               <button
                 onClick={() => setShowIOSGuide(false)}
-                className="mt-5 w-full rounded-xl bg-stone-900 py-2.5 text-sm font-semibold text-white hover:bg-stone-800 transition"
+                className="mt-5 w-full rounded-xl bg-inverse py-2.5 text-sm font-semibold text-on-inverse hover:opacity-90 transition"
               >
                 Entesos
               </button>
