@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { X, Star, Utensils, MapPin, FileText, Link2 } from 'lucide-react';
+import { Star, Utensils, MapPin, FileText, Link2, AlertTriangle } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
-import { Modal } from './Modal';
+import { Button } from './Button';
+import { Modal, ModalHeader } from './Modal';
 import { Restaurant } from '../types';
 import {
   CUISINES,
   DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
+  normalizeText,
   INSTAGRAM_INPUT_PATTERN,
   PRICE_RANGES,
   toInstagramHandle,
 } from '../utils/restaurantFields';
+import { FIELD, LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -18,9 +21,11 @@ interface Props {
   onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
+  /** Noms dels restaurants de l'espai, per avisar si se'n repeteix un en afegir-lo. */
+  existingNames?: string[];
 }
 
-export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant }) => {
+export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant, existingNames = [] }) => {
   const isEditing = !!restaurant;
   // Una cuina que ja no és a la llista obliga a triar-ne una de nova
   const initialCuisine = isEditing ? restaurant.cuisine ?? '' : 'Mediterrània';
@@ -36,6 +41,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
+
+  const isDuplicate = !isEditing && name.trim() !== '' && existingNames.some((n) => normalizeText(n) === normalizeText(name));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,26 +73,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   };
 
   return (
-    <Modal label={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} onClose={onClose} panelClassName="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 flex flex-col max-h-[calc(100dvh-2rem)] overflow-hidden" overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-orange-600 text-white flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <Utensils className="w-5 h-5" />
-          <h2 className="text-base font-bold">{isEditing ? 'Editar restaurant' : 'Afegir Nou Restaurant'}</h2>
-        </div>
-        <button
-          onClick={onClose}
-          aria-label="Tanca"
-          className="p-1.5 rounded-full text-orange-200 hover:text-white hover:bg-orange-700 transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+    <Modal label={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} onClose={onClose} size="lg">
+      <ModalHeader title={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} icon={Utensils} onClose={onClose} />
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto flex-1 min-h-0">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         {/* Nom */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+          <label className={LABEL}>
             Nom del restaurant *
           </label>
           <input
@@ -95,21 +89,27 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             placeholder="Ex. Can Vador, Bar del Pla, Xemei..."
             required
             maxLength={100}
-            className="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-stone-900 text-sm font-medium outline-hidden transition"
+            className={FIELD}
           />
+          {isDuplicate && (
+            <p role="status" className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-800">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+              Ja hi ha un restaurant amb aquest nom en aquest espai.
+            </p>
+          )}
         </div>
 
         {/* Cuina i Preu */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+            <label className={LABEL}>
               Tipus de cuina
             </label>
             <select
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
               required
-              className="w-full px-3 py-2.5 rounded-xl border border-stone-300 bg-white text-stone-800 text-sm font-medium focus:border-orange-500 outline-hidden transition"
+              className={FIELD}
             >
               <option value="" disabled>Tria una cuina...</option>
               {CUISINES.map((c) => (
@@ -119,13 +119,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
+            <label className={LABEL}>
               Nivell de preu
             </label>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
-              className="w-full rounded-xl border border-stone-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition px-3 py-2.5"
+              className={FIELD}
             >
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>{p}</option>
@@ -136,8 +136,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Adreça */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <MapPin className="w-3.5 h-3.5 text-stone-400" />
+          <label className={LABEL}>
+            <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
           <input
@@ -146,13 +146,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Ex. Carrer de Provença, 120, Barcelona"
             maxLength={200}
-            className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <Link2 className="w-3.5 h-3.5 text-stone-400" />
+          <label className={LABEL}>
+            <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
           <input
@@ -163,13 +163,13 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://..."
             maxLength={300}
-            className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            className={FIELD}
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <InstagramIcon className="w-3.5 h-3.5 text-stone-400" />
+          <label className={LABEL}>
+            <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
           <input
@@ -181,14 +181,14 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             pattern={INSTAGRAM_INPUT_PATTERN}
             placeholder="@nomdelrestaurant"
             maxLength={200}
-            className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            className={FIELD}
           />
         </div>
 
         {/* Puntuació */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs font-bold uppercase tracking-wider text-stone-700">
+            <label className="text-sm font-semibold text-stone-700">
               {rating !== null ? `Puntuació (${rating} de 5)` : 'Puntuació (sense valorar)'}
             </label>
             <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
                 <button
                   type="button"
                   onClick={() => setRating(null)}
-                  className="text-[10px] text-stone-400 hover:text-stone-600 transition"
+                  className="text-xs text-stone-500 hover:text-stone-600 transition"
                   title="Treure puntuació"
                 >
                   ✕
@@ -223,15 +223,15 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               step="0.5"
               value={rating}
               onChange={(e) => setRating(parseFloat(e.target.value))}
-              className="w-full accent-orange-600"
+              className="w-full accent-accent"
             />
           )}
         </div>
 
         {/* Notes */}
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <FileText className="w-3.5 h-3.5 text-stone-400" />
+          <label className={LABEL}>
+            <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes i recomanacions de plats
           </label>
           <textarea
@@ -240,26 +240,30 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Ex. Demanar el tàrtar de tonyina i els bunyols de bacallà. Atenció de 10!"
             maxLength={500}
-            className="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm text-stone-800 focus:border-orange-500 outline-hidden"
+            className={FIELD}
           />
         </div>
 
         {/* Botons */}
         <div className="flex gap-2 pt-3">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
-            {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir Restaurant'}
-          </button>
+            {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir restaurant'}
+          </Button>
         </div>
       </form>
     </Modal>

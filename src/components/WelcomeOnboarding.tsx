@@ -20,15 +20,15 @@ export const WelcomeOnboarding: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200/80 text-center">
+    <div className="min-h-screen flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md bg-surface rounded-[2rem] p-6 sm:p-9 shadow-2xl shadow-accent/10 ring-1 ring-stone-900/5 text-center">
         {/* Brand Icon */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-orange-500 via-orange-600 to-amber-500 text-white shadow-xl shadow-orange-500/30 mb-4">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-brand text-white shadow-xl shadow-accent/30 mb-5 -rotate-6">
           <Utensils className="w-10 h-10" />
         </div>
 
         {/* Title */}
-        <h1 className="text-3xl font-black text-stone-900 tracking-tight">
+        <h1 className="text-4xl font-extrabold text-stone-900 tracking-tight">
           On menjem?
         </h1>
         <p className="mt-2 text-sm text-stone-600 leading-relaxed">
@@ -36,24 +36,24 @@ export const WelcomeOnboarding: React.FC = () => {
         </p>
 
         {/* Features Checklist */}
-        <div className="mt-6 mb-7 text-left space-y-2.5 p-4 rounded-2xl bg-stone-50 border border-stone-200/80 text-xs text-stone-700">
+        <div className="mt-6 mb-7 text-left space-y-2.5 p-4 rounded-3xl bg-stone-50 text-sm text-stone-700">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span>Catàleg de restaurants amb valoracions, notes i preus</span>
           </div>
           <div className="flex items-center gap-2.5">
-            <BookmarkPlus className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <BookmarkPlus className="w-4 h-4 text-violet-700 flex-shrink-0" />
             <span>Llista de desitjats per anar provant llocs nous</span>
           </div>
           <div className="flex items-center gap-2.5">
-            <Users className="w-4 h-4 text-orange-600 flex-shrink-0" />
+            <Users className="w-4 h-4 text-accent flex-shrink-0" />
             <span>Espai personal i grups compartits en temps real amb codi d'invitació</span>
           </div>
         </div>
 
         {/* Error message if any */}
         {loginError && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
+          <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
             {loginError}
           </div>
         )}
@@ -63,7 +63,7 @@ export const WelcomeOnboarding: React.FC = () => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-2xl font-bold text-stone-800 bg-white hover:bg-stone-50 border-2 border-stone-200 shadow-md hover:border-orange-300 transition active:scale-[0.98] text-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-full font-semibold text-stone-800 bg-surface hover:bg-stone-50 ring-1 ring-stone-200 shadow-card hover:shadow-card-hover transition-[background-color,box-shadow,transform] active:scale-[0.98] text-sm"
         >
           {googleLoading ? (
             <span className="text-stone-500">Iniciant sessió...</span>
@@ -92,7 +92,7 @@ export const WelcomeOnboarding: React.FC = () => {
           )}
         </button>
 
-        <p className="mt-4 text-[11px] text-stone-400">
+        <p className="mt-4 text-xs text-stone-500">
           Autenticació oficial segura amb el teu compte de Google.
         </p>
       </div>

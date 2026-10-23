@@ -4,7 +4,7 @@ PWA en català per guardar restaurants i llistes de desitjos, amb espai personal
 
 ## Stack
 
-React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `recharts`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
+React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `clsx` + `tailwind-merge`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
 
 ## Ordres
 
@@ -25,7 +25,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 - `src/App.tsx`: pantalla principal (pestanyes i estat dels modals).
 - `src/components/`: components i modals.
-- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`).
+- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
 - `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
@@ -39,7 +39,8 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Text d'UI, errors, comentaris i documentació **en català**; identificadors (components, funcions, tipus, fitxers) **en anglès**.
 - Components: funcions `React.FC<Props>` amb `interface Props` local i export nomenat (sense `default`). Fitxers en PascalCase.
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
-- Estils amb classes Tailwind inline; icones de `lucide-react`; color d'accent `#ea580c`.
+- Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#f4511e`, `accent-soft` per a fons suaus, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; degradat de marca amb `bg-brand` (accent → `accent-2` rosa); el violeta és el color dels desitjats i l'ambre, el de les estrelles i favorits. Classes condicionals amb `cn()` (`src/utils/cn.ts`).
+- Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants) i les classes `FIELD`, `LABEL` i `CARD` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
 - Imports relatius (l'àlies `@/` existeix però no s'usa).
 - Respecta `.editorconfig` (UTF-8, LF, final de línia); imita l'estil dels fitxers veïns (cometes simples, punt i coma).
 
@@ -107,5 +108,5 @@ Add restaurant editing, Instagram links and fixed cuisine list
 
 ## Peculiaritats conegudes
 
-- El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`.
+- El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`. Les versions noves no s'activen soles: `UpdatePrompt` avisa i l'usuari decideix quan recarregar (vegeu `docs/CONFIGURACIO.md`).
 - El build injecta una `Content-Security-Policy` (meta) a `vite.config.ts`; si afegeixes un domini extern, cal autoritzar-lo allà.

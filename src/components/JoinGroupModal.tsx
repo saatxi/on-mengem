@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { X, UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Modal } from './Modal';
+import { UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Button } from './Button';
+import { Modal, ModalHeader } from './Modal';
 import { useAuth } from '../context/AuthContext';
+import { LABEL } from '../utils/ui';
 
 interface Props {
   isOpen: boolean;
@@ -42,24 +44,12 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Modal label="Unir-se a un grup" onClose={onClose}>
-      <div className="flex items-center justify-between px-6 py-4 bg-stone-900 text-white">
-        <div className="flex items-center gap-2">
-          <UserPlus className="w-5 h-5 text-orange-500" />
-          <h2 className="text-base font-bold">Unir-se a un Grup</h2>
-        </div>
-        <button
-          onClick={onClose}
-          aria-label="Tanca"
-          className="p-1.5 rounded-full text-stone-400 hover:text-white transition"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+      <ModalHeader title="Unir-se a un grup" icon={UserPlus} onClose={onClose} />
 
-      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1">
-            Codi d'Invitació del grup
+          <label className={LABEL}>
+            Codi d'invitació
           </label>
           <input
             type="text"
@@ -68,7 +58,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             placeholder="Ex. 6 caràcters (ex. BCN79X)"
             required
             maxLength={12}
-            className="w-full px-3.5 py-3 rounded-xl border border-stone-300 font-mono font-bold tracking-widest text-center text-lg uppercase focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-stone-900 outline-hidden transition"
+            className="w-full px-3.5 py-3 rounded-2xl border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-400 focus:border-accent focus:ring-4 focus:ring-accent/15 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
           />
           <p className="mt-1 text-xs text-stone-500 text-center">
             Demana el codi a l'administrador o creador del grup.
@@ -77,7 +67,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         {feedback && (
           <div
-            className={`p-3 rounded-xl text-xs font-medium flex items-center gap-2 ${
+            className={`p-3 rounded-2xl text-xs font-medium flex items-center gap-2 ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                 : 'bg-red-50 text-red-800 border border-red-200'
@@ -93,20 +83,24 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         )}
 
         <div className="flex gap-2 pt-2">
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition"
+            variant="secondary"
+            size="lg"
+            className="flex-1"
           >
             Cancel·lar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting || !code.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
+            variant="primary"
+            size="lg"
+            className="flex-1"
           >
-            {isSubmitting ? 'Connectant...' : 'Unir-me al Grup'}
-          </button>
+            {isSubmitting ? 'Connectant...' : 'Unir-me al grup'}
+          </Button>
         </div>
       </form>
     </Modal>

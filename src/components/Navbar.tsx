@@ -5,11 +5,13 @@ import {
   Plus,
   UserPlus,
   Bell,
-  Check
+  Check,
+  Home,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PWAInstallButton } from './PWAInstallButton';
 import { Alert } from '../types';
+import { timeAgo } from '../utils/time';
 
 interface Props {
   alerts: Alert[];
@@ -59,15 +61,15 @@ export const Navbar: React.FC<Props> = ({
   );
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs">
+    <header className="sticky top-0 z-40 pt-[env(safe-area-inset-top)] bg-surface/80 backdrop-blur-xl border-b border-stone-900/5">
       <div ref={menusRef} className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* Logo and Group Selector */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-sm shadow-orange-500/30">
+            <div className="w-9 h-9 rounded-2xl bg-brand flex items-center justify-center text-white shadow-md shadow-accent/30 -rotate-6">
               <Utensils className="w-5 h-5" />
             </div>
-            <span className="font-extrabold text-lg text-stone-900 tracking-tight hidden sm:inline">
+            <span className="font-extrabold text-xl text-stone-900 tracking-tight hidden sm:inline">
               On menjem?
             </span>
           </div>
@@ -79,9 +81,9 @@ export const Navbar: React.FC<Props> = ({
                 setShowGroupMenu(!showGroupMenu);
                 setShowAlertMenu(false);
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 max-w-full rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-xs font-bold transition active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 py-2 max-w-full rounded-full bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
             >
-              <span className="w-2 h-2 flex-shrink-0 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="w-2 h-2 flex-shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15" />
               <span className="min-w-0 max-w-[130px] sm:max-w-[180px] truncate">
                 {activeGroup?.name || 'El meu espai'}
               </span>
@@ -89,26 +91,26 @@ export const Navbar: React.FC<Props> = ({
             </button>
 
             {showGroupMenu && (
-              <div className="absolute left-0 mt-2 w-64 rounded-2xl bg-white shadow-xl border border-stone-200 py-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute left-0 mt-2 w-72 rounded-3xl bg-surface shadow-2xl ring-1 ring-stone-900/5 p-2 z-50 text-sm origin-top-left animate-scale-in">
                 <button
                   onClick={() => {
                     setActiveGroupId(null);
                     setShowGroupMenu(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2 text-left transition ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-left transition-colors ${
                     !activeGroup
-                      ? 'bg-orange-50 text-orange-900 font-bold'
-                      : 'text-stone-700 hover:bg-stone-50'
+                      ? 'bg-accent-soft text-orange-900 font-semibold'
+                      : 'text-stone-700 hover:bg-stone-100'
                   }`}
                 >
                   <div>
-                    <div>🏠 El meu espai</div>
-                    <div className="text-[10px] text-stone-400">Privat, només el veus tu</div>
+                    <div className="flex items-center gap-1.5"><Home className="w-3.5 h-3.5" /> El meu espai</div>
+                    <div className="text-xs text-stone-500">Privat, només el veus tu</div>
                   </div>
-                  {!activeGroup && <Check className="w-4 h-4 text-orange-600 flex-shrink-0" />}
+                  {!activeGroup && <Check className="w-4 h-4 text-accent flex-shrink-0" />}
                 </button>
 
-                <div className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                <div className="px-3 pt-3 pb-1 text-xs font-semibold text-stone-500">
                   Els teus grups ({userGroups.length})
                 </div>
 
@@ -122,19 +124,19 @@ export const Navbar: React.FC<Props> = ({
                           setActiveGroupId(group.id);
                           setShowGroupMenu(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2 text-left transition ${
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-left transition-colors ${
                           isActive
-                            ? 'bg-orange-50 text-orange-900 font-bold'
-                            : 'text-stone-700 hover:bg-stone-50'
+                            ? 'bg-accent-soft text-orange-900 font-semibold'
+                            : 'text-stone-700 hover:bg-stone-100'
                         }`}
                       >
                         <div className="truncate">
                           <div>{group.name}</div>
-                          <div className="text-[10px] text-stone-400 font-mono">
+                          <div className="text-xs text-stone-500 font-mono">
                             Codi: {group.code} • {group.memberUids?.length || 1} membres
                           </div>
                         </div>
-                        {isActive && <Check className="w-4 h-4 text-orange-600 flex-shrink-0" />}
+                        {isActive && <Check className="w-4 h-4 text-accent flex-shrink-0" />}
                       </button>
                     );
                   })}
@@ -146,7 +148,7 @@ export const Navbar: React.FC<Props> = ({
                       setShowGroupMenu(false);
                       onOpenCreateGroup();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-orange-600 hover:bg-orange-50 font-bold transition text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl text-accent hover:bg-accent-soft font-semibold transition-colors text-left"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Crear un nou grup</span>
@@ -156,9 +158,9 @@ export const Navbar: React.FC<Props> = ({
                       setShowGroupMenu(false);
                       onOpenJoinGroup();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-stone-700 hover:bg-stone-50 font-medium transition text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl text-stone-700 hover:bg-stone-100 font-medium transition-colors text-left"
                   >
-                    <UserPlus className="w-4 h-4 text-stone-400" />
+                    <UserPlus className="w-4 h-4 text-stone-500" />
                     <span>Unir-se amb codi</span>
                   </button>
                 </div>
@@ -180,25 +182,26 @@ export const Navbar: React.FC<Props> = ({
                 setShowAlertMenu(!showAlertMenu);
                 setShowGroupMenu(false);
               }}
-              className="relative p-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition active:scale-95"
-              title="Notificacions i activitat del grup"
+              className="relative p-2.5 rounded-full text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-[background-color,color,transform] active:scale-[0.96]"
+              title="Activitat del grup"
+              aria-label="Activitat del grup"
             >
               <Bell className="w-5 h-5" />
               {unreadAlerts.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-orange-600 text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-white">
+                <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-brand text-[10px] font-bold text-white flex items-center justify-center ring-2 ring-surface">
                   {unreadAlerts.length > 9 ? '9+' : unreadAlerts.length}
                 </span>
               )}
             </button>
 
             {showAlertMenu && (
-              <div className="absolute right-0 mt-2 w-80 rounded-2xl bg-white shadow-xl border border-stone-200 py-3 z-50 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-2 w-80 rounded-3xl bg-surface shadow-2xl ring-1 ring-stone-900/5 py-3 z-50 origin-top-right animate-scale-in overflow-hidden">
                 <div className="flex items-center justify-between px-4 pb-2 border-b border-stone-100">
-                  <span className="text-xs font-bold text-stone-800">Activitat del grup</span>
+                  <span className="text-sm font-bold text-stone-900">Activitat del grup</span>
                   {unreadAlerts.length > 0 && (
                     <button
                       onClick={onMarkAllAlertsRead}
-                      className="text-[11px] text-orange-600 font-semibold hover:underline"
+                      className="text-xs text-accent font-semibold hover:underline"
                     >
                       Marcar-ho tot com a llegit
                     </button>
@@ -207,7 +210,7 @@ export const Navbar: React.FC<Props> = ({
 
                 <div className="max-h-72 overflow-y-auto divide-y divide-stone-100">
                   {alerts.length === 0 ? (
-                    <div className="p-4 text-center text-xs text-stone-400">
+                    <div className="p-4 text-center text-xs text-stone-500">
                       Cap activitat recent al grup.
                     </div>
                   ) : (
@@ -217,15 +220,15 @@ export const Navbar: React.FC<Props> = ({
                         <div
                           key={alert.id}
                           onClick={() => onMarkAlertRead(alert.id)}
-                          className={`p-3 text-xs cursor-pointer transition ${
-                            isUnread ? 'bg-orange-50/60' : 'hover:bg-stone-50'
+                          className={`px-4 py-3 text-sm cursor-pointer transition-colors ${
+                            isUnread ? 'bg-accent-soft/60' : 'hover:bg-stone-50'
                           }`}
                         >
                           <div className="flex items-center justify-between gap-1 mb-0.5">
                             <span className="font-bold text-stone-900">{alert.title}</span>
                             {alert.createdAt && (
-                              <span className="text-[10px] text-stone-400">
-                                {new Date(alert.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              <span className="text-xs text-stone-500">
+                                {timeAgo(alert.createdAt)}
                               </span>
                             )}
                           </div>
@@ -243,15 +246,16 @@ export const Navbar: React.FC<Props> = ({
           {/* User Profile Button */}
           <button
             onClick={onOpenProfile}
-            className="flex items-center gap-2 p-1 sm:pl-2 sm:pr-3 rounded-full bg-stone-100 hover:bg-stone-200/80 border border-stone-200 text-stone-800 text-xs font-bold transition active:scale-95"
-            title="El teu perfil d'usuari"
+            className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 rounded-full bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
+            title="El teu perfil"
+            aria-label="El teu perfil"
           >
             {authUser?.photoURL ? (
               <img
                 src={authUser.photoURL}
                 referrerPolicy="no-referrer"
                 alt="Avatar"
-                className="w-5 h-5 rounded-full object-cover"
+                className="w-7 h-7 rounded-full object-cover ring-2 ring-surface"
               />
             ) : (
               <span className="text-base">{userProfile?.avatar || '🍕'}</span>

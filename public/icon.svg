@@ -1,16 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#EA580C" />
-      <stop offset="50%" stop-color="#F97316" />
-      <stop offset="100%" stop-color="#FB923C" />
+      <stop offset="0%" stop-color="#F4511E" />
+      <stop offset="100%" stop-color="#EC4899" />
     </linearGradient>
     <linearGradient id="plateGrad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#FFFFFF" />
       <stop offset="100%" stop-color="#F3F4F6" />
     </linearGradient>
     <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#7C2D12" flood-opacity="0.35" />
+      <feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#881337" flood-opacity="0.35" />
     </filter>
   </defs>
 
@@ -28,7 +27,7 @@
   </g>
 
   <!-- Fork (Left) -->
-  <g fill="#EA580C" transform="translate(195, 175)">
+  <g fill="#F4511E" transform="translate(195, 175)">
     <!-- Tines -->
     <rect x="0" y="0" width="5" height="42" rx="2.5" />
     <rect x="11" y="0" width="5" height="42" rx="2.5" />
@@ -38,7 +37,7 @@
   </g>
 
   <!-- Knife (Right) -->
-  <g fill="#EA580C" transform="translate(285, 175)">
+  <g fill="#F4511E" transform="translate(285, 175)">
     <!-- Blade and Handle -->
     <path d="M 5 0 C 22 25 22 80 12 100 L 12 160 C 12 164 7 164 7 160 L 7 100 C 5 95 5 25 5 0 Z" />
   </g>
