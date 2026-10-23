@@ -4,14 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Tests de les funcions pures
-
-**Problema.** No hi ha tests de JavaScript. Les funcions de `src/supabase/mappers.ts` i `src/utils/restaurantFields.ts` (ordenació de visites, `toInstagramHandle`, `safeHttpUrl`, `localToday`, `canEditVisit`) són fàcils de trencar sense adonar-se'n.
-
-**Proposta.** Afegir Vitest (s'integra amb la configuració de Vite) amb un script `npm test` i uns quants tests d'aquestes funcions.
-
-**Prioritat:** baixa · **Esforç:** S
-
 ## Enllaços directes a un restaurant
 
 **Problema.** El botó «Compartir» del detall comparteix `window.location.href`, que sempre és l'arrel de l'app: qui rep l'enllaç no arriba al restaurant.
