@@ -11,12 +11,12 @@ import {
   ArrowRightLeft,
   Pencil,
   Link2,
-  Instagram,
   Lock,
   Globe,
   Plus,
   ClipboardList,
 } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
@@ -187,7 +187,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           {isInstagramHandle(restaurant.instagram) && (
             <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200/80">
               <div className="flex items-center gap-2.5 text-stone-700">
-                <Instagram className="w-4 h-4 text-pink-500 flex-shrink-0" />
+                <InstagramIcon className="w-4 h-4 text-pink-500 flex-shrink-0" />
                 <span className="text-xs font-medium">@{restaurant.instagram}</span>
               </div>
               <a

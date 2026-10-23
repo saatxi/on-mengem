@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, BookmarkPlus, Link2, UserCheck, MessageSquare, Instagram, MapPin } from 'lucide-react';
+import { X, BookmarkPlus, Link2, UserCheck, MessageSquare, MapPin } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
 import { WishlistItem } from '../types';
 import {
@@ -191,7 +192,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div>
           <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-1 flex items-center gap-1">
-            <Instagram className="w-3.5 h-3.5 text-stone-400" />
+            <InstagramIcon className="w-3.5 h-3.5 text-stone-400" />
             Instagram (opcional)
           </label>
           <input

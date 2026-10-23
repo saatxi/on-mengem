@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowRightLeft, CheckCircle2, Copy, Globe, Instagram, MapPin, Pencil } from 'lucide-react';
+import { ArrowRightLeft, CheckCircle2, Copy, Globe, MapPin, Pencil } from 'lucide-react';
+import { InstagramIcon } from './InstagramIcon';
 import { WishlistItem } from '../types';
 import { useConfirm } from './ConfirmDialog';
 import { instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
@@ -49,7 +50,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
                 className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-pink-600 transition"
                 title={`Obrir @${item.instagram} a Instagram`}
               >
-                <Instagram className="w-4 h-4" />
+                <InstagramIcon className="w-4 h-4" />
               </a>
             )}
             {safeHttpUrl(item.link) && (
