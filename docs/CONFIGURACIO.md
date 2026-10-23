@@ -184,7 +184,7 @@ L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Buil
    - `VITE_SUPABASE_URL` → la URL del teu projecte Supabase (`https://<ref>.supabase.co`)
    - `VITE_SUPABASE_ANON_KEY` → la clau pública (`sb_publishable_...` o `eyJ...`)
 
-   Han de ser **variables de build** perquè Vite les incrusta al bundle quan compila. Les `vars` de `wrangler.jsonc` i les *Variables and secrets* del Worker són de runtime i Vite no les veu. Si ja has creat el Worker, les trobaràs a **Settings → Build → Variables and secrets**.
+   Han de ser **variables de build** perquè Vite les incrusta al bundle quan compila. Les *Variables and secrets* del Worker (i les `vars` de `wrangler.jsonc`) són de runtime i Vite no les veu; per això `wrangler.jsonc` no en defineix cap. Si n'hi afegeixes, les builds de previsualització (`wrangler preview`) fallaran si no hi ha també un bloc `previews.vars` amb els mateixos noms. Si ja has creat el Worker, les trobaràs a **Settings → Build → Variables and secrets**.
 5. No cal definir `NODE_VERSION`: Cloudflare llegeix la versió de `.nvmrc`.
 6. Prem **Deploy**. Un cop acabat, la URL és `https://on-menjem.<el-teu-subdomini>.workers.dev`. Copia-la.
 
