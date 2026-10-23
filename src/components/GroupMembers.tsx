@@ -36,10 +36,10 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
   const linkBtn = 'text-xs font-bold px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs">
+    <div className="bg-surface p-6 rounded-3xl border border-stone-200/80 shadow-xs">
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <h3 className="text-sm font-bold uppercase tracking-wider text-stone-800 flex items-center gap-2">
-          <Users className="w-4 h-4 text-orange-600" />
+          <Users className="w-4 h-4 text-accent" />
           Membres sincronitzats ({group.memberUids.length})
         </h3>
 

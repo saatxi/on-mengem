@@ -78,9 +78,9 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} panelClassName="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6">
+    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} panelClassName="relative w-full max-w-lg bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6">
       {/* Header Banner */}
-      <div className="p-6 bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white relative">
+      <div className="p-6 bg-gradient-to-r from-accent via-orange-500 to-amber-500 text-white relative">
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -152,7 +152,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           {restaurant.address && (
             <div className="flex items-center justify-between p-3 rounded-xl bg-stone-50 border border-stone-200/80">
               <div className="flex items-center gap-2.5 text-stone-700">
-                <MapPin className="w-4 h-4 text-orange-600 flex-shrink-0" />
+                <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
                 <span className="text-xs font-medium">{restaurant.address}</span>
               </div>
               <a
@@ -176,7 +176,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"
+                className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover flex-shrink-0"
               >
                 <span>Obrir</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -194,7 +194,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 href={instagramUrl(restaurant.instagram)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 hover:text-orange-700 flex-shrink-0"
+                className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover flex-shrink-0"
               >
                 <span>Obrir</span>
                 <ExternalLink className="w-3.5 h-3.5" />

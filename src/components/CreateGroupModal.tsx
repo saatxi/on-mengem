@@ -104,7 +104,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
+            className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
           >
             {isSubmitting ? 'Creant...' : 'Crear Grup'}
           </button>

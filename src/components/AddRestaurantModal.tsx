@@ -66,9 +66,9 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   };
 
   return (
-    <Modal label={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} onClose={onClose} panelClassName="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 flex flex-col max-h-[calc(100dvh-2rem)] overflow-hidden" overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <Modal label={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} onClose={onClose} panelClassName="relative w-full max-w-lg bg-surface rounded-3xl shadow-2xl border border-stone-200 flex flex-col max-h-[calc(100dvh-2rem)] overflow-hidden" overlayClassName="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-orange-600 text-white flex-shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 bg-accent text-white flex-shrink-0">
         <div className="flex items-center gap-2">
           <Utensils className="w-5 h-5" />
           <h2 className="text-base font-bold">{isEditing ? 'Editar restaurant' : 'Afegir Nou Restaurant'}</h2>
@@ -76,7 +76,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         <button
           onClick={onClose}
           aria-label="Tanca"
-          className="p-1.5 rounded-full text-orange-200 hover:text-white hover:bg-orange-700 transition"
+          className="p-1.5 rounded-full text-orange-200 hover:text-white hover:bg-accent-hover transition"
         >
           <X className="w-5 h-5" />
         </button>
@@ -109,7 +109,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
               required
-              className="w-full px-3 py-2.5 rounded-xl border border-stone-300 bg-white text-stone-800 text-sm font-medium focus:border-orange-500 outline-hidden transition"
+              className="w-full px-3 py-2.5 rounded-xl border border-stone-300 bg-surface text-stone-800 text-sm font-medium focus:border-orange-500 outline-hidden transition"
             >
               <option value="" disabled>Tria una cuina...</option>
               {CUISINES.map((c) => (
@@ -223,7 +223,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
               step="0.5"
               value={rating}
               onChange={(e) => setRating(parseFloat(e.target.value))}
-              className="w-full accent-orange-600"
+              className="w-full accent-accent"
             />
           )}
         </div>
@@ -256,7 +256,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           <button
             type="submit"
             disabled={isSubmitting || !name.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
+            className="flex-1 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-xs font-bold text-white shadow-md disabled:opacity-50 transition"
           >
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir Restaurant'}
           </button>

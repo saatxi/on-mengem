@@ -27,7 +27,7 @@ type AlertConfig = {
 };
 
 const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
-  restaurant_added: { icon: UtensilsCrossed, iconBg: 'bg-orange-100', iconColor: 'text-orange-600' },
+  restaurant_added: { icon: UtensilsCrossed, iconBg: 'bg-orange-100', iconColor: 'text-accent' },
   wishlist_added: { icon: Sparkles, iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
   group_joined: { icon: Users, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
   restaurant_reviewed: { icon: Star, iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
@@ -35,11 +35,11 @@ const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
 
 export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => {
   return (
-    <div className="bg-white p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
+    <div className="bg-surface p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-4">
       <div className="flex items-center justify-between pb-3 border-b border-stone-100">
         <div>
           <h2 className="text-base font-bold text-stone-900 flex items-center gap-2">
-            <Bell className="w-5 h-5 text-orange-600" />
+            <Bell className="w-5 h-5 text-accent" />
             Activitat i Alertes del Grup en Temps Real
           </h2>
           <p className="text-xs text-stone-500">

@@ -17,7 +17,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
   return (
     <div
       onClick={() => onOpen(res)}
-      className="group bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs hover:shadow-md hover:border-orange-200 transition flex flex-col justify-between cursor-pointer"
+      className="group bg-surface rounded-2xl p-4 border border-stone-200/90 shadow-xs hover:shadow-md hover:border-orange-200 transition flex flex-col justify-between cursor-pointer"
     >
       <div>
         {/* Top Header */}
@@ -36,7 +36,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
                 </span>
               )}
             </div>
-            <h3 className="text-base font-bold text-stone-900 group-hover:text-orange-600 transition">
+            <h3 className="text-base font-bold text-stone-900 group-hover:text-accent transition">
               {/* Botó perquè el detall també s'obri amb el teclat (la targeta només respon al ratolí) */}
               <button
                 type="button"

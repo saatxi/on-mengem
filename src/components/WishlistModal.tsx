@@ -105,7 +105,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             <select
               value={cuisine}
               onChange={(e) => setCuisine(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-white text-sm text-stone-800 focus:border-amber-500 outline-hidden"
+              className="w-full px-3 py-2 rounded-xl border border-stone-300 bg-surface text-sm text-stone-800 focus:border-amber-500 outline-hidden"
             >
               {CUISINES.map((c) => (
                 <option key={c} value={c}>{c}</option>

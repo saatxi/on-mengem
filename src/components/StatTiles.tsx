@@ -22,7 +22,7 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlistCount }) => {
       value: restaurants.length,
       icon: UtensilsCrossed,
       iconBg: 'bg-orange-100',
-      iconColor: 'text-orange-600',
+      iconColor: 'text-accent',
     },
     {
       label: 'Visitats',
@@ -52,7 +52,7 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlistCount }) => {
       {tiles.map(({ label, value, icon: Icon, iconBg, iconColor }) => (
         <div
           key={label}
-          className="bg-white rounded-2xl p-4 border border-stone-200/90 shadow-xs flex items-center gap-3"
+          className="bg-surface rounded-2xl p-4 border border-stone-200/90 shadow-xs flex items-center gap-3"
         >
           <div className={`size-11 rounded-xl ${iconBg} flex items-center justify-center flex-shrink-0`}>
             <Icon className={`size-5 ${iconColor}`} />

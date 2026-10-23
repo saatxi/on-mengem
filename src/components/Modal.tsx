@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { cn } from '../utils/cn';
 
 interface Props {
   /** Nom accessible del diàleg (el llegeixen els lectors de pantalla). */
@@ -10,7 +11,7 @@ interface Props {
 }
 
 const DEFAULT_OVERLAY = 'fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto';
-const DEFAULT_PANEL = 'relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6';
+const DEFAULT_PANEL = 'relative w-full max-w-md bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6';
 
 // Diàlegs oberts, de més antic a més nou: Escape només tanca el de sobre (p. ex. la visita oberta des del detall).
 const openModals: symbol[] = [];
@@ -46,14 +47,14 @@ export const Modal: React.FC<Props> = ({
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className={overlayClassName}>
+    <div className={cn(overlayClassName, 'animate-fade-in')}>
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-label={label}
         tabIndex={-1}
-        className={`${panelClassName} outline-hidden`}
+        className={cn(panelClassName, 'outline-hidden animate-scale-in')}
       >
         {children}
       </div>

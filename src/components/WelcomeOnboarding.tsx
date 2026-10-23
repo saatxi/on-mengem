@@ -21,9 +21,9 @@ export const WelcomeOnboarding: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-stone-50 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200/80 text-center">
+      <div className="w-full max-w-md bg-surface rounded-3xl p-6 sm:p-8 shadow-xl border border-stone-200/80 text-center">
         {/* Brand Icon */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-orange-500 via-orange-600 to-amber-500 text-white shadow-xl shadow-orange-500/30 mb-4">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-tr from-orange-500 via-accent to-amber-500 text-white shadow-xl shadow-orange-500/30 mb-4">
           <Utensils className="w-10 h-10" />
         </div>
 
@@ -46,7 +46,7 @@ export const WelcomeOnboarding: React.FC = () => {
             <span>Llista de desitjats per anar provant llocs nous</span>
           </div>
           <div className="flex items-center gap-2.5">
-            <Users className="w-4 h-4 text-orange-600 flex-shrink-0" />
+            <Users className="w-4 h-4 text-accent flex-shrink-0" />
             <span>Espai personal i grups compartits en temps real amb codi d'invitació</span>
           </div>
         </div>
@@ -63,7 +63,7 @@ export const WelcomeOnboarding: React.FC = () => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-2xl font-bold text-stone-800 bg-white hover:bg-stone-50 border-2 border-stone-200 shadow-md hover:border-orange-300 transition active:scale-[0.98] text-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-2xl font-bold text-stone-800 bg-surface hover:bg-stone-50 border-2 border-stone-200 shadow-md hover:border-orange-300 transition active:scale-[0.98] text-sm"
         >
           {googleLoading ? (
             <span className="text-stone-500">Iniciant sessió...</span>

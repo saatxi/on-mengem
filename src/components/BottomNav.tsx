@@ -25,7 +25,7 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
   });
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 flex sm:hidden bg-white/95 backdrop-blur-md border-t border-stone-200 h-16">
+    <nav className="fixed bottom-0 inset-x-0 z-50 flex sm:hidden bg-surface/95 backdrop-blur-md border-t border-stone-200 h-16">
       {tabs.map(({ id, label, icon: Icon }) => {
         const isActive = activeTab === id;
         return (
@@ -35,14 +35,14 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
             className="flex-1 flex flex-col items-center justify-center gap-0.5 transition active:scale-95"
           >
             <div className="relative">
-              <Icon className={`size-5 ${isActive ? 'text-orange-600' : 'text-stone-400'}`} />
+              <Icon className={`size-5 ${isActive ? 'text-accent' : 'text-stone-400'}`} />
               {id === 'alerts' && alertCount > 0 && (
                 <span className="absolute -top-1 -right-1.5 min-w-[1rem] h-4 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center px-0.5">
                   {alertCount > 9 ? '9+' : alertCount}
                 </span>
               )}
             </div>
-            <span className={`text-[10px] font-bold ${isActive ? 'text-orange-600' : 'text-stone-400'}`}>
+            <span className={`text-[10px] font-bold ${isActive ? 'text-accent' : 'text-stone-400'}`}>
               {label}
             </span>
           </button>

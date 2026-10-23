@@ -18,7 +18,7 @@ export const PWAInstallButton: React.FC = () => {
     return (
       <button
         onClick={install}
-        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 p-1.5 sm:px-3 text-xs font-semibold text-white shadow-sm transition active:scale-95"
+        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-accent hover:to-amber-600 p-1.5 sm:px-3 text-xs font-semibold text-white shadow-sm transition active:scale-95"
         title="Instal·la On menjem? al teu dispositiu com a aplicació nativa"
       >
         <Download className="w-3.5 h-3.5" />
@@ -36,7 +36,7 @@ export const PWAInstallButton: React.FC = () => {
           className="flex items-center gap-1.5 rounded-full border border-orange-200 bg-orange-50/80 p-1.5 sm:px-2.5 sm:py-1 text-xs font-medium text-orange-800 hover:bg-orange-100 transition active:scale-95"
           title={isIOS ? 'Instal·la a iPhone o iPad' : 'Instal·la a Android'}
         >
-          <Smartphone className="w-3.5 h-3.5 text-orange-600" />
+          <Smartphone className="w-3.5 h-3.5 text-accent" />
           <span className="hidden sm:inline">Instal·lar</span>
         </button>
 
@@ -47,7 +47,7 @@ export const PWAInstallButton: React.FC = () => {
             onClick={() => setShowIOSGuide(false)}
           >
             <div
-              className="w-full max-w-sm max-h-full overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-stone-200"
+              className="w-full max-w-sm max-h-full overflow-y-auto rounded-2xl bg-surface p-6 shadow-2xl border border-stone-200"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-3 border-b border-stone-100">

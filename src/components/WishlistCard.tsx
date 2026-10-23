@@ -20,7 +20,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
 
   return (
     <div
-      className="bg-white rounded-2xl p-5 border border-stone-200/90 shadow-xs hover:border-amber-300 transition flex flex-col justify-between"
+      className="bg-surface rounded-2xl p-5 border border-stone-200/90 shadow-xs hover:border-amber-300 transition flex flex-col justify-between"
     >
       <div>
         <div className="flex items-start justify-between gap-2 mb-2">
@@ -104,7 +104,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
           <div className="flex items-center gap-1">
             <button
               onClick={() => onCopy(item)}
-              className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
+              className="p-1.5 rounded-lg text-stone-400 hover:text-accent hover:bg-orange-50 transition"
               title="Copiar a un grup"
             >
               <Copy className="w-3.5 h-3.5" />
@@ -112,7 +112,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             {onMove && (
               <button
                 onClick={() => onMove?.(item)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-orange-600 hover:bg-orange-50 transition"
+                className="p-1.5 rounded-lg text-stone-400 hover:text-accent hover:bg-orange-50 transition"
                 title="Moure a un grup"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />

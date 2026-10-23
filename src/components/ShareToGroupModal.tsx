@@ -48,7 +48,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
   };
 
   return (
-    <Modal label={isMove ? 'Moure a un grup' : 'Copiar a un grup'} onClose={close} panelClassName="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden" overlayClassName="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+    <Modal label={isMove ? 'Moure a un grup' : 'Copiar a un grup'} onClose={close} panelClassName="w-full max-w-sm bg-surface rounded-3xl shadow-2xl border border-stone-200 overflow-hidden" overlayClassName="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
       <div className="flex items-center justify-between px-5 py-4 bg-stone-900 text-white">
         <div className="flex items-center gap-2 min-w-0">
           {isMove ? <ArrowRightLeft className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -88,7 +88,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
                     name="target-group"
                     checked={checked}
                     onChange={() => toggle(g.id)}
-                    className="accent-orange-600"
+                    className="accent-accent"
                   />
                   <Users className="w-4 h-4 text-stone-400 flex-shrink-0" />
                   <div className="min-w-0">
@@ -106,7 +106,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
         <button
           onClick={submit}
           disabled={busy || selected.length === 0}
-          className="w-full py-2.5 rounded-xl bg-orange-600 hover:bg-orange-700 disabled:opacity-40 text-white text-sm font-bold transition"
+          className="w-full py-2.5 rounded-xl bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-sm font-bold transition"
         >
           {busy ? 'Processant…' : isMove ? 'Moure' : `Copiar${selected.length > 1 ? ` a ${selected.length} grups` : ''}`}
         </button>

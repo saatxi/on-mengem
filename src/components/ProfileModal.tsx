@@ -98,7 +98,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
         {/* Google Account Info Box */}
         <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200 text-xs space-y-1.5">
           <div className="flex items-center gap-2 text-stone-700 font-semibold">
-            <Mail className="w-3.5 h-3.5 text-orange-600 flex-shrink-0" />
+            <Mail className="w-3.5 h-3.5 text-accent flex-shrink-0" />
             <span className="truncate">{authUser?.email || 'Sense correu associat'}</span>
           </div>
           <div className="flex items-center gap-2 text-stone-500 text-[11px]">
@@ -151,7 +151,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <button
               type="submit"
               disabled={isSaving || nickname.trim().length < 2}
-              className="px-4 py-2 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold shadow-xs disabled:opacity-50 transition"
+              className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-hover text-white text-xs font-bold shadow-xs disabled:opacity-50 transition"
             >
               {isSaving ? 'Guardant...' : savedSuccess ? 'Guardat!' : 'Actualitzar Perfil'}
             </button>
@@ -198,7 +198,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             <button
               onClick={handleDeleteAccount}
               disabled={isDeleting}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-300 bg-white text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-red-300 bg-surface text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>{isDeleting ? 'Eliminant...' : 'Eliminar compte'}</span>

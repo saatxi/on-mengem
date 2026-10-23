@@ -201,7 +201,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                 type="button"
                 onClick={() => setShared(true)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 transition ${
-                  shared ? 'bg-emerald-600 text-white' : 'bg-white text-stone-600 hover:bg-stone-50'
+                  shared ? 'bg-emerald-600 text-white' : 'bg-surface text-stone-600 hover:bg-stone-50'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -211,7 +211,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                 type="button"
                 onClick={() => setShared(false)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 transition border-l border-stone-200 ${
-                  !shared ? 'bg-stone-700 text-white' : 'bg-white text-stone-600 hover:bg-stone-50'
+                  !shared ? 'bg-stone-700 text-white' : 'bg-surface text-stone-600 hover:bg-stone-50'
                 }`}
               >
                 <Lock className="w-3.5 h-3.5" />

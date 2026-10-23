@@ -91,7 +91,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
 
   if (restaurants.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-3xl border border-stone-200/80 text-center py-10">
+      <div className="bg-surface p-6 rounded-3xl border border-stone-200/80 text-center py-10">
         <Utensils className="w-10 h-10 text-stone-300 mx-auto mb-2" />
         <h3 className="text-sm font-bold text-stone-800">Sense dades de cuina encara</h3>
         <p className="text-xs text-stone-500 max-w-sm mx-auto mt-1">
@@ -102,12 +102,12 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
   }
 
   return (
-    <div className="bg-white p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-5">
+    <div className="bg-surface p-5 sm:p-6 rounded-3xl border border-stone-200/80 shadow-xs space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-stone-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-7 h-7 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center">
+            <span className="w-7 h-7 rounded-xl bg-orange-100 text-accent flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </span>
             <h3 className="text-base font-bold text-stone-900">
@@ -124,7 +124,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
           <button
             onClick={() => setViewMode('visited')}
             className={`px-3 py-1.5 rounded-lg transition ${
-              viewMode === 'visited' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+              viewMode === 'visited' ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
             }`}
           >
             Només visitats
@@ -132,7 +132,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
           <button
             onClick={() => setViewMode('all')}
             className={`px-3 py-1.5 rounded-lg transition ${
-              viewMode === 'all' ? 'bg-white text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
+              viewMode === 'all' ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-500 hover:text-stone-800'
             }`}
           >
             Tots els catalogats
@@ -144,7 +144,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="p-3.5 rounded-2xl bg-orange-50/70 border border-orange-200/70">
           <div className="flex items-center gap-1.5 text-xs font-bold text-orange-800 uppercase tracking-wider mb-1">
-            <Flame className="w-4 h-4 text-orange-600" />
+            <Flame className="w-4 h-4 text-accent" />
             <span>Cuina Més Visitada</span>
           </div>
           <div className="text-lg font-black text-stone-900">
