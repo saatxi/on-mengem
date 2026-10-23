@@ -46,7 +46,7 @@ export interface Restaurant {
   link?: string; // web o xarxes socials, http(s)
   instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal
-  createdBy: string;
+  createdBy?: string; // undefined = l'autor ha esborrat el compte
   createdByName?: string;
   favorite?: boolean;
   visits: Visit[];
@@ -67,7 +67,7 @@ export interface WishlistItem {
   link?: string;
   instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal
-  userId: string;
+  userId?: string; // undefined = l'autor ha esborrat el compte
   userName?: string;
   status?: WishlistStatus;
   createdAt?: string;
@@ -77,7 +77,7 @@ export interface WishlistItem {
 export interface Alert {
   id: string;
   groupId: string;
-  userId: string;
+  userId?: string;
   type: 'restaurant_added' | 'wishlist_added' | 'group_joined' | 'restaurant_reviewed';
   title: string;
   message: string;

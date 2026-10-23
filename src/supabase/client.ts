@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from './database';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -10,6 +11,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // PKCE: Google torna un codi d'un sol ús (?code=) en lloc de deixar els tokens al fragment de la URL.
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: { flowType: 'pkce' },
 });

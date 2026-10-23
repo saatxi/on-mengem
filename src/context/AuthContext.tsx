@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';
 import { toGroup, toProfile } from '../supabase/mappers';
+import type { TablesUpdate } from '../supabase/database';
 import { UserProfile, Group } from '../types';
 
 export interface AuthUser {
@@ -163,7 +164,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!uid) return;
-    const row: Record<string, unknown> = {};
+    const row: TablesUpdate<'profiles'> = {};
     if (data.nickname !== undefined) row.nickname = data.nickname;
     if (data.avatar !== undefined) row.avatar = data.avatar;
     if (Object.keys(row).length === 0) return;

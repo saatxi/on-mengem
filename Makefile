@@ -10,7 +10,7 @@ ifneq ($(filter release,$(MAKECMDGOALS)),)
 $(RELEASE_ARG): ; @:
 endif
 
-.PHONY: help release local db-start db-stop db-status db-reset db-test env dev clean-env
+.PHONY: help release local db-start db-stop db-status db-reset db-test db-types env dev clean-env
 
 help: ## Mostra aquesta ajuda
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -35,6 +35,9 @@ db-reset: ## Recrea la BD local des de les migracions (esborra les dades)
 
 db-test: ## Executa els tests pgTAP de la BD
 	$(SUPABASE) test db
+
+db-types: ## Regenera els tipus TypeScript des de la BD local (src/supabase/database.types.ts)
+	$(SUPABASE) gen types typescript --local > src/supabase/database.types.ts
 
 env: ## Genera .env.localdb amb la URL i la clau de Supabase local
 	@$(SUPABASE) status -o env 2>/dev/null | awk -F= \

@@ -26,7 +26,8 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 - `src/components/`: components i modals.
 - `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
-- `src/supabase/client.ts` i `mappers.ts`: client i conversió fila BD ↔ tipus de l'app.
+- `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
+- `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
 - `src/types/index.ts`: tipus compartits.
 - `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
@@ -46,7 +47,7 @@ npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
 - L'app ja és en producció: **no modifiquis ni fusionis migracions existents**. Qualsevol canvi d'esquema, política o funció va en un fitxer nou a `supabase/migrations/` que s'aplica amb `npx supabase db push` (vegeu `docs/CONFIGURACIO.md`).
 - RLS és el límit de seguretat. Si canvies una política, funció o trigger, actualitza `supabase/tests/rls.test.sql` i `docs/SEGURETAT.md` al mateix commit.
 - Mai `service_role` ni claus `sb_secret_` al client; només la clau pública (anon).
-- Files de BD en snake_case, tipus de l'app en camelCase: una columna nova implica actualitzar `mappers.ts` i `types/index.ts`.
+- Files de BD en snake_case, tipus de l'app en camelCase: una columna nova implica `make db-types` i actualitzar `mappers.ts` i `types/index.ts`.
 - `groupId: null` / `group_id IS NULL` vol dir espai personal.
 - Si canvia la configuració o l'arrencada, actualitza `README.md` i `docs/CONFIGURACIO.md`.
 
@@ -107,4 +108,3 @@ Add restaurant editing, Instagram links and fixed cuisine list
 
 - El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`.
 - El build injecta una `Content-Security-Policy` (meta) a `vite.config.ts`; si afegeixes un domini extern, cal autoritzar-lo allà.
-- `tsconfig.json` no té `strict` activat.

@@ -142,7 +142,8 @@ L'app ja és en producció: **no modifiquis mai una migració que ja s'ha aplica
 
 1. Crea `supabase/migrations/000N_descripcio.sql` amb el número següent.
 2. Prova-la en local: `make db-reset` (torna a aplicar totes les migracions; esborra les dades locals) i `make db-test`.
-3. Aplica-la a producció amb `npx supabase db push` **abans** de passar a `main` el codi que la necessita, perquè cada push a `main` publica l'app.
+3. Si canvia l'esquema o la signatura d'una funció, regenera els tipus amb `make db-types` i comprova'ls amb `npm run lint`: `src/supabase/database.types.ts` no s'edita a mà.
+4. Aplica-la a producció amb `npx supabase db push` **abans** de passar a `main` el codi que la necessita, perquè cada push a `main` publica l'app.
 
 ### Si la base de dades es va crear amb el SQL Editor
 
@@ -218,4 +219,4 @@ Permet provar sense tocar el projecte de Supabase al núvol. Cal Docker.
 2. Omple `supabase/.env` amb `SUPABASE_AUTH_GOOGLE_CLIENT_ID` i `SUPABASE_AUTH_GOOGLE_SECRET` (el fitxer està ignorat per git).
 3. `make local`: arrenca Supabase (aplica les migracions), genera `.env.localdb` i engega l'app a `http://localhost:3000`.
 
-Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades), `make db-test`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
+Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades), `make db-test`, `make db-types`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.

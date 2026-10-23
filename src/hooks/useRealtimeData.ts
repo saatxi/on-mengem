@@ -151,6 +151,7 @@ export function useRealtimeData() {
       .from('restaurants')
       .insert({
         ...restaurantToRow(data),
+        name: data.name,
         group_id: groupId,
         created_by: uid,
         created_by_name: userProfile.nickname,
@@ -208,7 +209,7 @@ export function useRealtimeData() {
       p_notes: notes,
       p_attendees: attendeeIds,
       p_shared: shared,
-      p_visit_id: visitId ?? null,
+      p_visit_id: visitId,
     });
     if (error) {
       fail('saveVisit', error);
@@ -234,6 +235,7 @@ export function useRealtimeData() {
       .from('wishlist')
       .insert({
         ...wishlistToRow({ ...data, status: data.status || 'pending' }),
+        restaurant_name: data.restaurantName,
         group_id: groupId,
         user_id: uid,
         user_name: userProfile.nickname,

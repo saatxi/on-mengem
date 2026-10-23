@@ -11,5 +11,10 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# Generat per "make db-types": no s'edita a mà.
+[src/supabase/database.types.ts]
+trim_trailing_whitespace = false
+insert_final_newline = false
+
 [Makefile]
 indent_style = tab
