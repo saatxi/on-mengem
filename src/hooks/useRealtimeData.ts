@@ -145,28 +145,23 @@ export function useRealtimeData() {
   // CRUD Restaurants
   type NewRestaurant = Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>;
 
-  /** Retorna l'id del restaurant creat, o null si hi ha hagut un error. */
-  const insertRestaurant = async (data: NewRestaurant): Promise<string | null> => {
-    if (!uid || !userProfile) return null;
-    const { data: rows, error } = await supabase
+  const addRestaurant = async (data: NewRestaurant) => {
+    if (!uid || !userProfile) return false;
+    const { error } = await supabase
       .from('restaurants')
       .insert({
         ...restaurantToRow(data),
         group_id: groupId,
         created_by: uid,
         created_by_name: userProfile.nickname,
-      })
-      .select('id')
-      .single();
+      });
     if (error) {
       fail('addRestaurant', error);
-      return null;
+      return false;
     }
     await fetchRestaurants();
-    return rows.id as string;
+    return true;
   };
-
-  const addRestaurant = async (data: NewRestaurant) => (await insertRestaurant(data)) !== null;
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return false;
@@ -274,9 +269,8 @@ export function useRealtimeData() {
     else await fetchWishlist();
   };
 
-  // Converteix un desitjat en restaurant de l'espai actiu.
-  // Primer es marca el desitjat com a visitat i, si el restaurant no es pot crear, es desfà;
-  // així un error mai deixa un restaurant creat amb el desitjat encara pendent (duplicats en reintentar).
+  // Converteix un desitjat en restaurant del seu espai amb la primera visita. La RPC ho fa tot en una
+  // transacció: si alguna part falla, el desitjat continua pendent i no queda cap restaurant a mitges.
   const convertingRef = useRef<Set<string>>(new Set());
   interface VisitOverride {
     visitedOn: string | undefined;
@@ -287,33 +281,22 @@ export function useRealtimeData() {
   }
 
   const convertWishlistToRestaurant = async (wishlistItem: WishlistItem, visitOverride?: VisitOverride) => {
-    if (!uid || !userProfile || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
+    if (!uid || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
     convertingRef.current.add(wishlistItem.id);
     try {
-      if (!(await updateWishlistItem(wishlistItem.id, { status: 'visited' }))) return;
-
-      const newId = await insertRestaurant({
-        name: wishlistItem.restaurantName,
-        cuisine: wishlistItem.cuisine || '',
-        priceRange: wishlistItem.priceRange || '',
-        address: wishlistItem.address || '',
-        notes: wishlistItem.notes ? `(Desitjat original: ${wishlistItem.notes})` : '',
-        link: wishlistItem.link || '',
-        instagram: wishlistItem.instagram || '',
-        favorite: false,
+      const { error } = await supabase.rpc('convert_wishlist_to_restaurant', {
+        p_wishlist_id: wishlistItem.id,
+        p_visited_on: visitOverride?.visitedOn ?? localToday(),
+        p_rating: visitOverride?.rating ?? null,
+        p_notes: visitOverride?.notes ?? '',
+        p_attendees: visitOverride?.attendeeIds ?? [uid],
+        p_shared: visitOverride?.shared ?? true,
       });
-      if (!newId) {
-        await updateWishlistItem(wishlistItem.id, { status: wishlistItem.status });
+      if (error) {
+        fail('convertWishlistToRestaurant', error);
         return;
       }
-      await saveVisit(
-        newId,
-        visitOverride?.visitedOn ?? localToday(),
-        visitOverride?.rating,
-        visitOverride?.notes ?? '',
-        visitOverride?.attendeeIds ?? [uid],
-        visitOverride?.shared ?? true,
-      );
+      await Promise.all([fetchRestaurants(), fetchWishlist()]);
     } finally {
       convertingRef.current.delete(wishlistItem.id);
     }

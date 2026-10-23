@@ -1,6 +1,6 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 142 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 153 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
@@ -20,6 +20,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 13. **URL**: `wishlist.link` i `restaurants.link` només accepten `http(s)://`, `profiles.photo_url` només `https://` i `restaurants.instagram` / `wishlist.instagram` només un nom d'usuari (`[A-Za-z0-9._]`, màx. 30).
 14. **Anònims**: cap accés a les dades ni a les funcions (`EXECUTE` revocat per a `anon`).
 15. **Visites** (`restaurant_visits` i `visit_attendees`): les escriptures van exclusivament a través de `save_visit` i `delete_visit`. El client no pot fer `INSERT`, `UPDATE` ni `DELETE` directes. Cada membre del grup veu totes les visites (incloses les privades), però: una visita **grupal** la pot editar o esborrar qualsevol membre; una visita **privada** només la pot editar o esborrar l'autor (o qualsevol membre si l'autor ha esborrat el compte). Només l'autor pot canviar el camp `shared`. Els assistents han de ser membres del grup (o el propi usuari a l'espai personal). Les visites s'arrosseguen amb `move_to_group` però no es copien amb `copy_to_groups`. Esborrar el restaurant esborra les seves visites (cascade).
+17. **Conversió de desitjat a restaurant**: `convert_wishlist_to_restaurant` exigeix la mateixa visibilitat que `copy_to_groups` (propietari a l'espai personal, membre al grup), crea el restaurant al mateix espai que el desitjat amb l'usuari com a autor, i registra la visita amb `save_visit`, que hi aplica les seves comprovacions d'assistents. Tot és una transacció: si falla qualsevol pas, el desitjat continua pendent i no es crea res. Un desitjat ja visitat no es pot tornar a convertir (la fila es bloqueja amb `for update`).
 16. **Quotes** (`0009_abuse_quotas.sql`): triggers `before insert` que compten les files i rebutgen l'operació amb l'errcode `OMQ01` (l'app en mostra el missatge): 2.000 restaurants i 2.000 desitjats a l'espai personal de cada usuari, 5.000 restaurants i 5.000 desitjats per grup (també en moure-hi o copiar-hi ítems amb `move_to_group` i `copy_to_groups`), 20 grups dels quals l'usuari és owner i 500 visites per restaurant. Un bloqueig consultiu per espai evita que dues insercions simultànies passin del límit. A més, cada usuari pot generar com a màxim 50 alertes per grup i hora; les que passen del límit es descarten en silenci, però l'acció que les provoca es fa igualment. Els límits són a `quota_limit()`.
 
 ## Atacs que han de ser denegats
@@ -54,6 +55,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 26 | Fer servir el canvi de nickname per reescriure el nom d'altres usuaris | `sync_nickname_to_records` només toca les files de `new.id` | "el canvi de nickname no toca els registres d'altres usuaris" |
 | 27 | Omplir la base de dades afegint files en bucle | triggers de quota a `restaurants`, `wishlist`, `groups` i `restaurant_visits` | "no es poden afegir més restaurants personals que la quota", "move_to_group respecta la quota del grup destí" |
 | 28 | Inundar un grup d'alertes afegint i esborrant ítems | trigger `throttle_alerts` | "les alertes que un usuari genera en un grup es limiten per hora" |
+| 29 | Convertir un desitjat aliè o convertir-lo dues vegades | filtre de visibilitat i comprovació de `status` a `convert_wishlist_to_restaurant` | "bob2 no pot convertir un desitjat personal d'alice2", "un desitjat no es pot convertir dues vegades" |
 
 ## Notes
 - Els tests fixen tant `request.jwt.claims` com `request.jwt.claim.sub`, perquè algunes versions antigues de `auth.uid()` només llegeixen la segona.

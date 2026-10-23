@@ -596,6 +596,64 @@ select is((select array_agg(owner_name order by name) from public.groups where o
 select isnt((select created_by_name from public.restaurants where name = 'Nom fals'), 'Alícia',
             'el canvi de nickname no toca els registres d''altres usuaris');
 
+-- ------------------------------------------------------------ Conversió de desitjat a restaurant
+insert into public.wishlist (id, group_id, restaurant_name, cuisine, notes, user_id) values
+  ('30000000-0000-0000-0000-000000000031', '10000000-0000-0000-0000-000000000003', 'Desitjat G3', 'Catalana',
+   'Recomanat per la Maria', '00000000-0000-0000-0000-0000000000b1'),
+  ('30000000-0000-0000-0000-000000000032', '10000000-0000-0000-0000-000000000003', 'Desitjat G3 bis', '',
+   null, '00000000-0000-0000-0000-0000000000b1'),
+  ('30000000-0000-0000-0000-000000000033', null, 'Desitjat personal d''Alice2', '',
+   null, '00000000-0000-0000-0000-0000000000a1');
+
+set local role anon;
+select set_config('request.jwt.claims', '', true);
+select set_config('request.jwt.claim.sub', '', true);
+select throws_ok($$
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000031', current_date, 4.0, '', '{}')
+$$, '42501', null, 'anònim: no pot cridar convert_wishlist_to_restaurant');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
+set local role authenticated;
+
+select lives_ok($$
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000031', current_date, 4.5, 'Molt bo',
+    array['00000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000b1']::uuid[], true)
+$$, 'alice2 converteix un desitjat de G3 (d''un altre membre) en restaurant');
+select is((select status from public.wishlist where id = '30000000-0000-0000-0000-000000000031'), 'visited',
+          'el desitjat convertit queda marcat com a visitat');
+select is((select row(group_id, cuisine::text, notes, created_by)::text from public.restaurants where name = 'Desitjat G3'),
+          row('10000000-0000-0000-0000-000000000003'::uuid, 'Catalana', '(Desitjat original: Recomanat per la Maria)',
+              '00000000-0000-0000-0000-0000000000a1'::uuid)::text,
+          'el restaurant es crea al grup del desitjat amb les seves dades i alice2 com a autora');
+select is((select count(*)::int from public.restaurant_visits v join public.restaurants r on r.id = v.restaurant_id
+            join public.visit_attendees a on a.visit_id = v.id
+            where r.name = 'Desitjat G3' and v.rating = 4.5 and v.notes = 'Molt bo'), 2,
+          'la conversió registra la visita amb els seus assistents');
+select throws_ok($$
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000031', current_date, 4.0, '', '{}')
+$$, 'P0001', 'Aquest desitjat ja s''ha convertit en restaurant', 'un desitjat no es pot convertir dues vegades');
+select throws_ok($$
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000032', current_date, 4.0, '',
+    array['00000000-0000-0000-0000-0000000000e9']::uuid[])
+$$, 'P0001', 'Els assistents han de ser membres del grup', 'la conversió valida els assistents com save_visit');
+select is((select status from public.wishlist where id = '30000000-0000-0000-0000-000000000032'), 'pending',
+          'si la visita falla, el desitjat continua pendent (atomicitat)');
+select is((select count(*)::int from public.restaurants where name = 'Desitjat G3 bis'), 0,
+          'si la visita falla, no queda cap restaurant creat (atomicitat)');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b1', true);
+set local role authenticated;
+select throws_ok($$
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000033', current_date, 4.0, '', '{}')
+$$, 'P0001', 'Desitjat no trobat', 'bob2 no pot convertir un desitjat personal d''alice2');
+reset role;
+select is((select status from public.wishlist where id = '30000000-0000-0000-0000-000000000033'), 'pending',
+          'el desitjat personal d''alice2 no ha canviat');
+
 -- ------------------------------------------------------------ Quotes contra l'abús (Eve)
 select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),
                 public.quota_limit('owned_groups'), public.quota_limit('restaurant_visits'),
