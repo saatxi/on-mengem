@@ -4,14 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Quotes contra l'abús
-
-**Problema.** No hi ha cap límit de files per usuari o per grup, ni de grups creats per usuari. Un usuari autenticat pot omplir la base de dades (el pla gratuït de Supabase té 500 MB) o inundar un grup d'alertes afegint restaurants en bucle. `docs/SEGURETAT.md` ja indica que el límit de peticions i l'spam de grups queden fora d'abast.
-
-**Proposta.** Una migració nova amb triggers `before insert` que comptin les files i rebutgin l'operació quan es passa del límit, de l'estil del límit d'intents de `join_attempts`. Per exemple: 2.000 restaurants i 2.000 desitjats a l'espai personal, 5.000 per grup, i 20 grups creats per usuari (`create_group`). Cal afegir tests pgTAP i documentar-ho a `docs/SEGURETAT.md`.
-
-**Prioritat:** mitjana · **Esforç:** M
-
 ## Conversió atòmica de desitjat a restaurant
 
 **Problema.** `convertWishlistToRestaurant` (`src/hooks/useRealtimeData.ts`) fa tres crides des del client: marca el desitjat com a visitat, crea el restaurant i registra la visita. Si falla la segona, desfà la primera a mà; si falla la tercera, el restaurant queda creat sense visita.
