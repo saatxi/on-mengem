@@ -4,14 +4,6 @@ Llista de millores detectades a la revisió general del codi (octubre de 2026) q
 
 Quan en facis una, treu-la d'aquí al mateix commit.
 
-## Conversió atòmica de desitjat a restaurant
-
-**Problema.** `convertWishlistToRestaurant` (`src/hooks/useRealtimeData.ts`) fa tres crides des del client: marca el desitjat com a visitat, crea el restaurant i registra la visita. Si falla la segona, desfà la primera a mà; si falla la tercera, el restaurant queda creat sense visita.
-
-**Proposta.** Una RPC `convert_wishlist_to_restaurant(p_wishlist_id, p_visited_on, p_rating, p_notes, p_attendees, p_shared)` que ho faci tot dins d'una transacció, amb les mateixes comprovacions de visibilitat que `copy_to_groups` i `save_visit`, i els seus tests.
-
-**Prioritat:** mitjana · **Esforç:** M
-
 ## Tipus generats de la base de dades i `strict`
 
 **Problema.** `src/supabase/mappers.ts` treballa amb `Record<string, any>` i `tsconfig.json` no té `strict`. Si es reanomena una columna o es fa un error tipogràfic en un nom, ni el compilador ni el lint ho detecten.
