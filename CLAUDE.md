@@ -14,9 +14,10 @@ cp .env.example .env      # omplir VITE_SUPABASE_URL i VITE_SUPABASE_ANON_KEY
 npm run dev               # http://localhost:3000
 npm run build
 npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
+npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de localToday)
 ```
 
-- No hi ha tests JS. Per verificar canvis de frontend: `npm run lint` + `npm run build`.
+- Tests JS amb Vitest només per a funcions pures (`src/**/*.test.ts`, al costat del codi). Per verificar canvis de frontend: `npm run lint` + `npm test` + `npm run build`.
 - Tests de la BD (pgTAP, cal Docker): `npx supabase start` i `npx supabase test db`.
 - Reinicia el servidor de desenvolupament després de canviar `.env`.
 
