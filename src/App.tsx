@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
 import { Navbar } from './components/Navbar';
@@ -11,7 +11,7 @@ import { JoinGroupModal } from './components/JoinGroupModal';
 import { ShareToGroupModal } from './components/ShareToGroupModal';
 import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { ErrorToast } from './components/ErrorToast';
+import { Toast } from './components/Toast';
 import { GroupMembers } from './components/GroupMembers';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { StatTiles } from './components/StatTiles';
@@ -22,13 +22,30 @@ import { WishlistCard } from './components/WishlistCard';
 import { TabButton } from './components/TabButton';
 import { CardSkeletons } from './components/CardSkeletons';
 import { Restaurant, Visit, WishlistItem } from './types';
-import { isVisited } from './utils/restaurantFields';
+import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type RestaurantSort } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
+import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
 import { DialogProvider } from './components/ConfirmDialog';
-import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3 } from 'lucide-react';
+import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X } from 'lucide-react';
+import { cn } from './utils/cn';
 
-type TabType = 'restaurants' | 'wishlist' | 'group' | 'stats' | 'alerts';
+const TABS = ['restaurants', 'wishlist', 'group', 'stats', 'alerts'] as const;
+type TabType = (typeof TABS)[number];
+
+const VISITED_FILTERS = { all: 'Tots', visited: 'Visitats', not_visited: 'Per anar' } as const;
+type VisitedFilter = keyof typeof VISITED_FILTERS;
+
+const WISHLIST_FILTERS = { all: 'Tots', pending: 'Pendents', planned: 'Planificats', visited: 'Provats' } as const;
+type WishlistFilter = keyof typeof WISHLIST_FILTERS;
+
+// Temps per desfer l'eliminació d'un desitjat abans d'esborrar-lo de debò (una mica més que l'avís)
+const UNDO_DELETE_MS = 5000;
+
+const segmentClass = (active: boolean) =>
+  cn('px-3 py-1.5 rounded-lg font-semibold transition', active ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600 hover:text-stone-900');
+
+const keysOf = <T extends object>(obj: T) => Object.keys(obj) as (keyof T & string)[];
 
 function MainApp() {
   const { activeGroup, userGroups, hasProfile, isLoading, authUser } = useAuth();
@@ -56,7 +73,7 @@ function MainApp() {
     markAllAlertsAsRead,
   } = useRealtimeData();
 
-  const [currentTab, setCurrentTab] = useState<TabType>('restaurants');
+  const [currentTab, setCurrentTab] = usePersistentState<TabType>('tab', 'restaurants', oneOf(...TABS));
 
   // Modals state
   const [showAddRestaurant, setShowAddRestaurant] = useState(false);
@@ -77,12 +94,24 @@ function MainApp() {
   // Modal de conversió desitjat → restaurant
   const [wishlistToConvert, setWishlistToConvert] = useState<WishlistItem | null>(null);
 
-  // Filters state
+  // Filtres i ordenació (la cerca no es recorda; la resta, sí)
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterVisited, setFilterVisited] = useState<'all' | 'visited' | 'not_visited'>('all');
-  const [filterFavorite, setFilterFavorite] = useState(false);
-  const [selectedCuisine, setSelectedCuisine] = useState<string>('Tots');
+  const [filterVisited, setFilterVisited] = usePersistentState<VisitedFilter>('filter-visited', 'all', oneOf(...keysOf(VISITED_FILTERS)));
+  const [filterFavorite, setFilterFavorite] = usePersistentState('filter-favorite', false, isBoolean);
+  const [selectedCuisine, setSelectedCuisine] = usePersistentState('filter-cuisine', 'Tots', isString);
+  const [sort, setSort] = usePersistentState<RestaurantSort>('sort', 'recent', oneOf(...keysOf(RESTAURANT_SORTS)));
+  const [wishlistQuery, setWishlistQuery] = useState('');
+  const [wishlistFilter, setWishlistFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOf(...keysOf(WISHLIST_FILTERS)));
   const [copiedGroupCode, setCopiedGroupCode] = useState(false);
+
+  // Avís d'èxit (amb acció opcional, p. ex. «Desfer»)
+  const [notice, setNotice] = useState<{ message: string; action?: { label: string; onClick: () => void } } | null>(null);
+  const clearNotice = useCallback(() => setNotice(null), []);
+  const notify = (message: string, action?: { label: string; onClick: () => void }) => setNotice({ message, action });
+
+  // Desitjats eliminats que encara es poden recuperar: s'amaguen de seguida i s'esborren passat UNDO_DELETE_MS
+  const [hiddenWishlistIds, setHiddenWishlistIds] = useState<string[]>([]);
+  const pendingDeletes = useRef(new Map<string, ReturnType<typeof setTimeout>>());
 
   // Enllaç directe (?r=<id>): el hook canvia a l'espai del restaurant i aquí se n'obre el detall.
   const { error: linkError, clearError: clearLinkError } = useRestaurantLink((restaurantId) => {
@@ -112,28 +141,65 @@ function MainApp() {
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId) ?? null;
 
-  // Filter restaurants
-  const filteredRestaurants = restaurants.filter((r) => {
-    const q = searchQuery.toLowerCase();
-    const matchesSearch =
-      r.name.toLowerCase().includes(q) ||
-      (r.cuisine && r.cuisine.toLowerCase().includes(q)) ||
-      (r.address && r.address.toLowerCase().includes(q)) ||
-      (r.notes && r.notes.toLowerCase().includes(q));
-
-    if (!matchesSearch) return false;
-    if (filterFavorite && !r.favorite) return false;
-    if (filterVisited === 'visited' && !isVisited(r)) return false;
-    if (filterVisited === 'not_visited' && isVisited(r)) return false;
-    if (selectedCuisine !== 'Tots' && r.cuisine !== selectedCuisine) return false;
-    return true;
-  });
-
-  // Extract unique cuisines
+  // Cuines d'aquest espai; la desada pot ser d'un altre espai i llavors no filtra
   const availableCuisines = [
     'Tots',
-    ...Array.from(new Set(restaurants.map((r) => r.cuisine).filter(Boolean) as string[])),
+    ...Array.from(new Set(restaurants.map((r) => r.cuisine).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, 'ca')),
   ];
+  const cuisineFilter = availableCuisines.includes(selectedCuisine) ? selectedCuisine : 'Tots';
+
+  const filteredRestaurants = sortRestaurants(
+    restaurants.filter((r) => {
+      if (!matchesQuery(searchQuery, [r.name, r.cuisine, r.address, r.notes])) return false;
+      if (filterFavorite && !r.favorite) return false;
+      if (filterVisited === 'visited' && !isVisited(r)) return false;
+      if (filterVisited === 'not_visited' && isVisited(r)) return false;
+      if (cuisineFilter !== 'Tots' && r.cuisine !== cuisineFilter) return false;
+      return true;
+    }),
+    sort,
+  );
+
+  const hasRestaurantFilters = searchQuery.trim() !== '' || filterFavorite || filterVisited !== 'all' || cuisineFilter !== 'Tots';
+  const clearRestaurantFilters = () => {
+    setSearchQuery('');
+    setFilterFavorite(false);
+    setFilterVisited('all');
+    setSelectedCuisine('Tots');
+  };
+
+  const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
+  const filteredWishlist = visibleWishlist.filter(
+    (w) =>
+      (wishlistFilter === 'all' || (w.status ?? 'pending') === wishlistFilter) &&
+      matchesQuery(wishlistQuery, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
+  );
+  const hasWishlistFilters = wishlistQuery.trim() !== '' || wishlistFilter !== 'all';
+  const clearWishlistFilters = () => {
+    setWishlistQuery('');
+    setWishlistFilter('all');
+  };
+
+  const unreadAlertCount = alerts.filter((a) => authUser && !a.readBy?.includes(authUser.uid)).length;
+
+  const handleDeleteWishlist = (item: WishlistItem) => {
+    setHiddenWishlistIds((ids) => [...ids, item.id]);
+    const restore = () => setHiddenWishlistIds((ids) => ids.filter((id) => id !== item.id));
+    const timer = setTimeout(() => {
+      pendingDeletes.current.delete(item.id);
+      // Si falla, l'error surt a l'avís vermell i el desitjat torna a aparèixer
+      deleteWishlistItem(item.id).finally(restore);
+    }, UNDO_DELETE_MS);
+    pendingDeletes.current.set(item.id, timer);
+    notify(`«${item.restaurantName}» eliminat`, {
+      label: 'Desfer',
+      onClick: () => {
+        clearTimeout(timer);
+        pendingDeletes.current.delete(item.id);
+        restore();
+      },
+    });
+  };
 
   const handleCopyGroupCode = () => {
     if (!activeGroup?.code) return;
@@ -174,7 +240,7 @@ function MainApp() {
           />
           <TabButton
             icon={BookmarkPlus}
-            label={`Desitjats (${wishlist.length})`}
+            label={`Desitjats (${visibleWishlist.length})`}
             active={effectiveTab === 'wishlist'}
             onClick={() => setCurrentTab('wishlist')}
           />
@@ -195,7 +261,7 @@ function MainApp() {
           {!isPersonal && (
             <TabButton
               icon={Bell}
-              label={`Activitat (${alerts.length})`}
+              label={unreadAlertCount > 0 ? `Activitat (${unreadAlertCount})` : 'Activitat'}
               active={effectiveTab === 'alerts'}
               onClick={() => setCurrentTab('alerts')}
             />
@@ -216,6 +282,7 @@ function MainApp() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cercar per nom, adreça, cuina, notes..."
+                    aria-label="Cercar restaurants"
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-surface placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
                   />
                 </div>
@@ -223,47 +290,28 @@ function MainApp() {
                 {/* Add button */}
                 <button
                   onClick={() => setShowAddRestaurant(true)}
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
+                  className="hidden sm:flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent hover:bg-accent-hover text-white font-bold text-sm shadow-sm transition active:scale-95"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Afegir restaurant</span>
                 </button>
               </div>
 
-              {/* Filter Pills */}
-              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-stone-100 text-xs">
-                {/* Visited Status */}
-                <div className="flex items-center rounded-xl bg-stone-100 p-0.5">
-                  <button
-                    onClick={() => setFilterVisited('all')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition ${
-                      filterVisited === 'all' ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600'
-                    }`}
-                  >
-                    Tots
-                  </button>
-                  <button
-                    onClick={() => setFilterVisited('visited')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition ${
-                      filterVisited === 'visited' ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600'
-                    }`}
-                  >
-                    Visitats
-                  </button>
-                  <button
-                    onClick={() => setFilterVisited('not_visited')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition ${
-                      filterVisited === 'not_visited' ? 'bg-surface text-stone-900 shadow-xs' : 'text-stone-600'
-                    }`}
-                  >
-                    Per anar
-                  </button>
+              {/* Filtres */}
+              <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-100 text-xs">
+                <div className="flex items-center rounded-xl bg-stone-100 p-0.5" role="group" aria-label="Estat de visita">
+                  {keysOf(VISITED_FILTERS).map((key) => (
+                    <button key={key} onClick={() => setFilterVisited(key)} aria-pressed={filterVisited === key} className={segmentClass(filterVisited === key)}>
+                      {VISITED_FILTERS[key]}
+                    </button>
+                  ))}
                 </div>
 
                 {/* Favorite filter */}
                 <button
                   onClick={() => setFilterFavorite(!filterFavorite)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-semibold transition border ${
+                  aria-pressed={filterFavorite}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-semibold transition border ${
                     filterFavorite
                       ? 'bg-amber-500 text-white border-amber-600'
                       : 'bg-surface text-stone-700 border-stone-200 hover:bg-stone-50'
@@ -276,9 +324,10 @@ function MainApp() {
                 {/* Cuisine selector */}
                 {availableCuisines.length > 2 && (
                   <select
-                    value={selectedCuisine}
+                    value={cuisineFilter}
                     onChange={(e) => setSelectedCuisine(e.target.value)}
-                    className="px-2.5 py-1.5 rounded-xl bg-surface border border-stone-200 text-xs text-stone-700 font-medium focus:border-orange-500 outline-hidden"
+                    aria-label="Cuina"
+                    className="px-2.5 py-2 rounded-xl bg-surface border border-stone-200 text-xs text-stone-700 font-medium focus:border-orange-500 outline-hidden"
                   >
                     {availableCuisines.map((c) => (
                       <option key={c} value={c}>
@@ -289,7 +338,30 @@ function MainApp() {
                 )}
 
 
-                <span className="ml-auto text-stone-500 text-xs font-medium">
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as RestaurantSort)}
+                  aria-label="Ordena per"
+                  className="px-2.5 py-2 rounded-xl bg-surface border border-stone-200 text-xs text-stone-700 font-medium focus:border-orange-500 outline-hidden"
+                >
+                  {keysOf(RESTAURANT_SORTS).map((key) => (
+                    <option key={key} value={key}>
+                      {RESTAURANT_SORTS[key]}
+                    </option>
+                  ))}
+                </select>
+
+                {hasRestaurantFilters && (
+                  <button
+                    onClick={clearRestaurantFilters}
+                    className="flex items-center gap-1 px-2.5 py-2 rounded-xl font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Netejar filtres</span>
+                  </button>
+                )}
+
+                <span className="ml-auto text-stone-500 text-xs font-medium" aria-live="polite">
                   {filteredRestaurants.length} de {restaurants.length} llocs
                 </span>
               </div>
@@ -305,16 +377,25 @@ function MainApp() {
                 </div>
                 <h3 className="text-base font-bold text-stone-800">Cap restaurant trobat</h3>
                 <p className="text-xs text-stone-500 max-w-sm mx-auto">
-                  {searchQuery || filterFavorite || filterVisited !== 'all'
+                  {hasRestaurantFilters
                     ? 'No hi ha resultats amb els filtres seleccionats.'
                     : isPersonal ? 'El teu espai personal és buit. Afegeix els teus restaurants i després comparteix-los amb els teus grups!' : 'Encara no hi ha restaurants al grup. Sigues el primer a afegir-ne un!'}
                 </p>
-                <button
-                  onClick={() => setShowAddRestaurant(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-accent text-white font-bold text-xs hover:bg-accent-hover transition"
-                >
-                  <Plus className="w-4 h-4" /> Afegir el primer restaurant
-                </button>
+                {hasRestaurantFilters ? (
+                  <button
+                    onClick={clearRestaurantFilters}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-100 transition"
+                  >
+                    <X className="w-4 h-4" /> Netejar filtres
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowAddRestaurant(true)}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-bold text-xs hover:bg-accent-hover transition"
+                  >
+                    <Plus className="w-4 h-4" /> Afegir el primer restaurant
+                  </button>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -350,16 +431,39 @@ function MainApp() {
 
               <button
                 onClick={() => setShowAddWishlist(true)}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs sm:text-sm shadow-sm transition active:scale-95"
+                className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-sm shadow-sm transition active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>Proposar desitjat</span>
               </button>
             </div>
 
+            {visibleWishlist.length > 0 && (
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:items-center text-xs">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-stone-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="search"
+                    value={wishlistQuery}
+                    onChange={(e) => setWishlistQuery(e.target.value)}
+                    placeholder="Cercar per nom, cuina, qui ho recomana..."
+                    aria-label="Cercar desitjats"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 bg-surface placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 text-sm text-stone-900 outline-hidden transition"
+                  />
+                </div>
+                <div className="flex items-center self-start rounded-xl bg-stone-200/70 p-0.5 overflow-x-auto max-w-full" role="group" aria-label="Estat del desitjat">
+                  {keysOf(WISHLIST_FILTERS).map((key) => (
+                    <button key={key} onClick={() => setWishlistFilter(key)} aria-pressed={wishlistFilter === key} className={cn(segmentClass(wishlistFilter === key), 'whitespace-nowrap')}>
+                      {WISHLIST_FILTERS[key]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {dataLoading ? (
               <CardSkeletons count={4} className="grid grid-cols-1 md:grid-cols-2 gap-4" />
-            ) : wishlist.length === 0 ? (
+            ) : visibleWishlist.length === 0 ? (
               <div className="py-16 text-center bg-surface rounded-3xl border border-stone-200 p-8 space-y-3">
                 <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto">
                   <Sparkles className="w-7 h-7" />
@@ -375,16 +479,29 @@ function MainApp() {
                   <Plus className="w-4 h-4" /> Afegir el primer desitjat
                 </button>
               </div>
+            ) : filteredWishlist.length === 0 ? (
+              <div className="py-12 text-center bg-surface rounded-3xl border border-stone-200 p-8 space-y-3">
+                <h3 className="text-base font-bold text-stone-800">Cap desitjat amb aquests filtres</h3>
+                {hasWishlistFilters && (
+                  <button
+                    onClick={clearWishlistFilters}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-stone-200 text-stone-700 font-bold text-xs hover:bg-stone-100 transition"
+                  >
+                    <X className="w-4 h-4" /> Netejar filtres
+                  </button>
+                )}
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {wishlist.map((item) => (
+                {filteredWishlist.map((item) => (
                   <WishlistCard
                     key={item.id}
                     item={item}
                     onCopy={(w) => setShareTarget({ mode: 'copy', type: 'wishlist', id: w.id, name: w.restaurantName })}
                     onMove={isPersonal ? (w) => setShareTarget({ mode: 'move', type: 'wishlist', id: w.id, name: w.restaurantName }) : undefined}
                     onEdit={setEditingWishlist}
-                    onDelete={deleteWishlistItem}
+                    onDelete={handleDeleteWishlist}
+                    onTogglePlanned={(w) => updateWishlistItem(w.id, { status: w.status === 'planned' ? 'pending' : 'planned' })}
                     onMarkVisited={setWishlistToConvert}
                   />
                 ))}
@@ -449,7 +566,7 @@ function MainApp() {
         {/* TAB: RESUM */}
         {effectiveTab === 'stats' && (
           <div className="space-y-6">
-            <StatTiles restaurants={restaurants} wishlistCount={wishlist.length} />
+            <StatTiles restaurants={restaurants} wishlistCount={visibleWishlist.length} />
             <CuisineStatsChart
               restaurants={restaurants}
               groupName={activeGroup?.name}
@@ -463,28 +580,42 @@ function MainApp() {
         )}
       </main>
 
-      {/* Floating Add Restaurant Action for Mobile */}
-      <button
-        onClick={() => setShowAddRestaurant(true)}
-        className="fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-full bg-gradient-to-tr from-accent to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-accent/40 active:scale-90 transition"
-        title="Afegir restaurant"
-      >
-        <Plus className="w-7 h-7" />
-      </button>
+      {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}
+      {(effectiveTab === 'restaurants' || effectiveTab === 'wishlist') && (
+        <button
+          onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
+          aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
+          className={cn(
+            'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-full text-white flex items-center justify-center shadow-2xl active:scale-90 transition animate-scale-in',
+            effectiveTab === 'wishlist' ? 'bg-amber-500 shadow-amber-500/40' : 'bg-gradient-to-tr from-accent to-amber-500 shadow-accent/40',
+          )}
+        >
+          <Plus className="w-7 h-7" />
+        </button>
+      )}
 
       {/* Modals */}
       <AddRestaurantModal
         key={showAddRestaurant ? 'add-restaurant-open' : 'add-restaurant-closed'}
         isOpen={showAddRestaurant}
         onClose={() => setShowAddRestaurant(false)}
-        onSave={addRestaurant}
+        existingNames={restaurants.map((r) => r.name)}
+        onSave={async (data) => {
+          const ok = await addRestaurant(data);
+          if (ok) notify('Restaurant afegit');
+          return ok;
+        }}
       />
 
       <WishlistModal
         key={showAddWishlist ? 'add-wishlist-open' : 'add-wishlist-closed'}
         isOpen={showAddWishlist}
         onClose={() => setShowAddWishlist(false)}
-        onSave={addWishlistItem}
+        onSave={async (data) => {
+          const ok = await addWishlistItem(data);
+          if (ok) notify('Desitjat afegit');
+          return ok;
+        }}
       />
 
       <WishlistModal
@@ -492,7 +623,11 @@ function MainApp() {
         isOpen={!!editingWishlist}
         item={editingWishlist}
         onClose={() => setEditingWishlist(null)}
-        onSave={async (data) => (editingWishlist ? updateWishlistItem(editingWishlist.id, data) : false)}
+        onSave={async (data) => {
+          const ok = editingWishlist ? await updateWishlistItem(editingWishlist.id, data) : false;
+          if (ok) notify('Canvis desats');
+          return ok;
+        }}
       />
 
       <RestaurantDetailModal
@@ -518,7 +653,11 @@ function MainApp() {
         isOpen={!!editingRestaurant}
         restaurant={editingRestaurant}
         onClose={() => setEditingRestaurant(null)}
-        onSave={async (data) => (editingRestaurant ? updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>) : false)}
+        onSave={async (data) => {
+          const ok = editingRestaurant ? await updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>) : false;
+          if (ok) notify('Canvis desats');
+          return ok;
+        }}
       />
 
       <ShareToGroupModal
@@ -529,8 +668,13 @@ function MainApp() {
         onClose={() => setShareTarget(null)}
         onConfirm={async (groupIds) => {
           if (!shareTarget) return;
-          if (shareTarget.mode === 'move') await moveToGroup(shareTarget.type, shareTarget.id, groupIds[0]);
-          else await copyToGroups(shareTarget.type, shareTarget.id, groupIds);
+          if (shareTarget.mode === 'move') {
+            await moveToGroup(shareTarget.type, shareTarget.id, groupIds[0]);
+            notify(`Mogut a «${userGroups.find((g) => g.id === groupIds[0])?.name ?? 'el grup'}»`);
+          } else {
+            await copyToGroups(shareTarget.type, shareTarget.id, groupIds);
+            notify(groupIds.length === 1 ? 'Copiat al grup' : `Copiat a ${groupIds.length} grups`);
+          }
         }}
       />
 
@@ -554,7 +698,11 @@ function MainApp() {
         restaurant={visitTarget?.restaurant ?? null}
         visit={visitTarget?.visit}
         onClose={() => setVisitTarget(null)}
-        onSave={saveVisit}
+        onSave={async (...args: Parameters<typeof saveVisit>) => {
+          const ok = await saveVisit(...args);
+          if (ok) notify(args[6] ? 'Visita actualitzada' : 'Visita registrada');
+          return ok;
+        }}
       />
 
       <VisitModal
@@ -576,14 +724,15 @@ function MainApp() {
         }}
       />
 
-      <ErrorToast message={dataError} onClose={clearError} />
-      <ErrorToast message={dataError ? null : linkError} onClose={clearLinkError} />
+      <Toast message={dataError} onClose={clearError} />
+      <Toast message={dataError ? null : linkError} onClose={clearLinkError} />
+      <Toast message={dataError || linkError ? null : notice?.message ?? null} action={notice?.action} variant="success" onClose={clearNotice} />
 
       <BottomNav
         activeTab={effectiveTab}
         onTabChange={setCurrentTab}
         isPersonal={isPersonal}
-        alertCount={alerts.filter((a) => authUser && !a.readBy?.includes(authUser.uid)).length}
+        alertCount={unreadAlertCount}
       />
 
       {/* Non-intrusive Offline Indicator */}

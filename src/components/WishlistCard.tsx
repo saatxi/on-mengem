@@ -1,8 +1,8 @@
 import React from 'react';
-import { ArrowRightLeft, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { WishlistItem } from '../types';
-import { useConfirm } from './ConfirmDialog';
+import { cn } from '../utils/cn';
 import { instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
 
 interface Props {
@@ -11,14 +11,16 @@ interface Props {
   /** Només a l'espai personal: els ítems de grup no es poden moure. */
   onMove?: (item: WishlistItem) => void;
   onEdit: (item: WishlistItem) => void;
-  onDelete: (id: string) => void;
+  /** Sense confirmació: qui crida ofereix «Desfer». */
+  onDelete: (item: WishlistItem) => void;
+  onTogglePlanned: (item: WishlistItem) => void;
   onMarkVisited: (item: WishlistItem) => void;
 }
 
 const ICON_BUTTON = 'p-2 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition';
 
-export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onMarkVisited }) => {
-  const confirm = useConfirm();
+export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onTogglePlanned, onMarkVisited }) => {
+  const isPlanned = item.status === 'planned';
   const link = safeHttpUrl(item.link);
 
   return (
@@ -29,6 +31,9 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             <h3 className="text-base font-bold leading-snug text-stone-900">{item.restaurantName}</h3>
             {item.status === 'visited' && (
               <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800">Provat</span>
+            )}
+            {isPlanned && (
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-sky-50 text-sky-800">Planificat</span>
             )}
           </div>
           <p className="mt-0.5 text-xs text-stone-500 truncate">
@@ -94,6 +99,17 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
         </span>
 
         <div className="flex items-center gap-0.5 shrink-0">
+          {item.status !== 'visited' && (
+            <button
+              onClick={() => onTogglePlanned(item)}
+              aria-pressed={isPlanned}
+              aria-label={isPlanned ? 'Treure de planificats' : 'Marcar com a planificat'}
+              title={isPlanned ? 'Treure de planificats' : 'Marcar com a planificat'}
+              className={cn(ICON_BUTTON, isPlanned && 'text-sky-700 bg-sky-50 hover:bg-sky-100 hover:text-sky-800')}
+            >
+              <CalendarClock className="w-4 h-4" />
+            </button>
+          )}
           <button onClick={() => onCopy(item)} className={ICON_BUTTON} aria-label="Copiar a un grup" title="Copiar a un grup">
             <Copy className="w-4 h-4" />
           </button>
@@ -106,11 +122,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             <Pencil className="w-4 h-4" />
           </button>
           <button
-            onClick={async () => {
-              if (await confirm({ message: 'Vols eliminar aquest desitjat?', confirmLabel: 'Eliminar', destructive: true })) {
-                onDelete(item.id);
-              }
-            }}
+            onClick={() => onDelete(item)}
             className="p-2 rounded-lg text-stone-500 hover:text-red-600 hover:bg-red-50 transition"
             aria-label="Eliminar"
             title="Eliminar"

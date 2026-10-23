@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Star, Utensils, MapPin, FileText, Link2 } from 'lucide-react';
+import { Star, Utensils, MapPin, FileText, Link2, AlertTriangle } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Modal, ModalHeader } from './Modal';
 import { Restaurant } from '../types';
@@ -7,6 +7,7 @@ import {
   CUISINES,
   DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
+  normalizeText,
   INSTAGRAM_INPUT_PATTERN,
   PRICE_RANGES,
   toInstagramHandle,
@@ -18,9 +19,11 @@ interface Props {
   onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
+  /** Noms dels restaurants de l'espai, per avisar si se'n repeteix un en afegir-lo. */
+  existingNames?: string[];
 }
 
-export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant }) => {
+export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant, existingNames = [] }) => {
   const isEditing = !!restaurant;
   // Una cuina que ja no és a la llista obliga a triar-ne una de nova
   const initialCuisine = isEditing ? restaurant.cuisine ?? '' : 'Mediterrània';
@@ -36,6 +39,8 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
+
+  const isDuplicate = !isEditing && name.trim() !== '' && existingNames.some((n) => normalizeText(n) === normalizeText(name));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,6 +89,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
             maxLength={100}
             className="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-surface text-sm text-stone-900 placeholder:text-stone-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-hidden transition"
           />
+          {isDuplicate && (
+            <p role="status" className="mt-1.5 flex items-center gap-1.5 text-xs text-amber-800">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+              Ja hi ha un restaurant amb aquest nom en aquest espai.
+            </p>
+          )}
         </div>
 
         {/* Cuina i Preu */}
