@@ -3,6 +3,7 @@ import { LogOut, Check, Trash2, UserRound, Monitor, Sun, Moon } from 'lucide-rea
 import { Modal, ModalHeader } from './Modal';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
+import { quotaErrorMessage } from '../supabase/errors';
 import { useTheme, type ThemePreference } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
 import { FIELD, LABEL } from '../utils/ui';
@@ -69,7 +70,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setTimeout(() => setSavedSuccess(false), 2000);
     } catch (err) {
       console.error(err);
-      setSaveError('No s\'ha pogut desar el perfil. Comprova la connexió i torna-ho a provar.');
+      setSaveError(quotaErrorMessage(err) ?? 'No s\'ha pogut desar el perfil. Comprova la connexió i torna-ho a provar.');
     } finally {
       setIsSaving(false);
     }

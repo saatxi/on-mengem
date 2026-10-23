@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';
 import { toGroup, toProfile } from '../supabase/mappers';
@@ -58,11 +58,16 @@ function toAuthUser(session: Session | null): AuthUser | null {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Els canvis de grups que arriben seguits (p. ex. esborrar un grup i els seus membres) es resolen amb un sol refresc. */
+const GROUPS_REFRESH_DEBOUNCE_MS = 300;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const userGroupsRef = useRef(userGroups);
+  userGroupsRef.current = userGroups;
 
   // Sessió de Supabase Auth
   useEffect(() => {
@@ -91,8 +96,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = useCallback(async () => {
     if (!uid) return;
     // El trigger de la BD crea el perfil just després del primer login: reintenta breument.
+    // get_my_profile(): els camps privats (espai actiu, últim accés) no es poden llegir de la taula.
     for (let attempt = 0; attempt < 5; attempt++) {
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
+      const { data, error } = await supabase.rpc('get_my_profile').maybeSingle();
       if (error) {
         console.error('Error carregant el perfil:', error);
         break;
@@ -130,15 +136,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await supabase.from('profiles').update({ last_login_at: new Date().toISOString() }).eq('id', uid);
     })();
 
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const refreshGroups = () => {
+      clearTimeout(timer);
+      timer = setTimeout(fetchGroups, GROUPS_REFRESH_DEBOUNCE_MS);
+    };
+    // Els DELETE de Realtime no passen per RLS i arriben els de tota l'app: només compten els dels grups propis.
+    const isMyGroup = (groupId: unknown) => userGroupsRef.current.some((g) => g.id === groupId);
+
     const channel = supabase
       .channel(`auth-${uid}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${uid}` }, fetchProfile)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'groups' }, fetchGroups)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'group_members' }, fetchGroups)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'groups' }, refreshGroups)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'groups' }, refreshGroups)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'groups' }, ({ old }) => {
+        if (isMyGroup(old.id)) refreshGroups();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, refreshGroups)
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'group_members' }, ({ old }) => {
+        if (isMyGroup(old.group_id)) refreshGroups();
+      })
       .subscribe();
 
     return () => {
       cancelled = true;
+      clearTimeout(timer);
       supabase.removeChannel(channel);
     };
   }, [uid, fetchProfile, fetchGroups]);

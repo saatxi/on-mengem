@@ -654,12 +654,78 @@ reset role;
 select is((select status from public.wishlist where id = '30000000-0000-0000-0000-000000000033'), 'pending',
           'el desitjat personal d''alice2 no ha canviat');
 
+-- ------------------------------------------------------------ Enduriment (0011): expulsions, nickname i perfil propi
+-- F1 = frank (propietari de G4), F2 = gina i F3 = hugo (membres de G4)
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000f1', 'frank@test.dev', '{"full_name":"Frank"}'),
+  ('00000000-0000-0000-0000-0000000000f2', 'gina@test.dev', '{"full_name":"Gina"}'),
+  ('00000000-0000-0000-0000-0000000000f3', 'hugo@test.dev', '{"full_name":"Hugo"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000004', 'G4', 'HHHHHH', '00000000-0000-0000-0000-0000000000f1', 'Frank');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000f1'),
+  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000f2'),
+  ('10000000-0000-0000-0000-000000000004', '00000000-0000-0000-0000-0000000000f3');
+update public.profiles set active_group_id = '10000000-0000-0000-0000-000000000004'
+ where id = '00000000-0000-0000-0000-0000000000f1';
+
+-- ---- Com a Gina (membre de G4)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000f2","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000f2', true);
+set local role authenticated;
+
+select is((select nickname from public.profiles where id = '00000000-0000-0000-0000-0000000000f1'), 'Frank',
+          'gina veu el nickname de frank (company de grup)');
+select is((select array_agg(id) from public.get_my_profile()), array['00000000-0000-0000-0000-0000000000f2'::uuid],
+          'get_my_profile() només retorna el perfil propi');
+
+select lives_ok($$ update public.profiles set nickname = 'Gina Nova' where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                'gina canvia el nickname');
+select throws_ok($$ update public.profiles set nickname = 'Gina Altra' where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                 'OMQ01', null, 'no es pot tornar a canviar el nickname abans d''un minut');
+select lives_ok($$ update public.profiles set nickname = 'Gina Nova', avatar = '🍣' where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                'desar el perfil amb el mateix nickname no compta com a canvi');
+
+select lives_ok($$ delete from public.group_members
+                    where group_id = '10000000-0000-0000-0000-000000000004'
+                      and user_id = '00000000-0000-0000-0000-0000000000f2' $$,
+                'gina surt de G4');
+reset role;
+select is((select code from public.groups where id = '10000000-0000-0000-0000-000000000004'), 'HHHHHH',
+          'sortir un mateix del grup no canvia el codi');
+
+-- ---- Com a Frank (propietari de G4)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000f1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000f1', true);
+set local role authenticated;
+
+select lives_ok($$ delete from public.group_members
+                    where group_id = '10000000-0000-0000-0000-000000000004'
+                      and user_id = '00000000-0000-0000-0000-0000000000f3' $$,
+                'frank expulsa hugo');
+select isnt((select code from public.groups where id = '10000000-0000-0000-0000-000000000004'), 'HHHHHH',
+            'expulsar un membre canvia el codi d''invitació');
+select is((select (public.create_group('Grup de Frank')).name), 'Grup de Frank', 'frank crea un grup');
+select is((select count(*)::int from public.alerts a join public.groups g on g.id = a.group_id
+            where g.name = 'Grup de Frank' and a.message like '%' || g.code || '%'), 0,
+          'l''alerta de grup creat no inclou el codi d''invitació');
+reset role;
+
+-- ---- Com a Hugo (expulsat de G4)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000f3","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000f3', true);
+set local role authenticated;
+
+select is(public.join_group_by_code('HHHHHH') ->> 'error', 'GROUP_NOT_FOUND',
+          'l''expulsat no pot tornar a entrar amb el codi antic');
+reset role;
+
 -- ------------------------------------------------------------ Quotes contra l'abús (Eve)
 select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),
                 public.quota_limit('owned_groups'), public.quota_limit('restaurant_visits'),
-                public.quota_limit('group_alerts_per_hour')],
-          array[2000, 5000, 20, 500, 50],
-          'quotes de producció: 2.000 per espai personal, 5.000 per grup, 20 grups, 500 visites i 50 alertes/hora');
+                public.quota_limit('group_alerts_per_hour'), public.quota_limit('nickname_interval_seconds')],
+          array[2000, 5000, 20, 500, 50, 60],
+          'quotes de producció: 2.000 per espai personal, 5.000 per grup, 20 grups, 500 visites, 50 alertes/hora i 1 canvi de nickname/minut');
 
 -- Límits petits per no haver d'inserir milers de files (el rollback final ho desfà).
 create or replace function public.quota_limit(p_name text)

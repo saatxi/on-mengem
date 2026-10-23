@@ -93,14 +93,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "active_group_id": string | null,"avatar": string,"created_at": string,"id": string,"last_login_at": string,"nickname": string,"photo_url": string | null
+                    "active_group_id": string | null,"avatar": string,"created_at": string,"id": string,"last_login_at": string,"nickname": string,"nickname_changed_at": string | null,"photo_url": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "active_group_id"?: string | null,"avatar"?: string,"created_at"?: string,"id": string,"last_login_at"?: string,"nickname": string,"photo_url"?: string | null
+                    "active_group_id"?: string | null,"avatar"?: string,"created_at"?: string,"id": string,"last_login_at"?: string,"nickname": string,"nickname_changed_at"?: string | null,"photo_url"?: string | null
                   }
                   Update: {
-                    "active_group_id"?: string | null,"avatar"?: string,"created_at"?: string,"id"?: string,"last_login_at"?: string,"nickname"?: string,"photo_url"?: string | null
+                    "active_group_id"?: string | null,"avatar"?: string,"created_at"?: string,"id"?: string,"last_login_at"?: string,"nickname"?: string,"nickname_changed_at"?: string | null,"photo_url"?: string | null
                   }
                   Relationships: [
                     {
@@ -235,6 +235,23 @@ isOneToOne: false
 "delete_visit":
 { Args: { "p_visit_id": string }; Returns: undefined
                            },
+"get_my_profile":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "active_group_id": string | null,
+"avatar": string,
+"created_at": string,
+"id": string,
+"last_login_at": string,
+"nickname": string,
+"nickname_changed_at": string | null,
+"photo_url": string | null
+            }[]
+                          SetofOptions: {
+        from: "*"
+        to: "profiles"
+        isOneToOne: false
+        isSetofReturn: true
+      } },
 "is_group_member":
 { Args: { "gid": string }; Returns: boolean
                            },
