@@ -50,6 +50,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 - L'app ja és en producció: **no modifiquis ni fusionis migracions existents**. Qualsevol canvi d'esquema, política o funció va en un fitxer nou a `supabase/migrations/` que s'aplica amb `npx supabase db push` (vegeu `docs/CONFIGURACIO.md`).
 - RLS és el límit de seguretat. Si canvies una política, funció o trigger, actualitza `supabase/tests/rls.test.sql` i `docs/SEGURETAT.md` al mateix commit.
+- Les taules noves de `public` no tenen privilegis per defecte (`0018_explicit_table_grants.sql`): cada `create table` va amb els seus `grant` a `authenticated` (només les operacions que tenen política) i a `service_role`, a la mateixa migració. El mateix per a vistes (amb `security_invoker = on`) i seqüències.
 - Mai `service_role` ni claus `sb_secret_` al client; només la clau pública (anon).
 - Files de BD en snake_case, tipus de l'app en camelCase: una columna nova implica `make db-types` i actualitzar `mappers.ts` i `types/index.ts`.
 - `groupId: null` / `group_id IS NULL` vol dir espai personal.

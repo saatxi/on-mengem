@@ -10,6 +10,40 @@ select hasnt_column('public', 'profiles', 'email', 'el perfil no guarda l''email
 select has_column('public', 'restaurants', 'lat', 'els restaurants tenen latitud (vista de mapa)');
 select has_column('public', 'restaurants', 'lng', 'els restaurants tenen longitud (vista de mapa)');
 
+-- ------------------------------------------------------------ Privilegis de taula (0018)
+-- authenticated només té les operacions que tenen una política RLS; anon, cap.
+select table_privs_are('public', t, 'anon', array[]::text[], 'anònim: cap privilegi a ' || t)
+  from unnest(array['profiles', 'groups', 'group_members', 'restaurants', 'wishlist', 'alerts', 'join_attempts',
+                    'restaurant_visits', 'visit_attendees', 'group_changes']) t;
+select table_privs_are('public', t, 'authenticated', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+                       'authenticated: CRUD a ' || t)
+  from unnest(array['restaurants', 'wishlist']) t;
+select table_privs_are('public', t, 'authenticated', array['SELECT', 'DELETE'], 'authenticated: llegir i esborrar a ' || t)
+  from unnest(array['groups', 'group_members']) t;
+select table_privs_are('public', t, 'authenticated', array['SELECT'], 'authenticated: només lectura a ' || t)
+  from unnest(array['alerts', 'restaurant_visits', 'visit_attendees', 'group_changes']) t;
+select table_privs_are('public', t, 'authenticated', array[]::text[], 'authenticated: cap privilegi de taula a ' || t)
+  from unnest(array['profiles', 'join_attempts']) t;
+select column_privs_are('public', 'groups', c, 'authenticated', array['SELECT', 'UPDATE'],
+                        'authenticated: pot editar groups.' || c)
+  from unnest(array['name', 'description']) c;
+select column_privs_are('public', 'groups', 'code', 'authenticated', array['SELECT'],
+                        'authenticated: no pot editar groups.code');
+select column_privs_are('public', 'profiles', c, 'authenticated', p,
+                        'authenticated: privilegis de profiles.' || c)
+  from (values ('id', array['SELECT']), ('nickname', array['SELECT', 'UPDATE']), ('avatar', array['SELECT', 'UPDATE']),
+               ('photo_url', array['SELECT']), ('created_at', array['SELECT']),
+               ('active_group_id', array['UPDATE']), ('last_login_at', array['UPDATE']),
+               ('nickname_changed_at', array[]::text[])) v(c, p);
+select table_privs_are('public', 'join_attempts', 'service_role', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+                       'service_role: CRUD sense TRUNCATE');
+
+-- Les taules noves no s'exposen soles a la Data API (cal grant explícit a la migració)
+create table public.probe_default_privs (id int);
+select table_privs_are('public', 'probe_default_privs', r, array[]::text[], r || ': cap privilegi en una taula nova')
+  from unnest(array['anon', 'authenticated', 'service_role']) r;
+drop table public.probe_default_privs;
+
 -- ------------------------------------------------------------ Dades de prova
 -- A = alice (propietària de G1), B = bob (membre de G1), C = carol (propietària de G2, aliena a G1)
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -54,8 +88,8 @@ select is((select count(*)::int from public.alerts where user_id = '00000000-000
 set local role anon;
 select set_config('request.jwt.claims', '', true);
 select set_config('request.jwt.claim.sub', '', true);
-select is((select count(*)::int from public.restaurants), 0, 'anònim: no veu cap restaurant');
-select is((select count(*)::int from public.groups), 0, 'anònim: no veu cap grup');
+select throws_ok($$ select count(*) from public.restaurants $$, '42501', null, 'anònim: no veu cap restaurant');
+select throws_ok($$ select count(*) from public.groups $$, '42501', null, 'anònim: no veu cap grup');
 select throws_ok($$ select public.create_group('Hack') $$, '42501', null, 'anònim: no pot cridar create_group');
 select throws_ok($$ select public.join_group_by_code('AAAAAA') $$, '42501', null, 'anònim: no pot cridar join_group_by_code');
 select throws_ok($$ select nickname from public.profiles $$, '42501', null, 'anònim: no pot llegir perfils');
@@ -129,8 +163,8 @@ select throws_ok($$
   values ('X', 'Inventada', '00000000-0000-0000-0000-00000000000b') $$,
   '23514', null, 'una cuina de desitjat fora de la llista és rebutjada');
 -- Alertes: read_by no s'edita directament
-select is_empty($$ update public.alerts set read_by = '{}' where id = '40000000-0000-0000-0000-000000000001' returning 1 $$,
-                'bob no pot editar alertes directament');
+select throws_ok($$ update public.alerts set read_by = '{}' where id = '40000000-0000-0000-0000-000000000001' $$,
+                 '42501', null, 'bob no pot editar alertes directament');
 select lives_ok($$ select public.mark_alerts_read(array['40000000-0000-0000-0000-000000000001']::uuid[]) $$,
                 'bob pot marcar com a llegida una alerta del seu grup');
 -- Atac 8: moure/copiar ítems aliens
@@ -172,8 +206,8 @@ select throws_ok($$ update public.restaurants set created_by_name = 'Alice' wher
 select throws_ok($$ update public.profiles set active_group_id = '10000000-0000-0000-0000-000000000002'
                     where id = '00000000-0000-0000-0000-00000000000b' $$,
                  '42501', null, 'bob no pot activar un grup del qual no és membre');
-select is_empty($$ delete from public.profiles where id = '00000000-0000-0000-0000-00000000000b' returning 1 $$,
-                'bob no pot esborrar el seu perfil');
+select throws_ok($$ delete from public.profiles where id = '00000000-0000-0000-0000-00000000000b' $$,
+                 '42501', null, 'bob no pot esborrar el seu perfil');
 select throws_ok($$ update public.profiles set photo_url = 'https://x.y/z.png' where id = '00000000-0000-0000-0000-00000000000b' $$,
                  '42501', null, 'bob no pot editar la foto del seu perfil');
 select throws_ok($$ select public.regenerate_group_code('10000000-0000-0000-0000-000000000001') $$,

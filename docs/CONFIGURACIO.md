@@ -168,6 +168,7 @@ Repeteix-ho amb cada migració que ja hagis executat a mà (`0002`, …) i compr
 | "Falten VITE_SUPABASE_URL…" a la consola | Falta `.env` o no has reiniciat el servidor | Crea el `.env` i reinicia |
 | El client no connecta | La URL acaba en `/rest/v1/` | Treu aquest final (E1.4) |
 | `permission denied for schema public` (42501) | S'ha recreat l'esquema `public` a mà i ha perdut els permisos per defecte | `supabase db reset --linked`, o restaura els `grant` sobre l'esquema |
+| `permission denied for table …` (42501) en una taula nova | Les taules noves de `public` no reben privilegis per defecte (`0018`) | Afegeix els `grant` a la migració que crea la taula (vegeu `docs/SEGURETAT.md`, invariant 20) |
 
 ## Quan publiquis l'app a Cloudflare
 
