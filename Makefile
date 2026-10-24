@@ -21,7 +21,7 @@ release: ## Nova versió: make release patch|minor|major|0.2.0 (obre l'editor pe
 
 local: db-start env dev ## Arrenca la BD local i l'app apuntant-hi
 
-db-start: ## Arrenca Supabase local (cal Docker i supabase/.env)
+db-start: ## Arrenca Supabase local (cal Docker; supabase/.env només per entrar amb Google)
 	$(SUPABASE) start
 
 db-stop: ## Atura Supabase local (conserva les dades)
@@ -30,7 +30,7 @@ db-stop: ## Atura Supabase local (conserva les dades)
 db-status: ## Mostra URL i claus de Supabase local
 	$(SUPABASE) status
 
-db-reset: ## Recrea la BD local des de les migracions (esborra les dades)
+db-reset: ## Recrea la BD local des de les migracions i hi carrega les dades de prova (esborra les dades)
 	$(SUPABASE) db reset
 
 db-test: ## Executa els tests pgTAP de la BD
