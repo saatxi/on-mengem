@@ -34,7 +34,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
 - `supabase/seed.sql`: dades de prova només per a local (`make db-reset`); si canvia l'esquema, mantén-lo al dia. `src/components/DevLogin.tsx` hi entra amb els usuaris de prova (només mode `localdb`).
-- `docs/CONFIGURACIO.md` (guia de configuració), `docs/SEGURETAT.md` (especificació de seguretat) i `docs/MILLORES_PENDENTS.md` (millores detectades pendents de fer; treu-ne el punt quan el resolguis).
+- `docs/CONFIGURACIO.md` (guia de configuració) i `docs/SEGURETAT.md` (especificació de seguretat).
 
 ## Convencions de codi
 

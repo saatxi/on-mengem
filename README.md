@@ -12,6 +12,7 @@ PWA en català per guardar restaurants i llistes de desitjats en un **espai pers
 - Des de qualsevol restaurant o desitjat de l'espai personal pots **copiar-lo** a un o varis grups, o **moure'l** a un grup.
 - Dins d'un grup hi ha una activitat amb alertes (restaurants i desitjats afegits, nous membres). La pestanya **Resum** mostra les xifres i les cuines de qualsevol espai.
 - La pestanya **Grup** té un **historial de canvis**: qui ha editat o esborrat cada restaurant, desitjat o visita, amb els valors d'abans. Qualsevol membre pot desfer una edició o recuperar el que s'ha esborrat.
+- Els restaurants es poden veure en llista o en un **mapa** (OpenStreetMap), on se'n veuen tots els que tenen adreça. Les coordenades es calculen en desar l'adreça.
 - Els restaurants es poden cercar (sense tenir en compte els accents), filtrar, ordenar i obrir-ne un a l'atzar; els desitjats es poden marcar com a planificats. L'app recorda la pestanya, els filtres i l'ordre en aquest navegador.
 - Té mode fosc: per defecte segueix el sistema i es pot fixar des del perfil.
 - La seguretat es fa amb Row Level Security a Postgres (vegeu [docs/SEGURETAT.md](docs/SEGURETAT.md)).
@@ -53,10 +54,8 @@ supabase/
   migrations/          Esquema, polítiques RLS i funcions
   tests/               Tests pgTAP de seguretat
   seed.sql             Dades de prova per a la BD local (no s'aplica mai a producció)
-docs/                  Guia de configuració, especificació de seguretat i millores pendents
+docs/                  Guia de configuració i especificació de seguretat
 ```
-
-Les millores detectades que encara no s'han fet són a [docs/MILLORES_PENDENTS.md](docs/MILLORES_PENDENTS.md).
 
 ## Publicar
 
