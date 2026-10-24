@@ -223,8 +223,15 @@ Supabase pausa els projectes gratuïts després d'aproximadament una setmana sen
 
 Permet provar sense tocar el projecte de Supabase al núvol. Cal Docker.
 
-1. A Google Cloud (part C), afegeix com a *Authorized redirect URI*: `http://127.0.0.1:54321/auth/v1/callback`.
-2. Omple `supabase/.env` amb `SUPABASE_AUTH_GOOGLE_CLIENT_ID` i `SUPABASE_AUTH_GOOGLE_SECRET` (el fitxer està ignorat per git).
-3. `make local`: arrenca Supabase (aplica les migracions), genera `.env.localdb` i engega l'app a `http://localhost:3000`.
+1. *(Opcional, només per entrar amb el teu compte de Google)* A Google Cloud (part C), afegeix com a *Authorized redirect URI*: `http://127.0.0.1:54321/auth/v1/callback`, i omple `supabase/.env` amb `SUPABASE_AUTH_GOOGLE_CLIENT_ID` i `SUPABASE_AUTH_GOOGLE_SECRET` (el fitxer està ignorat per git).
+2. `make local`: arrenca Supabase (aplica les migracions i, el primer cop, les dades de prova), genera `.env.localdb` i engega l'app a `http://localhost:3000`.
 
-Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades), `make db-test`, `make db-types`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
+Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades i torna a carregar les de prova), `make db-test`, `make db-types`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
+
+### Dades de prova
+
+[supabase/seed.sql](../supabase/seed.sql) omple la BD local amb 5 usuaris, 2 grups, restaurants, desitjats, visites (grupals i privades) i alertes, amb dates dels darrers mesos. No és una migració: només el carreguen `make db-reset` i el primer `make db-start`, i `npx supabase db push` no l'envia mai a producció.
+
+- **Usuaris** (contrasenya `onmenjem`): `marta@`, `pau@`, `laia@`, `jordi@` i `nuria@onmenjem.local`. Amb `make dev`, la pantalla de benvinguda mostra un botó per a cadascun (només en mode `localdb`; el build de producció no l'inclou). Per provar el temps real, obre dues finestres (una d'incògnit) amb usuaris diferents.
+- **Grups**: «Sopars de divendres» (codi `TAPES2`; Marta n'és l'owner, amb Pau, Laia i Jordi) i «Família» (codi `CASA23`; Pau n'és l'owner, amb Núria i Marta). Si entres amb el teu Google, uneix-t'hi amb aquests codis.
+- Per tornar a l'estat inicial: `make db-reset` (esborra també el que hagis creat en local).
