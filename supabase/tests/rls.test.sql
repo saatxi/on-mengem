@@ -760,6 +760,88 @@ select is(public.join_group_by_code('HHHHHH') ->> 'error', 'GROUP_NOT_FOUND',
           'l''expulsat no pot tornar a entrar amb el codi antic');
 reset role;
 
+-- ------------------------------------------------------------ Realtime amb Broadcast privat (G6, propietat de Rita)
+-- Rita és l'owner de G6, Sergi s'hi uneix amb el codi i Tomàs no hi és. Realtime llegeix realtime.messages amb el rol
+-- de qui escolta i realtime.topic() = el topic del canal: els tests fixen aquest paràmetre abans de cada lectura.
+select is((select count(*)::int from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public'), 0,
+          'cap taula de l''app és a la publicació de postgres_changes (els DELETE no passaven per RLS)');
+
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000a5', 'rita@test.dev', '{"full_name":"Rita"}'),
+  ('00000000-0000-0000-0000-0000000000b5', 'sergi@test.dev', '{"full_name":"Sergi"}'),
+  ('00000000-0000-0000-0000-0000000000c5', 'tomas@test.dev', '{"full_name":"Tomàs"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000006', 'G6', 'RRRRRR', '00000000-0000-0000-0000-0000000000a5', 'Rita');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000006', '00000000-0000-0000-0000-0000000000a5');
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000060', '10000000-0000-0000-0000-000000000006', 'G6 resto 1', '00000000-0000-0000-0000-0000000000a5'),
+  ('20000000-0000-0000-0000-000000000061', '10000000-0000-0000-0000-000000000006', 'G6 resto 2', '00000000-0000-0000-0000-0000000000a5'),
+  ('20000000-0000-0000-0000-000000000062', null, 'Rita personal', '00000000-0000-0000-0000-0000000000a5');
+
+-- ---- Com a Rita (propietària de G6)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a5","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a5', true);
+set local role authenticated;
+update public.restaurants set notes = 'Avís' where group_id = '10000000-0000-0000-0000-000000000006';
+update public.restaurants set notes = 'Avís' where id = '20000000-0000-0000-0000-000000000062';
+reset role;
+
+select is((select array_agg(payload - 'id') from realtime.messages
+            where topic = 'group:10000000-0000-0000-0000-000000000006' and event = 'change'
+              and payload ->> 'table' = 'restaurants'),
+          array['{"table": "restaurants"}'::jsonb, '{"table": "restaurants"}'::jsonb],
+          'afegir dos restaurants al grup i després editar-los (dues sentències) envia un avís per sentència, sense dades de les files');
+select ok(exists (select 1 from realtime.messages
+                   where topic = 'user:00000000-0000-0000-0000-0000000000a5' and payload ->> 'table' = 'restaurants'),
+          'editar un restaurant personal avisa el topic de l''usuari');
+select ok(not exists (select 1 from realtime.messages
+                       where topic = 'group:10000000-0000-0000-0000-000000000006' and private = false),
+          'tots els avisos van a canals privats');
+
+-- ---- Com a Sergi: s'uneix a G6
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000b5","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000b5', true);
+set local role authenticated;
+select is(public.join_group_by_code('RRRRRR') ->> 'already_member', 'false', 'sergi s''uneix a G6');
+reset role;
+select is((select array_agg(distinct topic order by topic) from realtime.messages where payload ->> 'table' = 'group_members'
+            and topic in ('user:00000000-0000-0000-0000-0000000000a5', 'user:00000000-0000-0000-0000-0000000000b5')),
+          array['user:00000000-0000-0000-0000-0000000000a5', 'user:00000000-0000-0000-0000-0000000000b5'],
+          'entrar a un grup avisa qui hi entra i els membres que ja hi eren');
+
+set local role authenticated;
+select set_config('realtime.topic', 'group:10000000-0000-0000-0000-000000000006', true);
+select ok((select count(*) from realtime.messages where topic = 'group:10000000-0000-0000-0000-000000000006') > 0,
+          'sergi (membre) pot escoltar el canal de G6');
+select set_config('realtime.topic', 'user:00000000-0000-0000-0000-0000000000b5', true);
+select ok((select count(*) from realtime.messages where topic = 'user:00000000-0000-0000-0000-0000000000b5') > 0,
+          'sergi pot escoltar el seu canal d''usuari');
+select set_config('realtime.topic', 'user:00000000-0000-0000-0000-0000000000a5', true);
+select is((select count(*)::int from realtime.messages where topic = 'user:00000000-0000-0000-0000-0000000000a5'), 0,
+          'sergi no pot escoltar el canal d''usuari de rita');
+select throws_ok($$
+  insert into realtime.messages (topic, extension, event, payload, private)
+  values ('group:10000000-0000-0000-0000-000000000006', 'broadcast', 'change', '{"table": "restaurants"}', true)
+$$, '42501', null, 'un membre no pot enviar avisos falsos al canal del grup');
+reset role;
+
+-- ---- Com a Tomàs (aliè a G6)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c5","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c5', true);
+set local role authenticated;
+select set_config('realtime.topic', 'group:10000000-0000-0000-0000-000000000006', true);
+select is((select count(*)::int from realtime.messages where topic = 'group:10000000-0000-0000-0000-000000000006'), 0,
+          'tomàs no pot escoltar el canal d''un grup on no és');
+select is(public.can_receive_topic('group:no-es-un-uuid'), false, 'un topic mal format no es pot escoltar');
+reset role;
+
+set local role anon;
+select set_config('realtime.topic', 'group:10000000-0000-0000-0000-000000000006', true);
+select is((select count(*)::int from realtime.messages), 0, 'anònim: no pot escoltar cap canal');
+reset role;
+select set_config('realtime.topic', '', true);
+
 -- ------------------------------------------------------------ Historial de canvis (G5, propietat d'Iris)
 -- Iris és l'owner de G5, Joan n'és membre i Kai no hi és. Les altes no es registren: les dades es creen aquí.
 insert into auth.users (id, email, raw_user_meta_data) values
