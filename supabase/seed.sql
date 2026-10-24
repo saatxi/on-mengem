@@ -165,6 +165,25 @@ select r.id, r.group_id, r.name, r.cuisine, r.price_range, r.address, r.rating, 
      null, null, false, '5eed0000-0000-0000-0000-000000000004', interval '12 days')
   ) as r (id, group_id, name, cuisine, price_range, address, rating, notes, link, instagram, favorite, created_by, age);
 
+-- Coordenades aproximades per a la vista de mapa. Els que no en tenen serveixen per provar «Ubicar-los».
+update public.restaurants r
+   set lat = c.lat, lng = c.lng
+  from (values
+    ('5eed0002-0000-0000-0000-000000000001'::uuid, 41.3790::double precision, 2.1880::double precision),
+    ('5eed0002-0000-0000-0000-000000000002', 41.4030, 2.1570),
+    ('5eed0002-0000-0000-0000-000000000003', 41.3755, 2.1615),
+    ('5eed0002-0000-0000-0000-000000000004', 41.3770, 2.1580),
+    ('5eed0002-0000-0000-0000-000000000005', 41.3985, 2.1960),
+    ('5eed0002-0000-0000-0000-000000000006', 41.3805, 2.1690),
+    ('5eed0002-0000-0000-0000-000000000008', 41.3760, 2.1350),
+    ('5eed0002-0000-0000-0000-000000000009', 41.3735, 2.1625),
+    ('5eed0002-0000-0000-0000-000000000013', 41.9850, 2.8240),
+    ('5eed0002-0000-0000-0000-000000000016', 41.3925, 2.1680),
+    ('5eed0002-0000-0000-0000-000000000019', 41.4070, 2.1700),
+    ('5eed0002-0000-0000-0000-000000000020', 41.3835, 2.1650)
+  ) as c (id, lat, lng)
+ where r.id = c.id;
+
 -- ---------------------------------------------------------------- Desitjats
 
 insert into public.wishlist (id, group_id, restaurant_name, cuisine, price_range, address, recommended_by, notes,
