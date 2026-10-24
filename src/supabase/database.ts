@@ -1,6 +1,6 @@
 import type { Database as GeneratedDatabase } from './database.types';
 
-export type { Tables, TablesInsert, TablesUpdate } from './database.types';
+export type { Json, Tables, TablesInsert, TablesUpdate } from './database.types';
 
 // `supabase gen types` no marca com a nullable cap argument de funció, però Postgres hi accepta NULL.
 // Aquí es corregeixen els arguments que l'app envia com a NULL (data desconeguda, sense valoració).

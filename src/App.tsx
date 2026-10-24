@@ -15,6 +15,7 @@ import { OfflineIndicator } from './components/OfflineIndicator';
 import { UpdatePrompt } from './components/UpdatePrompt';
 import { Toast } from './components/Toast';
 import { GroupMembers } from './components/GroupMembers';
+import { GroupHistory } from './components/GroupHistory';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { StatTiles } from './components/StatTiles';
 import { AlertsFeed } from './components/AlertsFeed';
@@ -563,6 +564,8 @@ function MainApp() {
                 onCreateGroup={() => setShowCreateGroup(true)}
               />
             )}
+
+            {activeGroup && <GroupHistory key={activeGroup.id} group={activeGroup} />}
           </div>
         )}
 

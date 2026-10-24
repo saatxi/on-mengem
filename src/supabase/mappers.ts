@@ -1,5 +1,5 @@
-import { Alert, Group, Restaurant, UserProfile, Visit, WishlistItem, WishlistStatus } from '../types';
-import type { Tables, TablesUpdate } from './database';
+import { Alert, Group, GroupChange, GroupChangeItemType, Restaurant, UserProfile, Visit, WishlistItem, WishlistStatus } from '../types';
+import type { Json, Tables, TablesUpdate } from './database';
 
 // Les files de Postgres són snake_case; l'app treballa en camelCase.
 // Les relacions incrustades (select('*, group_members(user_id)'), etc.) són opcionals per a les files de Realtime.
@@ -103,6 +103,26 @@ export const toAlert = (r: Tables<'alerts'>): Alert => ({
   restaurantId: orUndef(r.restaurant_id),
   readBy: r.read_by ?? [],
   createdAt: r.created_at,
+});
+
+const asObject = (v: Json | null): Record<string, unknown> | undefined =>
+  v !== null && typeof v === 'object' && !Array.isArray(v) ? v : undefined;
+
+export const toGroupChange = (r: Tables<'group_changes'>): GroupChange => ({
+  id: r.id,
+  groupId: r.group_id,
+  // Com status: llistes tancades per CHECK de la BD.
+  itemType: r.item_type as GroupChangeItemType,
+  itemId: r.item_id,
+  itemName: orUndef(r.item_name),
+  action: r.action as GroupChange['action'],
+  oldData: asObject(r.old_data) ?? {},
+  newData: asObject(r.new_data),
+  changedBy: orUndef(r.changed_by),
+  changedByName: orUndef(r.changed_by_name),
+  createdAt: r.created_at,
+  restoredAt: orUndef(r.restored_at),
+  restoredByName: orUndef(r.restored_by_name),
 });
 
 // camelCase (parcial) -> columnes snake_case. Les claus undefined no s'envien (JSON.stringify les omet).

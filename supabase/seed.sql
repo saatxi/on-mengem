@@ -325,6 +325,35 @@ select ('5eed0004-0000-0000-0000-0000000000' || lpad(a.visit::text, 2, '0'))::uu
     (25, 3), (26, 3)
   ) as a (visit, member);
 
+-- ---------------------------------------------------------------- Historial de canvis
+
+-- Uns quants canvis a «Sopars de divendres», fets amb la sessió de cada membre perquè el trigger i save_visit
+-- els registrin amb el seu nom. Després es reparteixen en el temps.
+select set_config('request.jwt.claims', '{"sub":"5eed0000-0000-0000-0000-000000000004","role":"authenticated"}', true);
+update public.restaurants
+   set price_range = '€€', notes = 'Braves de les bones i vermut de la casa. Ara també fan tapes de tarda.'
+ where id = '5eed0002-0000-0000-0000-000000000002';
+
+select set_config('request.jwt.claims', '{"sub":"5eed0000-0000-0000-0000-000000000003","role":"authenticated"}', true);
+select public.save_visit('5eed0002-0000-0000-0000-000000000001', current_date - 88, 4.0,
+                         'Arròs negre espectacular. Servei una mica lent.',
+                         array['5eed0000-0000-0000-0000-000000000001', '5eed0000-0000-0000-0000-000000000002',
+                               '5eed0000-0000-0000-0000-000000000003']::uuid[],
+                         true, '5eed0004-0000-0000-0000-000000000001');
+
+select set_config('request.jwt.claims', '{"sub":"5eed0000-0000-0000-0000-000000000002","role":"authenticated"}', true);
+delete from public.wishlist where id = '5eed0003-0000-0000-0000-000000000002';
+
+select set_config('request.jwt.claims', '', true);
+update public.group_changes c
+   set created_at = now() - t.age
+  from (values
+    ('5eed0002-0000-0000-0000-000000000002'::uuid, interval '3 days'),
+    ('5eed0004-0000-0000-0000-000000000001', interval '1 day'),
+    ('5eed0003-0000-0000-0000-000000000002', interval '5 hours')
+  ) as t (item_id, age)
+ where c.item_id = t.item_id;
+
 -- ---------------------------------------------------------------- Alertes
 
 -- Els triggers han creat alertes amb data d'ara. Es refan amb la data real de cada fet: les de fa més

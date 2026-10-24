@@ -22,11 +22,5 @@ Quan en facis una, treu-la d'aquí al mateix commit.
 
 - **Problema:** Supabase no aplica RLS als events `DELETE` de `postgres_changes` i els envia a tothom amb la clau primària. Qualsevol usuari autenticat veu, per exemple, quins usuaris surten de quins grups (UUID). El client ja ignora els que no l'afecten, però continuen arribant.
 - **Proposta:** substituir `postgres_changes` per Broadcast des de la BD (`realtime.broadcast_changes` en triggers) a canals privats (`group:<id>`, `user:<id>`), autoritzats amb polítiques RLS a `realtime.messages`.
-- **Cal tenir en compte:** canvia `useRealtimeData.ts` i `AuthContext.tsx`, cal treure les taules de la publicació `supabase_realtime` i afegir tests de les polítiques de `realtime.messages`.
+- **Cal tenir en compte:** canvia `useRealtimeData.ts`, `useGroupHistory.ts` i `AuthContext.tsx`, cal treure les taules de la publicació `supabase_realtime` i afegir tests de les polítiques de `realtime.messages`.
 - **Prioritat:** mitjana. **Esforç:** M.
-
-## Historial de canvis dels grups
-
-- **Problema:** qualsevol membre pot editar tots els camps dels restaurants i desitjats del grup i esborrar visites grupals, i no hi ha manera de veure-ho ni de desfer-ho.
-- **Proposta:** una taula d'auditoria (qui, quan, valors anteriors) omplerta per triggers, visible per als membres i amb opció de restaurar.
-- **Prioritat:** baixa. **Esforç:** M.

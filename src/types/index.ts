@@ -85,3 +85,22 @@ export interface Alert {
   readBy?: string[];
   createdAt?: string;
 }
+
+export type GroupChangeItemType = 'restaurant' | 'wishlist' | 'visit';
+
+/** Entrada de l'historial d'un grup. Les dades són files de la BD (snake_case), tal com les desa el servidor. */
+export interface GroupChange {
+  id: string;
+  groupId: string;
+  itemType: GroupChangeItemType;
+  itemId: string;
+  itemName?: string;
+  action: 'update' | 'delete';
+  oldData: Record<string, unknown>; // update: camps canviats; delete: la fila sencera
+  newData?: Record<string, unknown>; // update: camps canviats
+  changedBy?: string;
+  changedByName?: string;
+  createdAt: string;
+  restoredAt?: string; // undefined = encara no s'ha desfet
+  restoredByName?: string;
+}

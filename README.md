@@ -11,6 +11,7 @@ PWA en català per guardar restaurants i llistes de desitjats en un **espai pers
 - Pots **crear un grup** o **unir-te'n** a un amb el seu codi de 6 caràcters, i canviar d'espai des del selector de la barra superior.
 - Des de qualsevol restaurant o desitjat de l'espai personal pots **copiar-lo** a un o varis grups, o **moure'l** a un grup.
 - Dins d'un grup hi ha una activitat amb alertes (restaurants i desitjats afegits, nous membres). La pestanya **Resum** mostra les xifres i les cuines de qualsevol espai.
+- La pestanya **Grup** té un **historial de canvis**: qui ha editat o esborrat cada restaurant, desitjat o visita, amb els valors d'abans. Qualsevol membre pot desfer una edició o recuperar el que s'ha esborrat.
 - Els restaurants es poden cercar (sense tenir en compte els accents), filtrar, ordenar i obrir-ne un a l'atzar; els desitjats es poden marcar com a planificats. L'app recorda la pestanya, els filtres i l'ordre en aquest navegador.
 - Té mode fosc: per defecte segueix el sistema i es pot fixar des del perfil.
 - La seguretat es fa amb Row Level Security a Postgres (vegeu [docs/SEGURETAT.md](docs/SEGURETAT.md)).
@@ -46,7 +47,7 @@ src/
   App.tsx              Pantalla principal i pestanyes
   components/          Modals, barra superior, gràfic, instal·lació PWA
   context/             AuthContext (sessió, perfil i grups) i ThemeContext (tema clar o fosc)
-  hooks/               useRealtimeData (dades de l'espai actiu), preferències desades, PWA i connexió
+  hooks/               useRealtimeData (dades de l'espai actiu), historial del grup, preferències desades, PWA i connexió
   supabase/            Client i conversió entre files de la BD i tipus de l'app
 supabase/
   migrations/          Esquema, polítiques RLS i funcions
