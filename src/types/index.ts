@@ -78,7 +78,7 @@ export interface Alert {
   id: string;
   groupId: string;
   userId?: string;
-  type: 'restaurant_added' | 'wishlist_added' | 'group_joined' | 'restaurant_reviewed';
+  type: 'restaurant_added' | 'wishlist_added' | 'group_joined' | 'restaurant_reviewed' | 'group_left' | 'owner_changed';
   title: string;
   message: string;
   restaurantId?: string;

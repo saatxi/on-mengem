@@ -336,6 +336,11 @@ select throws_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0
 reset role;
 select is((select owner_id from public.groups where id = '10000000-0000-0000-0000-000000000001'),
           '00000000-0000-0000-0000-00000000000b'::uuid, 'bob és el nou owner de G1');
+select ok(exists (select 1 from public.alerts
+                   where group_id = '10000000-0000-0000-0000-000000000001' and type = 'owner_changed'
+                     and user_id = '00000000-0000-0000-0000-00000000000a'
+                     and message = 'Alice ha cedit el grup "G1" a Bob.'),
+          'cedir el grup genera una alerta owner_changed');
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000000b","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', true);
@@ -354,6 +359,11 @@ select lives_ok($$ delete from public.group_members
 reset role;
 select is((select active_group_id from public.profiles where id = '00000000-0000-0000-0000-00000000000b'), null,
           'en sortir, G1 deixa de ser l''espai actiu de bob');
+select ok(exists (select 1 from public.alerts
+                   where group_id = '10000000-0000-0000-0000-000000000001' and type = 'group_left'
+                     and user_id = '00000000-0000-0000-0000-00000000000b'
+                     and message = 'Bob ha sortit del grup "G1".'),
+          'sortir del grup genera una alerta group_left');
 
 -- ------------------------------------------------------------ Esborrat de comptes
 insert into public.restaurants (group_id, name, created_by) values
@@ -369,6 +379,18 @@ delete from auth.users where id = '00000000-0000-0000-0000-00000000000a';
 select is((select owner_id from public.groups where id = '10000000-0000-0000-0000-000000000001'),
           '00000000-0000-0000-0000-00000000000c'::uuid,
           'esborrar l''owner cedeix el grup al membre que queda (carol)');
+select ok(exists (select 1 from public.alerts
+                   where group_id = '10000000-0000-0000-0000-000000000001' and type = 'owner_changed'
+                     and user_id is null and message = 'Carol és el nou creador del grup "G1".'),
+          'esborrar l''owner avisa el grup del nou creador');
+select ok(exists (select 1 from public.alerts
+                   where group_id = '10000000-0000-0000-0000-000000000001' and type = 'group_left'
+                     and user_id is null and message = 'Alice ha esborrat el compte i ja no és al grup "G1".'),
+          'esborrar un compte avisa els grups on queden membres');
+select is((select count(*)::int from public.alerts
+            where group_id = '10000000-0000-0000-0000-000000000001' and type = 'group_left'
+              and message like 'Alice ha sortit%'), 0,
+          'esborrar un compte no genera també l''alerta de sortida normal');
 
 -- ------------------------------------------------------------ Esborrat del propi compte
 set local role anon;
@@ -703,6 +725,10 @@ select lives_ok($$ delete from public.group_members
                     where group_id = '10000000-0000-0000-0000-000000000004'
                       and user_id = '00000000-0000-0000-0000-0000000000f3' $$,
                 'frank expulsa hugo');
+select ok(exists (select 1 from public.alerts
+                   where group_id = '10000000-0000-0000-0000-000000000004' and type = 'group_left'
+                     and user_id = '00000000-0000-0000-0000-0000000000f1' and message like '% ha expulsat % del grup "%'),
+          'expulsar un membre genera una alerta group_left amb l''autor de l''expulsió');
 select isnt((select code from public.groups where id = '10000000-0000-0000-0000-000000000004'), 'HHHHHH',
             'expulsar un membre canvia el codi d''invitació');
 select is((select (public.create_group('Grup de Frank')).name), 'Grup de Frank', 'frank crea un grup');

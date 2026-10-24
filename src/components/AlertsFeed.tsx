@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, UtensilsCrossed, Sparkles, Users, Star } from 'lucide-react';
+import { Bell, UtensilsCrossed, Sparkles, Users, Star, UserMinus, Crown } from 'lucide-react';
 import { Alert } from '../types';
 import { timeAgo } from '../utils/time';
 import { cn } from '../utils/cn';
@@ -21,6 +21,8 @@ const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
   wishlist_added: { icon: Sparkles, iconBg: 'bg-violet-100', iconColor: 'text-violet-700' },
   group_joined: { icon: Users, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
   restaurant_reviewed: { icon: Star, iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
+  group_left: { icon: UserMinus, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
+  owner_changed: { icon: Crown, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
 };
 
 export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => {
