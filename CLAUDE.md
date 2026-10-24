@@ -1,4 +1,4 @@
-# On menjem? — instruccions per treballar al projecte
+# On mengem? — instruccions per treballar al projecte
 
 PWA en català per guardar restaurants i llistes de desitjos, amb espai personal i grups compartits (codi d'invitació de 6 caràcters, dades en temps real).
 

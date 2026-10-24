@@ -150,7 +150,7 @@ function MainApp() {
         <div className="w-14 h-14 rounded-2xl bg-brand shadow-lg shadow-accent/30 flex items-center justify-center text-white animate-pulse mb-4">
           <Utensils className="w-6 h-6" />
         </div>
-        <p className="text-sm font-semibold text-stone-600">Connectant amb On menjem?...</p>
+        <p className="text-sm font-semibold text-stone-600">Connectant amb On mengem?...</p>
       </div>
     );
   }
@@ -189,7 +189,7 @@ function MainApp() {
     setSelectedCuisine('Tots');
   };
 
-  // «On menjem avui?»: obre un restaurant a l'atzar d'entre els que es veuen amb els filtres actuals
+  // «On mengem avui?»: obre un restaurant a l'atzar d'entre els que es veuen amb els filtres actuals
   const openRandomRestaurant = () => {
     if (filteredRestaurants.length === 0) return;
     const pick = filteredRestaurants[Math.floor(Math.random() * filteredRestaurants.length)];
@@ -239,7 +239,7 @@ function MainApp() {
   const handleShareGroupWhatsApp = () => {
     if (!activeGroup) return;
     const text = encodeURIComponent(
-      `Uneix-te al meu grup "${activeGroup.name}" a On menjem? amb el codi: ${activeGroup.code} per compartir restaurants i llistes de desitjats en temps real!`
+      `Uneix-te al meu grup "${activeGroup.name}" a On mengem? amb el codi: ${activeGroup.code} per compartir restaurants i llistes de desitjats en temps real!`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank', 'noopener,noreferrer');
   };

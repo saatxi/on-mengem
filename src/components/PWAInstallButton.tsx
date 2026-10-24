@@ -19,7 +19,7 @@ export const PWAInstallButton: React.FC = () => {
       <button
         onClick={install}
         className="flex items-center gap-1.5 rounded-full bg-brand hover:brightness-110 p-2 sm:px-3.5 text-xs font-semibold text-white shadow-md shadow-accent/30 transition-[filter,transform] active:scale-[0.96]"
-        title="Instal·la On menjem? al teu dispositiu"
+        title="Instal·la On mengem? al teu dispositiu"
         aria-label="Instal·lar app"
       >
         <Download className="w-3.5 h-3.5" />
@@ -57,7 +57,7 @@ export const PWAInstallButton: React.FC = () => {
                   <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">
                     OM
                   </div>
-                  <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Instal·la On menjem? a {isIOS ? 'iOS' : 'Android'}</h3>
+                  <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Instal·la On mengem? a {isIOS ? 'iOS' : 'Android'}</h3>
                 </div>
                 <button
                   onClick={() => setShowIOSGuide(false)}
@@ -73,7 +73,7 @@ export const PWAInstallButton: React.FC = () => {
                   ? [
                       <>Obre aquesta pàgina amb <strong>Safari</strong> (a iOS només Safari pot instal·lar apps). Toca el botó <strong>Compartir</strong> (quadrat amb fletxa cap amunt <span className="text-blue-600">⎋</span>).</>,
                       <>Desplaça't cap avall i selecciona <strong>Afegeix a la pantalla d'inici</strong>.</>,
-                      <>Prem <strong>Afegeix</strong> a dalt a la dreta. On menjem? apareixerà com una app més!</>,
+                      <>Prem <strong>Afegeix</strong> a dalt a la dreta. On mengem? apareixerà com una app més!</>,
                     ]
                   : [
                       <>Obre aquesta pàgina amb <strong>Chrome</strong> i toca el menú <strong>⋮</strong> (tres punts) a dalt a la dreta.</>,

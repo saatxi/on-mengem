@@ -1,4 +1,4 @@
-# On menjem?
+# On mengem?
 
 PWA en català per guardar restaurants i llistes de desitjats en un **espai personal** i compartir-los amb **grups** mitjançant un codi d'invitació. Els canvis dels grups es veuen en temps real.
 

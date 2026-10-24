@@ -1,4 +1,4 @@
-# On menjem? — entorn local per fer proves (Supabase en Docker + Vite)
+# On mengem? — entorn local per fer proves (Supabase en Docker + Vite)
 # El mode "localdb" de Vite llegeix .env.localdb, així no trepitja el .env del núvol.
 
 SUPABASE := npx supabase

@@ -30,7 +30,7 @@ export const WelcomeOnboarding: React.FC = () => {
 
         {/* Title */}
         <h1 className="text-4xl font-extrabold text-stone-900 tracking-tight">
-          On menjem?
+          On mengem?
         </h1>
         <p className="mt-2 text-sm text-stone-600 leading-relaxed">
           L'aplicació per organitzar els teus restaurants preferits, la llista de desitjats i compartir-ho amb els teus grups en temps real.

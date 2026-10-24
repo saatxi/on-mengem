@@ -1,6 +1,6 @@
 # Configuració inicial del projecte
 
-Guia pas a pas per posar en marxa **On menjem?** amb Supabase (base de dades + Realtime) i Google (inici de sessió).
+Guia pas a pas per posar en marxa **On mengem?** amb Supabase (base de dades + Realtime) i Google (inici de sessió).
 
 Requisits: Node 24 (`nvm use`, llegeix `.nvmrc`), un compte de [Supabase](https://supabase.com) i un compte de Google.
 
@@ -25,13 +25,13 @@ Ordre recomanat: **A → B → C → D → E**. Cal anar i tornar entre Supabase
 ### B1. Projecte
 1. Entra a [console.cloud.google.com](https://console.cloud.google.com) amb el teu compte de Google.
 2. A dalt a l'esquerra, prem el selector de projecte → **New project**.
-3. Nom: `On menjem` → **Create**. Comprova que queda seleccionat al selector.
+3. Nom: `On mengem` → **Create**. Comprova que queda seleccionat al selector.
 
 ### B2. Pantalla de consentiment
 És la pantalla on Google pregunta a l'usuari si deixa entrar l'app.
 
 1. Menú ☰ → **APIs & Services → OAuth consent screen** (en versions noves: **Google Auth Platform**). Prem **Get started** si és la primera vegada.
-2. **App information:** nom `On menjem?` i el teu correu d'assistència.
+2. **App information:** nom `On mengem?` i el teu correu d'assistència.
 3. **Audience:** tria **External**.
 4. **Contact information:** el teu correu.
 5. Accepta les condicions i prem **Create**.
@@ -43,7 +43,7 @@ Ordre recomanat: **A → B → C → D → E**. Cal anar i tornar entre Supabase
 1. **APIs & Services → Credentials** (o **Google Auth Platform → Clients**).
 2. **Create credentials → OAuth client ID** (o **Create client**).
 3. **Application type:** `Web application`.
-4. **Name:** `On menjem web`.
+4. **Name:** `On mengem web`.
 5. **Authorized JavaScript origins** (opcional): `http://localhost:3000` i, quan la tinguis, la URL de producció.
 6. **Authorized redirect URIs → Add URI:** enganxa **exactament** la Callback URL de Supabase (pas A5), sense espais ni barra final.
 7. Prem **Create**.

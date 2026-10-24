@@ -70,7 +70,7 @@ export const Navbar: React.FC<Props> = ({
               <Utensils className="w-5 h-5" />
             </div>
             <span className="font-extrabold text-xl text-stone-900 tracking-tight hidden sm:inline">
-              On menjem?
+              On mengem?
             </span>
           </div>
 

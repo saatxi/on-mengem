@@ -48,9 +48,9 @@ export default defineConfig(({mode}) => {
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
           id: '/',
-          name: 'On menjem? - Restaurants i Grups',
-          short_name: 'On menjem?',
-          description: 'On menjem? - Organitza i descobreix restaurants, llistes de desitjats i alertes en temps real amb els teus grups.',
+          name: 'On mengem? - Restaurants i Grups',
+          short_name: 'On mengem?',
+          description: 'On mengem? - Organitza i descobreix restaurants, llistes de desitjats i alertes en temps real amb els teus grups.',
           theme_color: '#f4511e',
           background_color: '#fafaf9',
           display: 'standalone',

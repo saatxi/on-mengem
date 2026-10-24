@@ -62,7 +62,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   const visitCount = restaurant.visits.length;
 
   const handleShare = () => {
-    const text = `T'agrada aquest restaurant? Descobreix "${restaurant.name}" (${restaurant.cuisine || 'Cuina'}) a On menjem?!`;
+    const text = `T'agrada aquest restaurant? Descobreix "${restaurant.name}" (${restaurant.cuisine || 'Cuina'}) a On mengem?!`;
     const url = restaurantUrl(restaurant.id, window.location.origin);
     if (navigator.share) {
       navigator.share({ title: restaurant.name, text, url }).catch(() => {});
