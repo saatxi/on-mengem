@@ -39,7 +39,7 @@ export interface Restaurant {
   id: string;
   name: string;
   cuisine?: string;
-  priceRange?: string; // '€' | '€€' | '€€€' | '€€€€'
+  priceRange?: string; // una de PRICE_RANGES (utils/restaurantFields.ts)
   address?: string;
   lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap
   lng?: number;
