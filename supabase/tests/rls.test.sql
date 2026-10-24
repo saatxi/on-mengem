@@ -746,12 +746,207 @@ select is(public.join_group_by_code('HHHHHH') ->> 'error', 'GROUP_NOT_FOUND',
           'l''expulsat no pot tornar a entrar amb el codi antic');
 reset role;
 
+-- ------------------------------------------------------------ Historial de canvis (G5, propietat d'Iris)
+-- Iris és l'owner de G5, Joan n'és membre i Kai no hi és. Les altes no es registren: les dades es creen aquí.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d1', 'iris@test.dev', '{"full_name":"Iris"}'),
+  ('00000000-0000-0000-0000-0000000000d2', 'joan@test.dev', '{"full_name":"Joan"}'),
+  ('00000000-0000-0000-0000-0000000000d3', 'kai@test.dev', '{"full_name":"Kai"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000005', 'G5', 'IIIIII', '00000000-0000-0000-0000-0000000000d1', 'Iris');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000d1'),
+  ('10000000-0000-0000-0000-000000000005', '00000000-0000-0000-0000-0000000000d2');
+insert into public.restaurants (id, group_id, name, rating, notes, created_by) values
+  ('20000000-0000-0000-0000-000000000050', '10000000-0000-0000-0000-000000000005', 'Can Joan', null, null,
+   '00000000-0000-0000-0000-0000000000d2'),
+  ('20000000-0000-0000-0000-000000000051', '10000000-0000-0000-0000-000000000005', 'Ca la Iris', 4.0, 'Bo',
+   '00000000-0000-0000-0000-0000000000d1'),
+  ('20000000-0000-0000-0000-000000000052', null, 'Joan personal', null, null, '00000000-0000-0000-0000-0000000000d2');
+insert into public.wishlist (id, group_id, restaurant_name, user_id) values
+  ('30000000-0000-0000-0000-000000000050', '10000000-0000-0000-0000-000000000005', 'Desitjat G5',
+   '00000000-0000-0000-0000-0000000000d1');
+insert into public.restaurant_visits (id, restaurant_id, group_id, visited_on, rating, shared, created_by) values
+  ('50000000-0000-0000-0000-000000000051', '20000000-0000-0000-0000-000000000050', '10000000-0000-0000-0000-000000000005',
+   current_date, 4.0, true, '00000000-0000-0000-0000-0000000000d1'),
+  ('50000000-0000-0000-0000-000000000052', '20000000-0000-0000-0000-000000000050', '10000000-0000-0000-0000-000000000005',
+   current_date, 2.0, false, '00000000-0000-0000-0000-0000000000d2');
+insert into public.visit_attendees (visit_id, user_id) values
+  ('50000000-0000-0000-0000-000000000051', '00000000-0000-0000-0000-0000000000d1'),
+  ('50000000-0000-0000-0000-000000000051', '00000000-0000-0000-0000-0000000000d2');
+-- Totes les proves són a la mateixa transacció (now() no canvia): les alertes de les altes passen a ahir per
+-- poder comprovar que recuperar un element no en crea de noves.
+update public.alerts set created_at = now() - interval '1 day' where group_id = '10000000-0000-0000-0000-000000000005';
+
+-- ---- Com a Joan (membre de G5)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d2","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', true);
+set local role authenticated;
+
+update public.restaurants set rating = 2.0, notes = 'Bo', name = 'Ca la Iris' where id = '20000000-0000-0000-0000-000000000051';
+select is((select array[old_data, new_data] from public.group_changes where item_id = '20000000-0000-0000-0000-000000000051'),
+          array['{"rating": 4.0}'::jsonb, '{"rating": 2.0}'::jsonb],
+          'editar un restaurant del grup desa només els camps canviats, abans i després');
+select is((select changed_by_name from public.group_changes where item_id = '20000000-0000-0000-0000-000000000051'), 'Joan',
+          'l''entrada de l''historial desa qui ha fet el canvi');
+update public.restaurants set notes = 'Bo' where id = '20000000-0000-0000-0000-000000000051';
+select is((select count(*)::int from public.group_changes where item_id = '20000000-0000-0000-0000-000000000051'), 1,
+          'desar un restaurant sense canvis no afegeix cap entrada');
+update public.restaurants set notes = 'Canviat' where id = '20000000-0000-0000-0000-000000000052';
+select is((select count(*)::int from public.group_changes where item_id = '20000000-0000-0000-0000-000000000052'), 0,
+          'l''espai personal no té historial');
+update public.wishlist set status = 'planned' where id = '30000000-0000-0000-0000-000000000050';
+select is((select old_data ->> 'status' from public.group_changes where item_id = '30000000-0000-0000-0000-000000000050'),
+          'pending', 'editar un desitjat del grup queda a l''historial');
+
+select throws_ok($$
+  insert into public.group_changes (group_id, item_type, item_id, action, old_data)
+  values ('10000000-0000-0000-0000-000000000005', 'restaurant', gen_random_uuid(), 'delete', '{}')
+$$, '42501', null, 'no es poden inserir entrades falses a l''historial');
+select throws_ok($$ update public.group_changes set restored_at = now() $$, '42501', null,
+                 'no es pot editar l''historial directament');
+select throws_ok($$ delete from public.group_changes $$, '42501', null, 'no es pot esborrar l''historial directament');
+
+select lives_ok($$
+  select public.save_visit('20000000-0000-0000-0000-000000000050', current_date, 3.0, '',
+                           array['00000000-0000-0000-0000-0000000000d2'::uuid], true,
+                           '50000000-0000-0000-0000-000000000051')
+$$, 'joan edita la visita grupal d''iris');
+select is((select old_data from public.group_changes
+            where item_id = '50000000-0000-0000-0000-000000000051' and action = 'update'),
+          '{"rating": 4.0, "attendees": ["00000000-0000-0000-0000-0000000000d1", "00000000-0000-0000-0000-0000000000d2"]}'::jsonb,
+          'editar una visita desa la valoració i els assistents anteriors');
+select lives_ok($$ select public.delete_visit('50000000-0000-0000-0000-000000000051') $$, 'joan esborra la visita grupal');
+select is((select old_data ->> 'rating' from public.group_changes
+            where item_id = '50000000-0000-0000-0000-000000000051' and action = 'delete'),
+          '3.0', 'esborrar una visita desa la visita sencera');
+
+delete from public.restaurants where id = '20000000-0000-0000-0000-000000000050';
+select is((select jsonb_array_length(old_data -> 'visits') from public.group_changes
+            where item_id = '20000000-0000-0000-0000-000000000050' and action = 'delete'),
+          1, 'esborrar un restaurant desa el restaurant amb les visites que li quedaven');
+select is((select count(*)::int from public.group_changes where item_id = '50000000-0000-0000-0000-000000000052'), 0,
+          'les visites que cauen amb el restaurant no tenen entrada pròpia');
+reset role;
+
+-- ---- Com a Kai (aliè a G5)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d3","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d3', true);
+set local role authenticated;
+
+select is((select count(*)::int from public.group_changes where group_id = '10000000-0000-0000-0000-000000000005'), 0,
+          'kai no veu l''historial d''un grup on no és');
+select throws_ok($$
+  select public.restore_group_change((select id from public.group_changes
+                                       where item_id = '20000000-0000-0000-0000-000000000050'))
+$$, 'P0001', 'Canvi no trobat', 'kai no pot desfer canvis d''un grup on no és');
+reset role;
+select throws_ok(format('select public.restore_group_change(%L)',
+                        (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000050')),
+                 'P0001', 'Canvi no trobat', 'kai no pot desfer un canvi encara que en sàpiga l''identificador');
+
+set local role anon;
+select throws_ok($$ select public.restore_group_change(gen_random_uuid()) $$, '42501', null,
+                 'anònim: no pot cridar restore_group_change');
+reset role;
+
+-- ---- Com a Iris (propietària de G5)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', true);
+set local role authenticated;
+
+select is((select count(*)::int from public.group_changes where group_id = '10000000-0000-0000-0000-000000000005'), 5,
+          'iris veu les cinc entrades de l''historial del grup');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000050')),
+                'iris recupera el restaurant que joan ha esborrat');
+select is((select created_by from public.restaurants where id = '20000000-0000-0000-0000-000000000050'),
+          '00000000-0000-0000-0000-0000000000d2'::uuid, 'el restaurant recuperat conserva l''autor original');
+select is((select array_agg(id) from public.restaurant_visits where restaurant_id = '20000000-0000-0000-0000-000000000050'),
+          array['50000000-0000-0000-0000-000000000052'::uuid], 'el restaurant recuperat torna amb les seves visites');
+select is((select count(*)::int from public.alerts where group_id = '10000000-0000-0000-0000-000000000005' and created_at = now()), 0,
+          'recuperar un element no genera alertes d''alta');
+select is((select restored_by_name from public.group_changes
+            where item_id = '20000000-0000-0000-0000-000000000050' and action = 'delete'), 'Iris',
+          'l''entrada desfeta desa qui l''ha desfet');
+select throws_ok(format('select public.restore_group_change(%L)',
+                        (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000050')),
+                 'P0001', 'Aquest canvi ja s''ha desfet', 'un canvi només es pot desfer un cop');
+
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000051')),
+                'iris desfà l''edició de joan');
+select is((select rating from public.restaurants where id = '20000000-0000-0000-0000-000000000051'), 4.0::numeric,
+          'desfer una edició torna el camp al valor anterior');
+select is((select count(*)::int from public.group_changes
+            where item_id = '20000000-0000-0000-0000-000000000051' and changed_by = '00000000-0000-0000-0000-0000000000d1'), 1,
+          'desfer una edició queda a l''historial com una edició més');
+
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '50000000-0000-0000-0000-000000000051' and action = 'delete')),
+                'iris recupera la visita esborrada');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '50000000-0000-0000-0000-000000000051' and action = 'update')),
+                'iris desfà l''edició de la visita');
+select is((select array[v.rating::text, (select string_agg(a.user_id::text, ',' order by a.user_id)
+                                          from public.visit_attendees a where a.visit_id = v.id)]
+             from public.restaurant_visits v where v.id = '50000000-0000-0000-0000-000000000051'),
+          array['4.0', '00000000-0000-0000-0000-0000000000d1,00000000-0000-0000-0000-0000000000d2'],
+          'la visita recupera la valoració i els assistents d''abans de l''edició');
+
+delete from public.wishlist where id = '30000000-0000-0000-0000-000000000050';
+reset role;
+
+-- ---- Com a Joan: visites privades i desitjats
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d2","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', true);
+set local role authenticated;
+
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '30000000-0000-0000-0000-000000000050' and action = 'delete')),
+                'joan recupera el desitjat que iris ha esborrat');
+select is((select status from public.wishlist where id = '30000000-0000-0000-0000-000000000050'), 'planned',
+          'el desitjat recuperat torna tal com era');
+select lives_ok($$ select public.delete_visit('50000000-0000-0000-0000-000000000052') $$, 'joan esborra la seva visita privada');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', true);
+set local role authenticated;
+select throws_ok(format('select public.restore_group_change(%L)',
+                        (select id from public.group_changes where item_id = '50000000-0000-0000-0000-000000000052')),
+                 'P0001', 'Només l''autor pot recuperar una visita privada',
+                 'iris no pot recuperar la visita privada de joan');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d2","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d2', true);
+set local role authenticated;
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes where item_id = '50000000-0000-0000-0000-000000000052')),
+                'joan recupera la seva visita privada');
+reset role;
+
+-- ---- Esborrar el grup
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000d1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000d1', true);
+set local role authenticated;
+select lives_ok($$ delete from public.groups where id = '10000000-0000-0000-0000-000000000005' $$,
+                'iris esborra G5 amb tot el contingut');
+reset role;
+select is((select count(*)::int from public.group_changes where group_id = '10000000-0000-0000-0000-000000000005'), 0,
+          'esborrar el grup s''endu l''historial i no en crea cap entrada');
+
 -- ------------------------------------------------------------ Quotes contra l'abús (Eve)
 select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),
                 public.quota_limit('owned_groups'), public.quota_limit('restaurant_visits'),
-                public.quota_limit('group_alerts_per_hour'), public.quota_limit('nickname_interval_seconds')],
-          array[2000, 5000, 20, 500, 50, 60],
-          'quotes de producció: 2.000 per espai personal, 5.000 per grup, 20 grups, 500 visites, 50 alertes/hora i 1 canvi de nickname/minut');
+                public.quota_limit('group_alerts_per_hour'), public.quota_limit('nickname_interval_seconds'),
+                public.quota_limit('group_changes')],
+          array[2000, 5000, 20, 500, 50, 60, 1000],
+          'quotes de producció: 2.000 per espai personal, 5.000 per grup, 20 grups, 500 visites, 50 alertes/hora, 1 canvi de nickname/minut i 1.000 entrades d''historial per grup');
 
 -- Límits petits per no haver d'inserir milers de files (el rollback final ho desfà).
 create or replace function public.quota_limit(p_name text)
@@ -763,6 +958,7 @@ begin
     when 'owned_groups' then 2
     when 'restaurant_visits' then 2
     when 'group_alerts_per_hour' then 3
+    when 'group_changes' then 2
   end;
 end $$;
 
@@ -843,6 +1039,16 @@ select lives_ok($$
                            (select id from public.restaurant_visits
                              where restaurant_id = '20000000-0000-0000-0000-0000000000e1' limit 1))
 $$, 'amb la quota plena es pot continuar editant una visita');
+
+-- Historial: passat el límit, es descarten les entrades més antigues
+select lives_ok($$
+  update public.restaurants set notes = 'u1' where name = 'Eve grup 1';
+  update public.restaurants set notes = 'u2' where name = 'Eve grup 1';
+  update public.restaurants set notes = 'u3' where name = 'Eve grup 1'
+$$, 'eve edita tres vegades un restaurant del grup');
+select is((select array_agg(new_data ->> 'notes' order by new_data ->> 'notes')
+             from public.group_changes c join public.groups g on g.id = c.group_id where g.name = 'Quota 1'),
+          array['u2', 'u3'], 'l''historial d''un grup només guarda les entrades més recents fins a la quota');
 reset role;
 
 select * from finish();

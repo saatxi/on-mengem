@@ -43,6 +43,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"group_changes": {
+                  Row: {
+                    "action": string,"changed_by": string | null,"changed_by_name": string | null,"created_at": string,"group_id": string,"id": string,"item_id": string,"item_name": string | null,"item_type": string,"new_data": Json | null,"old_data": NonNullable<Json>,"restored_at": string | null,"restored_by": string | null,"restored_by_name": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"changed_by"?: string | null,"changed_by_name"?: string | null,"created_at"?: string,"group_id": string,"id"?: string,"item_id": string,"item_name"?: string | null,"item_type": string,"new_data"?: Json | null,"old_data": NonNullable<Json>,"restored_at"?: string | null,"restored_by"?: string | null,"restored_by_name"?: string | null
+                  }
+                  Update: {
+                    "action"?: string,"changed_by"?: string | null,"changed_by_name"?: string | null,"created_at"?: string,"group_id"?: string,"id"?: string,"item_id"?: string,"item_name"?: string | null,"item_type"?: string,"new_data"?: Json | null,"old_data"?: NonNullable<Json>,"restored_at"?: string | null,"restored_by"?: string | null,"restored_by_name"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "group_changes_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"group_members": {
                   Row: {
                     "group_id": string,"joined_at": string,"user_id": string
@@ -252,6 +272,12 @@ isOneToOne: false
         isOneToOne: false
         isSetofReturn: true
       } },
+"history_fields":
+{ Args: { "p_item_type": string }; Returns: (string)[]
+                           },
+"is_deleting_user":
+{ Args: { "p_user_id": string }; Returns: boolean
+                           },
 "is_group_member":
 { Args: { "gid": string }; Returns: boolean
                            },
@@ -276,8 +302,17 @@ isOneToOne: false
 "raise_quota_exceeded":
 { Args: { "p_message": string }; Returns: undefined
                            },
+"record_group_change":
+{ Args: { "p_action": string,"p_after"?: Json,"p_before": Json,"p_group_id": string,"p_item_id": string,"p_item_name": string,"p_item_type": string }; Returns: undefined
+                           },
 "regenerate_group_code":
 { Args: { "p_group_id": string }; Returns: string
+                           },
+"restore_group_change":
+{ Args: { "p_change_id": string }; Returns: undefined
+                           },
+"restore_visit_snapshot":
+{ Args: { "p_visit": Json }; Returns: undefined
                            },
 "save_visit":
 { Args: { "p_attendees": (string)[],"p_notes": string,"p_rating": number,"p_restaurant_id": string,"p_shared"?: boolean,"p_visit_id"?: string,"p_visited_on": string }; Returns: string
@@ -287,6 +322,9 @@ isOneToOne: false
                            },
 "transfer_group_ownership":
 { Args: { "p_group_id": string,"p_new_owner": string }; Returns: undefined
+                           },
+"visit_snapshot":
+{ Args: { "p_visit_id": string }; Returns: Json
                            }
           }
           Enums: {
