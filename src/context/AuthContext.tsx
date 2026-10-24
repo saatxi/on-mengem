@@ -1,7 +1,8 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';
 import { toGroup, toProfile } from '../supabase/mappers';
+import { subscribeToChanges } from '../supabase/realtime';
 import type { TablesUpdate } from '../supabase/database';
 import { UserProfile, Group } from '../types';
 
@@ -66,8 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const userGroupsRef = useRef(userGroups);
-  userGroupsRef.current = userGroups;
 
   // Sessió de Supabase Auth
   useEffect(() => {
@@ -141,27 +140,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       clearTimeout(timer);
       timer = setTimeout(fetchGroups, GROUPS_REFRESH_DEBOUNCE_MS);
     };
-    // Els DELETE de Realtime no passen per RLS i arriben els de tota l'app: només compten els dels grups propis.
-    const isMyGroup = (groupId: unknown) => userGroupsRef.current.some((g) => g.id === groupId);
-
-    const channel = supabase
-      .channel(`auth-${uid}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${uid}` }, fetchProfile)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'groups' }, refreshGroups)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'groups' }, refreshGroups)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'groups' }, ({ old }) => {
-        if (isMyGroup(old.id)) refreshGroups();
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_members' }, refreshGroups)
-      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'group_members' }, ({ old }) => {
-        if (isMyGroup(old.group_id)) refreshGroups();
-      })
-      .subscribe();
+    // El canal de l'usuari avisa dels canvis del perfil propi i dels grups on és (nom, owner, membres, entrades i sortides).
+    const unsubscribe = subscribeToChanges(`user:${uid}`, (table) => {
+      if (table === 'profiles') fetchProfile();
+      else if (table === 'groups' || table === 'group_members') refreshGroups();
+    });
 
     return () => {
       cancelled = true;
       clearTimeout(timer);
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, [uid, fetchProfile, fetchGroups]);
 

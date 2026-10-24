@@ -8,6 +8,7 @@ import {
   wishlistToRow,
 } from '../supabase/mappers';
 import { quotaErrorMessage } from '../supabase/errors';
+import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
 import { Restaurant, WishlistItem, Alert } from '../types';
@@ -40,10 +41,6 @@ export function useRealtimeData() {
   const scope = `${uid}:${groupId ?? 'personal'}`;
   const scopeRef = useRef(scope);
   scopeRef.current = scope;
-
-  // Llistes carregades, per saber si un DELETE de Realtime afecta l'espai actiu.
-  const loadedRef = useRef({ restaurants, wishlist, alerts });
-  loadedRef.current = { restaurants, wishlist, alerts };
 
   const fail = (action: string, err: unknown) => {
     logError(action, err);
@@ -90,7 +87,7 @@ export function useRealtimeData() {
     setAlerts((data ?? []).map(toAlert));
   }, [uid, groupId, scope]);
 
-  // Càrrega inicial i Realtime: els canvis de l'espai actiu refresquen la llista (RLS també filtra els events).
+  // Càrrega inicial i Realtime: els avisos del canal de l'espai actiu refresquen la llista que ha canviat.
   useEffect(() => {
     if (!uid) {
       setRestaurants([]);
@@ -109,8 +106,6 @@ export function useRealtimeData() {
       if (!cancelled) setLoading(false);
     });
 
-    // Els events DELETE no admeten filtres ni passen per RLS: arriben els de tota l'app amb només la clau primària.
-    // Es refresca només si la fila esborrada era a les llistes carregades.
     const cancels: (() => void)[] = [];
     const debounced = (refresh: () => Promise<void>) => {
       let timer: ReturnType<typeof setTimeout> | undefined;
@@ -120,37 +115,20 @@ export function useRealtimeData() {
         timer = setTimeout(refresh, REFRESH_DEBOUNCE_MS);
       };
     };
-
-    const channel = supabase.channel(`data-${uid}-${groupId ?? 'personal'}`);
-    // INSERT i UPDATE només de l'espai actiu (abans qualsevol canvi en qualsevol grup refeia les llistes).
-    // Moure un ítem de l'espai personal a un grup és un UPDATE que coincideix amb els dos filtres.
-    type DeletedRow = Record<string, unknown>;
-    const listen = (table: string, filter: string | undefined, refresh: () => void, isLoaded: (old: DeletedRow) => boolean) => {
-      channel
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table, filter }, refresh)
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table, filter }, refresh)
-        .on('postgres_changes', { event: 'DELETE', schema: 'public', table }, ({ old }) => {
-          if (isLoaded(old)) refresh();
-        });
-    };
-    const loadedVisitIds = () => new Set(loadedRef.current.restaurants.flatMap((r) => r.visits.map((v) => v.id)));
-    const inList = (list: keyof typeof loadedRef.current) => (old: DeletedRow) =>
-      loadedRef.current[list].some((item) => item.id === old.id);
-    const byGroupOr = (ownerColumn: string) => (groupId ? `group_id=eq.${groupId}` : `${ownerColumn}=eq.${uid}`);
-
     const refreshRestaurants = debounced(fetchRestaurants);
-    listen('restaurants', byGroupOr('created_by'), refreshRestaurants, inList('restaurants'));
-    listen('restaurant_visits', byGroupOr('created_by'), refreshRestaurants, (old) => loadedVisitIds().has(old.id as string));
-    // visit_attendees no té group_id: INSERT i UPDATE arriben filtrats per RLS, però no per espai.
-    listen('visit_attendees', undefined, refreshRestaurants, (old) => loadedVisitIds().has(old.visit_id as string));
-    listen('wishlist', byGroupOr('user_id'), debounced(fetchWishlist), inList('wishlist'));
-    if (groupId) listen('alerts', `group_id=eq.${groupId}`, debounced(fetchAlerts), inList('alerts'));
-    channel.subscribe();
+    // Les visites (i els assistents, que sempre canvien amb la visita) es carreguen amb els restaurants.
+    const refreshers: Partial<Record<ChangedTable, () => void>> = {
+      restaurants: refreshRestaurants,
+      restaurant_visits: refreshRestaurants,
+      wishlist: debounced(fetchWishlist),
+      alerts: debounced(fetchAlerts),
+    };
+    const unsubscribe = subscribeToChanges(groupId ? `group:${groupId}` : `user:${uid}`, (table) => refreshers[table]?.());
 
     return () => {
       cancelled = true;
       cancels.forEach((cancel) => cancel());
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts]);
 

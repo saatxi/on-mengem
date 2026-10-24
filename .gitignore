@@ -11,3 +11,6 @@ dev-dist/
 # Fitxers locals de la CLI de Supabase
 supabase/.temp/
 supabase/.branches/
+
+# Còpies de seguretat de la BBDD de producció
+backups/

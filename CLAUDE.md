@@ -28,6 +28,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
+- `src/supabase/realtime.ts`: `subscribeToChanges()` escolta els avisos dels canals privats `group:<id>` i `user:<id>` (Broadcast des dels triggers de la BD; les taules no són a la publicació de `postgres_changes`). Una taula nova que s'hagi de veure en directe necessita els triggers `broadcast_changes` i el seu cas a `change_topics()`.
 - `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
 - `src/types/index.ts`: tipus compartits.
 - `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).

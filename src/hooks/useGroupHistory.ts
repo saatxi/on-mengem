@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase/client';
 import { toGroupChange } from '../supabase/mappers';
+import { subscribeToChanges } from '../supabase/realtime';
 import { GroupChange } from '../types';
 
 /** Entrades que es carreguen de cop: el servidor en guarda fins a 1.000 per grup (quota_limit('group_changes')). */
@@ -41,15 +42,12 @@ export function useGroupHistory(groupId: string) {
       clearTimeout(timer);
       timer = setTimeout(fetchChanges, REFRESH_DEBOUNCE_MS);
     };
-    // Les entrades no s'editen (només es marquen com a desfetes) i les purgades no cal treure-les a l'instant.
-    const channel = supabase
-      .channel(`history-${groupId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'group_changes', filter: `group_id=eq.${groupId}` }, refresh)
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'group_changes', filter: `group_id=eq.${groupId}` }, refresh)
-      .subscribe();
+    const unsubscribe = subscribeToChanges(`group:${groupId}`, (table) => {
+      if (table === 'group_changes') refresh();
+    });
     return () => {
       clearTimeout(timer);
-      supabase.removeChannel(channel);
+      unsubscribe();
     };
   }, [groupId, fetchChanges]);
 
