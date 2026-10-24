@@ -14,3 +14,6 @@ supabase/.branches/
 
 # Còpies de seguretat de la BBDD de producció
 backups/
+
+# Registres d'auditoria
+audits/
