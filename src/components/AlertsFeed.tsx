@@ -19,10 +19,10 @@ type AlertConfig = {
 const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
   restaurant_added: { icon: UtensilsCrossed, iconBg: 'bg-accent-soft', iconColor: 'text-accent' },
   wishlist_added: { icon: Sparkles, iconBg: 'bg-violet-100', iconColor: 'text-violet-700' },
-  group_joined: { icon: Users, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
+  group_joined: { icon: Users, iconBg: 'bg-sky-100', iconColor: 'text-sky-700' },
   restaurant_reviewed: { icon: Star, iconBg: 'bg-emerald-100', iconColor: 'text-emerald-600' },
-  group_left: { icon: UserMinus, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
-  owner_changed: { icon: Crown, iconBg: 'bg-stone-100', iconColor: 'text-stone-600' },
+  group_left: { icon: UserMinus, iconBg: 'bg-red-50', iconColor: 'text-red-700' },
+  owner_changed: { icon: Crown, iconBg: 'bg-amber-100', iconColor: 'text-amber-800' },
 };
 
 export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => {
