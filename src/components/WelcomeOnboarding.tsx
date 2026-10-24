@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Utensils, CheckCircle2, BookmarkPlus, Users } from 'lucide-react';
+import { DevLogin } from './DevLogin';
 
 export const WelcomeOnboarding: React.FC = () => {
   const { loginWithGoogle } = useAuth();
@@ -95,6 +96,9 @@ export const WelcomeOnboarding: React.FC = () => {
         <p className="mt-4 text-xs text-stone-500">
           Autenticació oficial segura amb el teu compte de Google.
         </p>
+
+        {/* Usuaris de supabase/seed.sql: el build de producció elimina aquest bloc */}
+        {import.meta.env.MODE === 'localdb' && <DevLogin />}
       </div>
     </div>
   );
