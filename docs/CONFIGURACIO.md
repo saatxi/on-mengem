@@ -14,7 +14,7 @@ Ordre recomanat: **A → B → C → D → E**. Cal anar i tornar entre Supabase
 ## A. Crear el projecte a Supabase i copiar la Callback URL
 
 1. Entra a [supabase.com](https://supabase.com), inicia sessió i prem **New project**.
-2. Posa un nom (per exemple `on-menjem`), una contrasenya de base de dades (guarda-la) i la regió més propera (per exemple *West EU*). Prem **Create**. Tarda un parell de minuts.
+2. Posa un nom (per exemple `on-mengem`), una contrasenya de base de dades (guarda-la) i la regió més propera (per exemple *West EU*). Prem **Create**. Tarda un parell de minuts.
 3. Quan estigui llest, aplica les migracions amb la CLI de Supabase (vegeu [Migracions amb la CLI de Supabase](#migracions-amb-la-cli-de-supabase)).
 4. Ves a **Authentication → Sign In / Providers** i obre **Google**.
 5. Copia el camp **Callback URL (for OAuth)**. Té aquest aspecte: `https://abcdefgh.supabase.co/auth/v1/callback`.
@@ -176,7 +176,7 @@ L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Buil
 ### Primer deploy
 
 1. Entra a [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages → Create → Import a repository**.
-2. Autoritza l'accés al teu compte de GitHub i selecciona el repositori `on-menjem`.
+2. Autoritza l'accés al teu compte de GitHub i selecciona el repositori `on-mengem`.
 3. Configuració:
    - **Build command:** `npm run build`
    - **Deploy command:** `npx wrangler deploy` (el valor per defecte)
@@ -187,7 +187,7 @@ L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Buil
 
    Han de ser **variables de build** perquè Vite les incrusta al bundle quan compila. Les *Variables and secrets* del Worker (i les `vars` de `wrangler.jsonc`) són de runtime i Vite no les veu; per això `wrangler.jsonc` no en defineix cap. Les builds de previsualització (`wrangler preview`) exigeixen un bloc `previews` a `wrangler.jsonc`, que pot ser buit; si hi afegeixes `vars`, cal repetir-les a `previews.vars` amb els mateixos noms. Si ja has creat el Worker, les trobaràs a **Settings → Build → Variables and secrets**.
 5. No cal definir `NODE_VERSION`: Cloudflare llegeix la versió de `.nvmrc`.
-6. Prem **Deploy**. Un cop acabat, la URL és `https://on-menjem.<el-teu-subdomini>.workers.dev`. Copia-la.
+6. Prem **Deploy**. Un cop acabat, la URL és `https://on-mengem.<el-teu-subdomini>.workers.dev`. Copia-la.
 
 ### Connectar la URL de producció a Supabase i Google
 
