@@ -17,9 +17,10 @@ function contentSecurityPolicy(supabaseUrl: string) {
         "script-src 'self'",
         "style-src 'self' 'unsafe-inline'",
         "font-src 'self'",
-        // L'única imatge externa és la foto del compte de Google.
-        "img-src 'self' data: https://*.googleusercontent.com",
-        `connect-src ${["'self'", ...supabase].join(' ')}`,
+        // Imatges externes: la foto del compte de Google i les tessel·les del mapa (OpenStreetMap).
+        "img-src 'self' data: https://*.googleusercontent.com https://tile.openstreetmap.org",
+        // Nominatim (OpenStreetMap) calcula les coordenades de l'adreça dels restaurants.
+        `connect-src ${["'self'", ...supabase, 'https://nominatim.openstreetmap.org'].join(' ')}`,
         "manifest-src 'self'",
         "worker-src 'self'",
         "object-src 'none'",

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
@@ -30,13 +30,19 @@ import { VisitModal } from './components/VisitModal';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
 import { DialogProvider } from './components/ConfirmDialog';
-import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices } from 'lucide-react';
+import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices, List, Map as MapIcon } from 'lucide-react';
 import { cn } from './utils/cn';
 import { CARD, FIELD } from './utils/ui';
 import { Button } from './components/Button';
 
+// Leaflet només es descarrega quan s'obre la vista de mapa.
+const RestaurantMap = lazy(() => import('./components/RestaurantMap').then((m) => ({ default: m.RestaurantMap })));
+
 const TABS = ['restaurants', 'wishlist', 'group', 'stats', 'alerts'] as const;
 type TabType = (typeof TABS)[number];
+
+const RESTAURANT_VIEWS = ['list', 'map'] as const;
+type RestaurantView = (typeof RESTAURANT_VIEWS)[number];
 
 const VISITED_FILTERS = { all: 'Tots', visited: 'Visitats', not_visited: 'Per anar' } as const;
 type VisitedFilter = keyof typeof VISITED_FILTERS;
@@ -74,6 +80,7 @@ function MainApp() {
     updateRestaurant,
     deleteRestaurant,
     toggleFavorite,
+    locateRestaurants,
     saveVisit,
     deleteVisit,
     addWishlistItem,
@@ -113,6 +120,7 @@ function MainApp() {
   const [filterFavorite, setFilterFavorite] = usePersistentState('filter-favorite', false, isBoolean);
   const [selectedCuisine, setSelectedCuisine] = usePersistentState('filter-cuisine', 'Tots', isString);
   const [sort, setSort] = usePersistentState<RestaurantSort>('sort', 'recent', oneOf(...keysOf(RESTAURANT_SORTS)));
+  const [restaurantView, setRestaurantView] = usePersistentState<RestaurantView>('restaurant-view', 'list', oneOf(...RESTAURANT_VIEWS));
   const [wishlistQuery, setWishlistQuery] = useState('');
   const [wishlistFilter, setWishlistFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOf(...keysOf(WISHLIST_FILTERS)));
   const [copiedGroupCode, setCopiedGroupCode] = useState(false);
@@ -316,6 +324,15 @@ function MainApp() {
 
               {/* Filtres */}
               <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-100 text-xs">
+                <div className="flex items-center rounded-full bg-stone-100 p-1" role="group" aria-label="Vista">
+                  <button onClick={() => setRestaurantView('list')} aria-pressed={restaurantView === 'list'} className={cn(segmentClass(restaurantView === 'list'), 'flex items-center gap-1.5')}>
+                    <List className="w-3.5 h-3.5" /> Llista
+                  </button>
+                  <button onClick={() => setRestaurantView('map')} aria-pressed={restaurantView === 'map'} className={cn(segmentClass(restaurantView === 'map'), 'flex items-center gap-1.5')}>
+                    <MapIcon className="w-3.5 h-3.5" /> Mapa
+                  </button>
+                </div>
+
                 <div className="flex items-center rounded-full bg-stone-100 p-1" role="group" aria-label="Estat de visita">
                   {keysOf(VISITED_FILTERS).map((key) => (
                     <button key={key} onClick={() => setFilterVisited(key)} aria-pressed={filterVisited === key} className={segmentClass(filterVisited === key)}>
@@ -414,6 +431,14 @@ function MainApp() {
                   </Button>
                 )}
               </div>
+            ) : restaurantView === 'map' ? (
+              <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 animate-pulse')} />}>
+                <RestaurantMap
+                  restaurants={filteredRestaurants}
+                  onOpen={(r) => setSelectedRestaurantId(r.id)}
+                  onLocate={locateRestaurants}
+                />
+              </Suspense>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredRestaurants.map((res) => (

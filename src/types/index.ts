@@ -41,6 +41,8 @@ export interface Restaurant {
   cuisine?: string;
   priceRange?: string; // '€' | '€€' | '€€€' | '€€€€'
   address?: string;
+  lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap
+  lng?: number;
   rating?: number; // 0 - 5
   notes?: string;
   link?: string; // web o xarxes socials, http(s)
