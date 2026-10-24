@@ -1,11 +1,11 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 211 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 217 comprovacions).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 
 ## Invariants
-1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup, i no guarden l'email (el correu propi ve de la sessió d'Auth). Només s'editen `nickname`, `avatar`, `active_group_id` (d'un grup propi) i `last_login_at`; el perfil no es pot esborrar. L'app llegeix el perfil propi amb `get_my_profile()`, que només retorna la fila de `auth.uid()`.
+1. **Identitat**: només es pot editar el propi perfil (`id = auth.uid()`). Els perfils només són visibles per a un mateix i per als companys de grup, i no guarden l'email (el correu propi ve de la sessió d'Auth). Directament només es poden llegir `id`, `nickname`, `avatar`, `photo_url` i `created_at` (privilegis per columna, `0014_hide_profile_columns.sql`): l'espai actiu, l'últim accés i la data de l'últim canvi de nickname no surten del perfil propi. Només s'editen `nickname`, `avatar`, `active_group_id` (d'un grup propi) i `last_login_at`; el perfil no es pot esborrar. L'app llegeix el perfil propi sencer amb `get_my_profile()`, que només retorna la fila de `auth.uid()`.
 2. **Usuari nou**: només es crea el perfil. Cap grup, cap alerta, cap dada d'exemple.
 3. **Espai personal** (`group_id IS NULL`): només el creador pot llegir, escriure i esborrar.
 4. **Grups**: llegir i escriure contingut de grup requereix ser membre (`is_group_member`).
@@ -64,6 +64,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 | 34 | Llegir o desfer els canvis d'un grup aliè | policy `group_changes_select` i `is_group_member` a `restore_group_change` | "kai no veu l'historial d'un grup on no és", "kai no pot desfer un canvi encara que en sàpiga l'identificador" |
 | 35 | Recuperar la visita privada esborrada d'un altre membre | comprovació d'autor a `restore_group_change` | "iris no pot recuperar la visita privada de joan" |
 | 36 | Desfer el mateix canvi en bucle | `restored_at` a `group_changes` | "un canvi només es pot desfer un cop" |
+| 37 | Saber en quins altres grups és un company o quan va obrir l'app per última vegada | privilegis de lectura per columna a `profiles` | "gina no pot llegir l'active_group_id de frank", "gina no pot llegir el last_login_at de frank" |
 
 ## Notes
 - Els tests fixen tant `request.jwt.claims` com `request.jwt.claim.sub`, perquè algunes versions antigues de `auth.uid()` només llegeixen la segona.
@@ -73,7 +74,7 @@ Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase t
 - `join_group_by_code` retorna `{error: …}` en lloc de llançar una excepció: una excepció desfaria el registre de l'intent fallit.
 - Els tests de quotes substitueixen `quota_limit()` per límits petits (el rollback final ho desfà) i comproven a part els valors de producció.
 - **Realtime i DELETE**: Supabase no aplica RLS als events `DELETE` ni hi admet filtres, i els envia a tots els subscriptors amb la clau primària de la fila. Qualsevol usuari autenticat rep, per exemple, el `(group_id, user_id)` de cada sortida o expulsió de `group_members` de tota l'app (només UUID, mai contingut). El client ignora els que no són de les seves llistes o grups, però la fuita de metadades només desapareixerà amb Broadcast privat (vegeu [MILLORES_PENDENTS.md](MILLORES_PENDENTS.md)).
-- **Perfil**: els companys de grup encara poden llegir `active_group_id` i `last_login_at` de la taula. Retirar-los requereix que cap client instal·lat llegeixi `profiles` amb `select('*')`; és el segon pas pendent a [MILLORES_PENDENTS.md](MILLORES_PENDENTS.md).
+- **Perfil**: amb els privilegis per columna, `select('*')` a `profiles` es rebutja (42501). Les versions de l'app anteriors a la 1.6.1 llegien així el perfil propi i, després de la migració `0014`, no el carreguen fins que s'actualitzen. El Realtime del perfil propi (filtre `id=eq.<uid>`) continua funcionant: l'app hi respon tornant a cridar `get_my_profile()`.
 - **Força bruta de codis**: amb 32⁶ ≈ 10⁹ codis i 10 intents fallits cada 10 minuts per compte, el risc és baix, però el límit és per compte i els comptes de Google són gratuïts. Si l'app creix molt, cal un límit per IP o codis més llargs.
 - **Membres maliciosos (per disseny)**: qualsevol membre pot editar tots els camps dels restaurants i desitjats del grup i editar o esborrar visites grupals, i qui crea un restaurant l'esborra amb les visites de tothom. Tot queda a l'historial del grup durant 90 dies i qualsevol membre ho pot desfer. Un membre també pot desfer canvis legítims (queda registrat i es pot tornar a desfer), i qui faci més de 1.000 canvis seguits pot fer caure del registre els més antics.
 - **Configuració fora del codi**: a Supabase Auth, les *Redirect URLs* han de ser URL exactes (cap comodí tipus `https://*.workers.dev`); les previews de Cloudflare comparteixen la BD de producció si en comparteixen les variables; cal revisar periòdicament el *Security Advisor* de Supabase.

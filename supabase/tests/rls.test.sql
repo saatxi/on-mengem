@@ -56,6 +56,7 @@ select is((select count(*)::int from public.restaurants), 0, 'anònim: no veu ca
 select is((select count(*)::int from public.groups), 0, 'anònim: no veu cap grup');
 select throws_ok($$ select public.create_group('Hack') $$, '42501', null, 'anònim: no pot cridar create_group');
 select throws_ok($$ select public.join_group_by_code('AAAAAA') $$, '42501', null, 'anònim: no pot cridar join_group_by_code');
+select throws_ok($$ select nickname from public.profiles $$, '42501', null, 'anònim: no pot llegir perfils');
 reset role;
 
 -- ------------------------------------------------------------ Com a Bob (membre de G1)
@@ -700,6 +701,19 @@ select is((select nickname from public.profiles where id = '00000000-0000-0000-0
           'gina veu el nickname de frank (company de grup)');
 select is((select array_agg(id) from public.get_my_profile()), array['00000000-0000-0000-0000-0000000000f2'::uuid],
           'get_my_profile() només retorna el perfil propi');
+
+-- 0014: els companys només llegeixen les columnes públiques del perfil
+select throws_ok($$ select last_login_at from public.profiles where id = '00000000-0000-0000-0000-0000000000f1' $$,
+                 '42501', null, 'gina no pot llegir el last_login_at de frank');
+select throws_ok($$ select active_group_id from public.profiles where id = '00000000-0000-0000-0000-0000000000f1' $$,
+                 '42501', null, 'gina no pot llegir l''active_group_id de frank');
+select throws_ok($$ select * from public.profiles $$, '42501', null,
+                 'select * a profiles es rebutja (cal get_my_profile per al perfil propi)');
+select isnt((select last_login_at from public.get_my_profile()), null,
+            'get_my_profile() continua retornant les columnes privades del perfil propi');
+select lives_ok($$ update public.profiles set last_login_at = now(), active_group_id = '10000000-0000-0000-0000-000000000004'
+                    where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                'gina continua podent actualitzar el seu espai actiu i l''últim accés');
 
 select lives_ok($$ update public.profiles set nickname = 'Gina Nova' where id = '00000000-0000-0000-0000-0000000000f2' $$,
                 'gina canvia el nickname');
