@@ -33,7 +33,7 @@ db-status: ## Mostra URL i claus de Supabase local
 db-reset: ## Recrea la BD local des de les migracions i hi carrega les dades de prova (esborra les dades)
 	@echo ">> Entorn LOCAL (Docker, 127.0.0.1:54322): es recrea la BD i es carreguen les dades de prova. Producció no es toca."
 	$(SUPABASE) db reset --local
-	@echo ">> BD local a punt. Usuaris de prova: marta|pau|laia|jordi|nuria@onmenjem.local (contrasenya: onmenjem)"
+	@echo ">> BD local a punt. Usuaris de prova: marta|pau|laia|jordi|nuria@onmengem.local (contrasenya: onmengem)"
 
 db-test: ## Executa els tests pgTAP de la BD
 	$(SUPABASE) test db

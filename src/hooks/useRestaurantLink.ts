@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { readRestaurantParam, withoutRestaurantParam } from '../utils/restaurantLink';
 
 // El login amb Google torna a l'arrel de l'app i perdria el `?r=`: es guarda a la sessió del navegador.
-const STORAGE_KEY = 'on-menjem:pending-restaurant';
+const STORAGE_KEY = 'on-mengem:pending-restaurant';
 
 const NOT_FOUND_MESSAGE = 'No s\'ha trobat el restaurant de l\'enllaç, o no hi tens accés.';
 

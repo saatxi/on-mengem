@@ -242,6 +242,6 @@ Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (e
 
 [supabase/seed.sql](../supabase/seed.sql) omple la BD local amb 5 usuaris, 2 grups, restaurants, desitjats, visites (grupals i privades) i alertes, amb dates dels darrers mesos. No és una migració: només el carreguen `make db-reset` i el primer `make db-start`, i `npx supabase db push` no l'envia mai a producció.
 
-- **Usuaris** (contrasenya `onmenjem`): `marta@`, `pau@`, `laia@`, `jordi@` i `nuria@onmenjem.local`. Amb `make dev`, la pantalla de benvinguda mostra un botó per a cadascun (només en mode `localdb`; el build de producció no l'inclou). Per provar el temps real, obre dues finestres (una d'incògnit) amb usuaris diferents.
+- **Usuaris** (contrasenya `onmengem`): `marta@`, `pau@`, `laia@`, `jordi@` i `nuria@onmengem.local`. Amb `make dev`, la pantalla de benvinguda mostra un botó per a cadascun (només en mode `localdb`; el build de producció no l'inclou). Per provar el temps real, obre dues finestres (una d'incògnit) amb usuaris diferents.
 - **Grups**: «Sopars de divendres» (codi `TAPES2`; Marta n'és l'owner, amb Pau, Laia i Jordi) i «Família» (codi `CASA23`; Pau n'és l'owner, amb Núria i Marta). Si entres amb el teu Google, uneix-t'hi amb aquests codis.
 - Per tornar a l'estat inicial: `make db-reset` (esborra també el que hagis creat en local).

@@ -5,7 +5,7 @@ const ID = '20000000-0000-4000-8000-000000000001';
 
 describe('restaurantLink', () => {
   it('construeix l\'enllaç a l\'arrel de l\'app', () => {
-    expect(restaurantUrl(ID, 'https://onmenjem.example')).toBe(`https://onmenjem.example/?r=${ID}`);
+    expect(restaurantUrl(ID, 'https://onmengem.example')).toBe(`https://onmengem.example/?r=${ID}`);
   });
 
   it('llegeix l\'id del que genera restaurantUrl', () => {

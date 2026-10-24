@@ -1,13 +1,13 @@
 -- Dades de prova per a l'entorn local (Supabase en Docker). NO és una migració: només el carrega
 -- `supabase db reset` (make db-reset) i el primer `supabase start`; `db push` no l'envia mai a producció.
 --
--- Usuaris (contrasenya comuna: onmenjem), accessibles des del selector de la pantalla de benvinguda
+-- Usuaris (contrasenya comuna: onmengem), accessibles des del selector de la pantalla de benvinguda
 -- quan l'app corre en mode localdb (make dev):
---   marta@onmenjem.local  Marta  owner de «Sopars de divendres», membre de «Família»
---   pau@onmenjem.local    Pau    owner de «Família», membre de «Sopars de divendres»
---   laia@onmenjem.local   Laia   membre de «Sopars de divendres»
---   jordi@onmenjem.local  Jordi  membre de «Sopars de divendres»
---   nuria@onmenjem.local  Núria  membre de «Família»
+--   marta@onmengem.local  Marta  owner de «Sopars de divendres», membre de «Família»
+--   pau@onmengem.local    Pau    owner de «Família», membre de «Sopars de divendres»
+--   laia@onmengem.local   Laia   membre de «Sopars de divendres»
+--   jordi@onmengem.local  Jordi  membre de «Sopars de divendres»
+--   nuria@onmengem.local  Núria  membre de «Família»
 -- Codis d'invitació: TAPES2 (Sopars de divendres) i CASA23 (Família). Amb el teu compte de Google
 -- pots entrar-hi des de l'app («Uneix-te a un grup»).
 --
@@ -24,15 +24,15 @@ insert into auth.users (
   phone_change_token, reauthentication_token
 )
 select '00000000-0000-0000-0000-000000000000', u.id, 'authenticated', 'authenticated', u.email,
-       crypt('onmenjem', gen_salt('bf')), now() - u.age,
+       crypt('onmengem', gen_salt('bf')), now() - u.age,
        '{"provider":"email","providers":["email"]}', jsonb_build_object('full_name', u.name),
        now() - u.age, now() - u.age, '', '', '', '', '', '', ''
   from (values
-    ('5eed0000-0000-0000-0000-000000000001'::uuid, 'marta@onmenjem.local', 'Marta', interval '120 days'),
-    ('5eed0000-0000-0000-0000-000000000002'::uuid, 'pau@onmenjem.local',   'Pau',   interval '110 days'),
-    ('5eed0000-0000-0000-0000-000000000003'::uuid, 'laia@onmenjem.local',  'Laia',  interval '80 days'),
-    ('5eed0000-0000-0000-0000-000000000004'::uuid, 'jordi@onmenjem.local', 'Jordi', interval '60 days'),
-    ('5eed0000-0000-0000-0000-000000000005'::uuid, 'nuria@onmenjem.local', 'Núria', interval '45 days')
+    ('5eed0000-0000-0000-0000-000000000001'::uuid, 'marta@onmengem.local', 'Marta', interval '120 days'),
+    ('5eed0000-0000-0000-0000-000000000002'::uuid, 'pau@onmengem.local',   'Pau',   interval '110 days'),
+    ('5eed0000-0000-0000-0000-000000000003'::uuid, 'laia@onmengem.local',  'Laia',  interval '80 days'),
+    ('5eed0000-0000-0000-0000-000000000004'::uuid, 'jordi@onmengem.local', 'Jordi', interval '60 days'),
+    ('5eed0000-0000-0000-0000-000000000005'::uuid, 'nuria@onmengem.local', 'Núria', interval '45 days')
   ) as u (id, email, name, age);
 
 -- Sense identitat d'email, GoTrue no accepta signInWithPassword.
@@ -41,7 +41,7 @@ select gen_random_uuid(), u.id, u.id::text, 'email',
        jsonb_build_object('sub', u.id::text, 'email', u.email, 'email_verified', true),
        now(), u.created_at, u.created_at
   from auth.users u
- where u.email like '%@onmenjem.local';
+ where u.email like '%@onmengem.local';
 
 -- El trigger handle_new_user ja ha creat els perfils; només hi fixem l'avatar i l'antiguitat.
 update public.profiles p

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const PREFIX = 'on-menjem:';
+const PREFIX = 'on-mengem:';
 
 const read = <T,>(key: string, initial: T, isValid: (value: unknown) => value is T): T => {
   try {

@@ -5,13 +5,13 @@ import { Button } from './Button';
 
 // Usuaris de supabase/seed.sql. Aquest component només es renderitza en mode localdb (make dev),
 // i el build de producció l'elimina.
-const SEED_PASSWORD = 'onmenjem';
+const SEED_PASSWORD = 'onmengem';
 const SEED_USERS = [
-  { name: 'Marta', avatar: '🍣', email: 'marta@onmenjem.local' },
-  { name: 'Pau', avatar: '🍷', email: 'pau@onmenjem.local' },
-  { name: 'Laia', avatar: '🥗', email: 'laia@onmenjem.local' },
-  { name: 'Jordi', avatar: '🍔', email: 'jordi@onmenjem.local' },
-  { name: 'Núria', avatar: '🥞', email: 'nuria@onmenjem.local' },
+  { name: 'Marta', avatar: '🍣', email: 'marta@onmengem.local' },
+  { name: 'Pau', avatar: '🍷', email: 'pau@onmengem.local' },
+  { name: 'Laia', avatar: '🥗', email: 'laia@onmengem.local' },
+  { name: 'Jordi', avatar: '🍔', email: 'jordi@onmengem.local' },
+  { name: 'Núria', avatar: '🥞', email: 'nuria@onmengem.local' },
 ];
 
 export const DevLogin: React.FC = () => {
