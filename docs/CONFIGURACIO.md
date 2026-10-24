@@ -211,9 +211,19 @@ La icona i el nom de l'app instal·lada no depenen del Service Worker: Android e
 
 ### Capçaleres de seguretat
 
-El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les imatges externes només poden venir de `*.googleusercontent.com` (la foto del compte de Google). La font (Plus Jakarta Sans) s'empaqueta amb l'app (`@fontsource-variable/plus-jakarta-sans`), així que la CSP no autoritza cap domini de fonts extern. Les capçaleres `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy` i `Cross-Origin-Opener-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
+El build injecta una `Content-Security-Policy` com a `<meta>` (`vite.config.ts`). Les imatges externes només poden venir de `*.googleusercontent.com` (la foto del compte de Google) i de `tile.openstreetmap.org` (les tessel·les del mapa), i l'única connexió externa a part de Supabase és `nominatim.openstreetmap.org` (vegeu [Mapa](#mapa-openstreetmap)). Si afegeixes un domini extern, cal autoritzar-lo a `vite.config.ts`. La font (Plus Jakarta Sans) s'empaqueta amb l'app (`@fontsource-variable/plus-jakarta-sans`), així que la CSP no autoritza cap domini de fonts extern. Les capçaleres `frame-ancestors`, `X-Content-Type-Options`, `Referrer-Policy`, `Strict-Transport-Security`, `Permissions-Policy` i `Cross-Origin-Opener-Policy` les serveix Cloudflare a partir de `public/_headers`, que ja és al repositori.
 
 L'inici de sessió fa servir el flux **PKCE** (`src/supabase/client.ts`): Google torna a l'app amb un `?code=` d'un sol ús i els tokens no apareixen mai a la URL.
+
+## Mapa (OpenStreetMap)
+
+La vista de mapa dels restaurants fa servir [Leaflet](https://leafletjs.com) amb les tessel·les d'OpenStreetMap, i [Nominatim](https://nominatim.org) per calcular les coordenades de l'adreça. No cal cap clau ni registre, però cal respectar les polítiques d'ús de la OpenStreetMap Foundation ([tessel·les](https://operations.osmfoundation.org/policies/tiles/) i [Nominatim](https://operations.osmfoundation.org/policies/nominatim/)):
+
+- Es mostra l'atribució «© OpenStreetMap» al mapa.
+- Nominatim només es consulta quan l'usuari desa un restaurant amb una adreça nova o prem «Ubicar-los» al mapa, com a màxim una petició per segon (`src/utils/geocode.ts`). Res d'autocompletat ni de consultes automàtiques en segon pla.
+- Són serveis de voluntaris sense garanties: si no responen, el restaurant es desa igualment sense ubicació i es pot ubicar més tard des del mapa. Si l'ús creix molt, cal passar a un proveïdor amb clau (p. ex. MapTiler), canviant la URL de `src/components/RestaurantMap.tsx` i `src/utils/geocode.ts` i la CSP.
+
+Les coordenades es guarden a les columnes `lat` i `lng` de `restaurants` (migració `0016_restaurant_coordinates.sql`, que s'aplica amb `npx supabase db push` com les altres). Els restaurants que ja existien abans no tenen coordenades: surten al mapa un cop algú prem «Ubicar-los» o els torna a desar.
 
 ## Nota sobre el pla gratuït
 

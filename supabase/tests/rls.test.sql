@@ -7,6 +7,8 @@ select no_plan();
 select hasnt_column('public', 'restaurants', 'tags', 'els restaurants ja no tenen etiquetes');
 select hasnt_column('public', 'restaurants', 'visited', 'el booleà visited ha estat substituït per restaurant_visits');
 select hasnt_column('public', 'profiles', 'email', 'el perfil no guarda l''email (els companys de grup no el poden llegir)');
+select has_column('public', 'restaurants', 'lat', 'els restaurants tenen latitud (vista de mapa)');
+select has_column('public', 'restaurants', 'lng', 'els restaurants tenen longitud (vista de mapa)');
 
 -- ------------------------------------------------------------ Dades de prova
 -- A = alice (propietària de G1), B = bob (membre de G1), C = carol (propietària de G2, aliena a G1)
@@ -1035,6 +1037,59 @@ select lives_ok($$ delete from public.groups where id = '10000000-0000-0000-0000
 reset role;
 select is((select count(*)::int from public.group_changes where group_id = '10000000-0000-0000-0000-000000000005'), 0,
           'esborrar el grup s''endu l''historial i no en crea cap entrada');
+
+-- ------------------------------------------------------------ Coordenades (G7, propietat d'Ona)
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000c7', 'ona@test.dev', '{"full_name":"Ona"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000007', 'G7', 'OOOOOO', '00000000-0000-0000-0000-0000000000c7', 'Ona');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000007', '00000000-0000-0000-0000-0000000000c7');
+insert into public.restaurants (id, group_id, name, address, lat, lng, created_by) values
+  ('20000000-0000-0000-0000-000000000070', null, 'Ona personal', 'Carrer de Verdi, 21, Barcelona', 41.40, 2.15,
+   '00000000-0000-0000-0000-0000000000c7'),
+  ('20000000-0000-0000-0000-000000000071', '10000000-0000-0000-0000-000000000007', 'Ona grup', 'Carrer Gran, 1, Girona',
+   41.98, 2.82, '00000000-0000-0000-0000-0000000000c7'),
+  ('20000000-0000-0000-0000-000000000072', '10000000-0000-0000-0000-000000000007', 'Ona sense ubicar', 'Carrer Major, 1, Lleida',
+   null, null, '00000000-0000-0000-0000-0000000000c7');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c7","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c7', true);
+set local role authenticated;
+
+select throws_ok($$ update public.restaurants set lat = 91, lng = 2 where id = '20000000-0000-0000-0000-000000000070' $$,
+                 '23514', null, 'la latitud ha d''estar entre -90 i 90');
+select throws_ok($$ update public.restaurants set lng = 181 where id = '20000000-0000-0000-0000-000000000070' $$,
+                 '23514', null, 'la longitud ha d''estar entre -180 i 180');
+select throws_ok($$ update public.restaurants set lat = null where id = '20000000-0000-0000-0000-000000000070' $$,
+                 '23514', null, 'no es pot desar una coordenada sense l''altra');
+
+select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000070',
+                                        array['10000000-0000-0000-0000-000000000007'::uuid])), 1,
+          'ona copia el restaurant personal al grup');
+select is((select array[lat, lng] from public.restaurants
+            where group_id = '10000000-0000-0000-0000-000000000007' and name = 'Ona personal'),
+          array[41.40, 2.15]::double precision[], 'copy_to_groups conserva les coordenades');
+
+select lives_ok($$ update public.restaurants set lat = 41.61, lng = 0.62 where id = '20000000-0000-0000-0000-000000000072' $$,
+                'ona ubica un restaurant del grup des del mapa');
+select is((select count(*)::int from public.group_changes where item_id = '20000000-0000-0000-0000-000000000072'), 0,
+          'ubicar un restaurant (només coordenades) no deixa cap entrada a l''historial');
+
+select lives_ok($$
+  update public.restaurants set address = 'Plaça del Vi, 1, Girona', lat = 41.99, lng = 2.83
+   where id = '20000000-0000-0000-0000-000000000071'
+$$, 'ona canvia l''adreça d''un restaurant del grup');
+select is((select old_data from public.group_changes where item_id = '20000000-0000-0000-0000-000000000071'),
+          '{"address": "Carrer Gran, 1, Girona", "lat": 41.98, "lng": 2.82}'::jsonb,
+          'canviar l''adreça desa també les coordenades anteriors');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000071')),
+                'ona desfà el canvi d''adreça');
+select is((select array[address, lat::text, lng::text] from public.restaurants
+            where id = '20000000-0000-0000-0000-000000000071'),
+          array['Carrer Gran, 1, Girona', '41.98', '2.82'], 'desfer el canvi d''adreça torna el punt al lloc');
+reset role;
 
 -- ------------------------------------------------------------ Quotes contra l'abús (Eve)
 select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),

@@ -11,6 +11,7 @@ import { quotaErrorMessage } from '../supabase/errors';
 import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
+import { geocodeAddress, type Coordinates } from '../utils/geocode';
 import { Restaurant, WishlistItem, Alert } from '../types';
 
 function logError(action: string, error: unknown) {
@@ -20,6 +21,9 @@ function logError(action: string, error: unknown) {
 const ERROR_MESSAGE = 'No s\'ha pogut completar l\'acció. Comprova la connexió i torna-ho a provar.';
 /** Els canvis ràpids consecutius (p. ex. una còpia a varis grups) es resolen amb un sol refresc. */
 const REFRESH_DEBOUNCE_MS = 300;
+
+/** Columnes de coordenades d'una adreça; sense adreça o sense resultat, el restaurant queda fora del mapa. */
+const coordinateColumns = (coords: Coordinates | null) => ({ lat: coords?.lat ?? null, lng: coords?.lng ?? null });
 
 /**
  * Dades de l'espai actiu: el grup seleccionat o, si no n'hi ha cap,
@@ -137,10 +141,12 @@ export function useRealtimeData() {
 
   const addRestaurant = async (data: NewRestaurant) => {
     if (!uid || !userProfile) return false;
+    const coords = data.address ? await geocodeAddress(data.address) : null;
     const { error } = await supabase
       .from('restaurants')
       .insert({
         ...restaurantToRow(data),
+        ...coordinateColumns(coords),
         name: data.name,
         group_id: groupId,
         created_by: uid,
@@ -156,10 +162,17 @@ export function useRealtimeData() {
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return false;
+    // Es tornen a calcular les coordenades si l'adreça canvia o si encara no en tenia.
+    const current = restaurants.find((r) => r.id === resId);
+    const relocate =
+      data.address !== undefined && (data.address !== (current?.address ?? '') || current?.lat === undefined);
+    const row = relocate
+      ? { ...restaurantToRow(data), ...coordinateColumns(data.address ? await geocodeAddress(data.address) : null) }
+      : restaurantToRow(data);
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
     const { data: rows, error } = await supabase
       .from('restaurants')
-      .update(restaurantToRow(data))
+      .update(row)
       .eq('id', resId)
       .select('id');
     if (error || !rows?.length) {
@@ -179,6 +192,35 @@ export function useRealtimeData() {
 
   const toggleFavorite = async (restaurant: Restaurant) => {
     await updateRestaurant(restaurant.id, { favorite: !restaurant.favorite });
+  };
+
+  /**
+   * Ubica des del mapa els restaurants amb adreça però sense coordenades, d'un en un (Nominatim, 1 petició/s).
+   * Retorna quants no s'han pogut ubicar. `signal` l'atura (p. ex. en sortir del mapa).
+   */
+  const locateRestaurants = async (
+    toLocate: Restaurant[],
+    onProgress: (done: number) => void,
+    signal?: AbortSignal,
+  ) => {
+    if (!uid) return 0;
+    let notFound = 0;
+    for (const [i, res] of toLocate.entries()) {
+      const coords = res.address ? await geocodeAddress(res.address, signal) : null;
+      if (signal?.aborted) break;
+      if (coords) {
+        const { error } = await supabase.from('restaurants').update(coordinateColumns(coords)).eq('id', res.id);
+        if (error) {
+          fail('locateRestaurants', error);
+          break;
+        }
+      } else {
+        notFound++;
+      }
+      onProgress(i + 1);
+    }
+    await fetchRestaurants();
+    return notFound;
   };
 
   // Visites
@@ -276,7 +318,7 @@ export function useRealtimeData() {
     if (!uid || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
     convertingRef.current.add(wishlistItem.id);
     try {
-      const { error } = await supabase.rpc('convert_wishlist_to_restaurant', {
+      const { data: restaurantId, error } = await supabase.rpc('convert_wishlist_to_restaurant', {
         p_wishlist_id: wishlistItem.id,
         p_visited_on: visitOverride?.visitedOn ?? localToday(),
         p_rating: visitOverride?.rating ?? null,
@@ -289,6 +331,16 @@ export function useRealtimeData() {
         return;
       }
       await Promise.all([fetchRestaurants(), fetchWishlist()]);
+      // Els desitjats no tenen coordenades: el restaurant nou s'ubica un cop creat.
+      const coords = wishlistItem.address ? await geocodeAddress(wishlistItem.address) : null;
+      if (coords) {
+        const { error: locateError } = await supabase
+          .from('restaurants')
+          .update(coordinateColumns(coords))
+          .eq('id', restaurantId);
+        if (locateError) logError('convertWishlistToRestaurant', locateError);
+        else await fetchRestaurants();
+      }
     } finally {
       convertingRef.current.delete(wishlistItem.id);
     }
@@ -354,6 +406,7 @@ export function useRealtimeData() {
     updateRestaurant,
     deleteRestaurant,
     toggleFavorite,
+    locateRestaurants,
     saveVisit,
     deleteVisit,
     addWishlistItem,

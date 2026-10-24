@@ -9,6 +9,8 @@ const restaurantRow = (overrides: Partial<Tables<'restaurants'>> = {}): Tables<'
   cuisine: null,
   price_range: null,
   address: null,
+  lat: null,
+  lng: null,
   rating: null,
   notes: null,
   link: null,
@@ -61,6 +63,11 @@ describe('toRestaurant', () => {
 
   it('accepta files sense visites incrustades (p. ex. de Realtime)', () => {
     expect(toRestaurant(restaurantRow()).visits).toEqual([]);
+  });
+
+  it('mapeja les coordenades i les deixa undefined si no en té', () => {
+    expect(toRestaurant(restaurantRow({ lat: 41.4, lng: 2.15 }))).toMatchObject({ lat: 41.4, lng: 2.15 });
+    expect(toRestaurant(restaurantRow()).lat).toBeUndefined();
   });
 });
 

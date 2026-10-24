@@ -144,3 +144,51 @@
     scroll-behavior: auto !important;
   }
 }
+
+/*
+ * Mapa de restaurants (Leaflet). Fora de les capes de Tailwind i amb .restaurant-map davant, perquè guanyi el
+ * CSS de Leaflet (que no va en cap capa). Les tessel·les d'OSM només són clares: en fosc s'inverteixen.
+ */
+.restaurant-map.leaflet-container {
+  font: inherit;
+  background-color: var(--color-stone-100);
+}
+
+.restaurant-map .leaflet-popup-content-wrapper,
+.restaurant-map .leaflet-popup-tip {
+  background-color: var(--color-surface);
+  color: var(--color-stone-900);
+}
+
+.restaurant-map .leaflet-popup-content-wrapper {
+  border-radius: 1rem;
+}
+
+.restaurant-map.leaflet-container .leaflet-control-attribution {
+  background-color: color-mix(in oklab, var(--color-surface) 80%, transparent);
+  color: var(--color-stone-600);
+}
+
+.restaurant-map.leaflet-container .leaflet-control-attribution a {
+  color: inherit;
+}
+
+.restaurant-map.leaflet-container .leaflet-bar a {
+  background-color: var(--color-surface);
+  border-color: var(--color-stone-200);
+  color: var(--color-stone-800);
+}
+
+.restaurant-map.leaflet-container .leaflet-bar a:hover {
+  background-color: var(--color-stone-100);
+}
+
+:root[data-theme='dark'] .restaurant-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .restaurant-map .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+  }
+}
