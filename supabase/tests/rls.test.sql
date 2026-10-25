@@ -778,6 +778,12 @@ select throws_ok($$ update public.profiles set nickname = 'Gina Altra' where id 
                  'OMQ01', null, 'no es pot tornar a canviar el nickname abans d''un minut');
 select lives_ok($$ update public.profiles set nickname = 'Gina Nova', avatar = '🍣' where id = '00000000-0000-0000-0000-0000000000f2' $$,
                 'desar el perfil amb el mateix nickname no compta com a canvi');
+select throws_ok($$ update public.profiles set avatar = repeat('🍕', 17) where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                 '23514', null, 'l''avatar té com a màxim 16 caràcters');
+select throws_ok($$ update public.profiles set avatar = '' where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                 '23514', null, 'l''avatar no pot ser buit');
+select lives_ok($$ update public.profiles set avatar = '👨‍👩‍👧‍👦' where id = '00000000-0000-0000-0000-0000000000f2' $$,
+                'un emoji compost cap a l''avatar');
 
 select lives_ok($$ delete from public.group_members
                     where group_id = '10000000-0000-0000-0000-000000000004'
