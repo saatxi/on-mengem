@@ -18,6 +18,7 @@ import { StatTiles } from './components/StatTiles';
 import { ActivityChart } from './components/ActivityChart';
 import { RankingsCard } from './components/RankingsCard';
 import { PriceStatsCard } from './components/PriceStatsCard';
+import { YearInNumbers } from './components/YearInNumbers';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
 import { RestaurantCard } from './components/RestaurantCard';
@@ -29,10 +30,10 @@ import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type Restau
 import { VisitModal } from './components/VisitModal';
 import { WelcomeTour } from './components/WelcomeTour';
 import { consumeLoginTourPending } from './utils/loginTour';
-import { filterByPeriod, type StatsPeriod } from './utils/stats';
+import { filterByPeriod, yearsWithVisits, type StatsPeriod } from './utils/stats';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
-import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices, List, Map as MapIcon } from 'lucide-react';
+import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices, ChevronRight, List, Map as MapIcon } from 'lucide-react';
 import { cn } from './utils/cn';
 import { CARD, FIELD } from './utils/ui';
 import { Button } from './components/Button';
@@ -107,6 +108,7 @@ export function MainApp() {
   const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [showYearInNumbers, setShowYearInNumbers] = useState(false);
   // Es guarda l'id i no l'objecte perquè el detall reflecteixi els canvis en temps real
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   // Restaurant triat amb «Sorprèn-me»: el detall el destaca i permet tornar a tirar
@@ -202,6 +204,7 @@ export function MainApp() {
   };
 
   const periodRestaurants = filterByPeriod(restaurants, statsPeriod);
+  const latestVisitYear = yearsWithVisits(restaurants)[0];
 
   const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
   const filteredWishlist = visibleWishlist.filter(
@@ -602,6 +605,21 @@ export function MainApp() {
         {effectiveTab === 'stats' && (
           <div className="space-y-6">
             <StatTiles restaurants={restaurants} wishlist={visibleWishlist} />
+            {latestVisitYear !== undefined && (
+              <button
+                onClick={() => setShowYearInNumbers(true)}
+                className="w-full flex items-center gap-4 p-5 rounded-3xl bg-brand text-white text-left shadow-card hover:shadow-card-hover active:scale-[0.99] transition-[box-shadow,transform]"
+              >
+                <span className="size-12 shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
+                  <Sparkles className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-lg font-extrabold tracking-tight">El {latestVisitYear} en xifres</span>
+                  <span className="block text-sm opacity-90">L'any resumit, a punt per compartir</span>
+                </span>
+                <ChevronRight className="size-5 shrink-0 opacity-80" />
+              </button>
+            )}
             <ActivityChart restaurants={restaurants} />
 
             <div className="flex items-center justify-between gap-3">
@@ -780,6 +798,16 @@ export function MainApp() {
           return true;
         }}
       />
+
+      {showYearInNumbers && (
+        <YearInNumbers
+          restaurants={restaurants}
+          wishlist={visibleWishlist}
+          spaceName={activeGroup?.name}
+          onClose={() => setShowYearInNumbers(false)}
+          onNotice={notify}
+        />
+      )}
 
       <Toast message={dataError} onClose={clearError} />
       <Toast message={dataError ? null : linkError} onClose={clearLinkError} />
