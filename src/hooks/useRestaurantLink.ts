@@ -8,7 +8,7 @@ const STORAGE_KEY = 'on-mengem:pending-restaurant';
 
 const NOT_FOUND_MESSAGE = 'No s\'ha trobat el restaurant de l\'enllaç, o no hi tens accés.';
 
-function takePendingId(): string | null {
+export function takePendingRestaurantId(): string | null {
   try {
     const fromUrl = readRestaurantParam(window.location.search);
     if (fromUrl) {
@@ -35,7 +35,7 @@ function clearPendingId() {
  */
 export function useRestaurantLink(onOpen: (restaurantId: string) => void) {
   const { authUser, userProfile, setActiveGroupId } = useAuth();
-  const [pendingId, setPendingId] = useState<string | null>(takePendingId);
+  const [pendingId, setPendingId] = useState<string | null>(takePendingRestaurantId);
   const [error, setError] = useState<string | null>(null);
 
   const ready = !!authUser && !!userProfile;

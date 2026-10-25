@@ -23,7 +23,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 ## Estructura
 
-- `src/App.tsx`: pantalla principal (pestanyes i estat dels modals).
+- `src/App.tsx`: proveïdors i porta d'entrada (càrrega, onboarding o pantalla principal). `src/MainApp.tsx`: pantalla principal (pestanyes i estat dels modals), carregada amb `lazy()` perquè l'inici de sessió no la descarregui.
 - `src/components/`: components i modals.
 - `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).

@@ -45,7 +45,8 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 
 ```
 src/
-  App.tsx              Pantalla principal i pestanyes
+  App.tsx              Proveïdors i accés: càrrega, onboarding o pantalla principal
+  MainApp.tsx          Pantalla principal i pestanyes (es descarrega amb la sessió iniciada)
   components/          Modals, barra superior, gràfic, instal·lació PWA
   context/             AuthContext (sessió, perfil i grups) i ThemeContext (tema clar o fosc)
   hooks/               useRealtimeData (dades de l'espai actiu), historial del grup, preferències desades, PWA i connexió
