@@ -1,0 +1,49 @@
+# Comprovacions de cada canvi: tipus, lint de hooks, tests, build i tests de seguretat de la BD (RLS).
+name: CI
+
+on:
+  push:
+    branches: [devel, main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Lint, tests i build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      # El build només incrusta aquests valors al bundle: n'hi ha prou amb uns de mentida
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: http://127.0.0.1:54321
+          VITE_SUPABASE_ANON_KEY: ci-placeholder
+
+  db:
+    name: Tests de la BD (pgTAP)
+    runs-on: ubuntu-latest
+    env:
+      # L'inici de sessió amb Google està activat a config.toml i en llegeix les credencials; als tests no s'usa
+      SUPABASE_AUTH_GOOGLE_CLIENT_ID: ci-placeholder
+      SUPABASE_AUTH_GOOGLE_SECRET: ci-placeholder
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      # Només els serveis que calen per aplicar les migracions i executar els tests
+      - run: supabase start -x studio,imgproxy,edge-runtime,logflare,vector,mailpit,supavisor
+      - run: supabase test db

@@ -267,6 +267,12 @@ L'app es publica com a **Worker amb fitxers estàtics** (Cloudflare Workers Buil
 
 Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. Les altres branques generen versions de previsualització que no es publiquen a producció. Per desplegar des de la terminal: `npm run build && npx wrangler deploy` (cal `npx wrangler login` abans i tenir les variables `VITE_*` al `.env`).
 
+### Comprovacions automàtiques (GitHub Actions)
+
+Cada `git push` a `devel` o `main`, i cada pull request, executa `.github/workflows/ci.yml` a GitHub: `npm run lint`, `npm test`, `npm run build` i, en un altre job, `supabase start` + `supabase test db` (els tests de seguretat de `supabase/tests/rls.test.sql`). No necessita cap secret: el build fa servir una URL i una clau de mentida, i la BD és una de local que es crea al moment.
+
+El CI no bloqueja el deploy de Cloudflare, que va per separat. Abans de fusionar `devel` a `main`, comprova a la pestanya **Actions** del repositori que l'última execució de `devel` ha passat. Si vols que sigui obligatori, activa una regla de protecció per a `main` (**Settings → Branches**) que exigeixi el check **CI** i treballa amb pull requests.
+
 ### Com arriben les versions noves a l'app instal·lada
 
 Quan es publica una versió, el Service Worker nou es descarrega però no s'activa sol: a la barra superior apareix el botó **Actualitzar** (al mòbil, una icona amb un punt), que l'activa i recarrega la pàgina (`src/context/UpdateContext.tsx` i `src/components/UpdateButton.tsx`, `registerType: 'prompt'` a `vite.config.ts`). Si l'usuari no el prem, la versió nova s'aplica la propera vegada que obri l'app de zero.

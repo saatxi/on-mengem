@@ -41,21 +41,25 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 | `make audit` | Vulnerabilitats conegudes de les dependències (`npm audit`) |
 | `make local` | BD local en Docker amb dades de prova i usuaris ficticis (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md#dades-de-prova)) |
 
+GitHub Actions (`.github/workflows/ci.yml`) executa el lint, els tests, el build i els tests de la BD a cada push a `devel` i `main` i a cada pull request.
+
 ## Estructura
 
 ```
 src/
   App.tsx              Proveïdors i accés: càrrega, onboarding o pantalla principal
-  MainApp.tsx          Pantalla principal i pestanyes (es descarrega amb la sessió iniciada)
-  components/          Modals, barra superior, gràfic, instal·lació PWA
+  MainApp.tsx          Pantalla principal: dades, navegació i modals (es descarrega amb la sessió iniciada)
+  components/          Una pestanya per component (RestaurantsTab, WishlistTab, GroupTab, StatsTab), modals, targetes i estadístiques
   context/             AuthContext (sessió, perfil i grups) i ThemeContext (tema clar o fosc)
-  hooks/               useRealtimeData (dades de l'espai actiu), historial del grup, preferències desades, PWA i connexió
-  supabase/            Client i conversió entre files de la BD i tipus de l'app
+  hooks/               useRealtimeData (dades de l'espai actiu), filtres de restaurants, historial del grup, preferències desades, PWA i connexió
+  supabase/            Client, Realtime i conversió entre files de la BD i tipus de l'app
+  utils/               Funcions pures amb tests: camps, dates, estadístiques, geocodificació
 supabase/
   migrations/          Esquema, polítiques RLS i funcions
   tests/               Tests pgTAP de seguretat
   seed.sql             Dades de prova per a la BD local (no s'aplica mai a producció)
 docs/                  Guia de configuració i especificació de seguretat
+.github/workflows/     CI: lint, tests, build i tests de la BD
 ```
 
 ## Publicar
