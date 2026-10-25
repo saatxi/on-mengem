@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
@@ -27,6 +27,8 @@ import { CardSkeletons } from './components/CardSkeletons';
 import { Restaurant, Visit, WishlistItem } from './types';
 import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type RestaurantSort } from './utils/restaurantFields';
 import { VisitModal } from './components/VisitModal';
+import { WelcomeTour } from './components/WelcomeTour';
+import { consumeLoginTourPending } from './utils/loginTour';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
 import { DialogProvider } from './components/ConfirmDialog';
@@ -101,6 +103,7 @@ function MainApp() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showJoinGroup, setShowJoinGroup] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   // Es guarda l'id i no l'objecte perquè el detall reflecteixi els canvis en temps real
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   // Restaurant triat amb «Sorprèn-me»: el detall el destaca i permet tornar a tirar
@@ -140,6 +143,11 @@ function MainApp() {
     setCurrentTab('restaurants');
     setSelectedRestaurantId(restaurantId);
   });
+
+  // Guia de benvinguda just després d'iniciar sessió (no quan es torna a l'app amb la sessió oberta)
+  useEffect(() => {
+    if (hasProfile && consumeLoginTourPending()) setShowTour(true);
+  }, [hasProfile]);
 
   // En l'espai personal no hi ha pestanyes de grup ni activitat
   const effectiveTab: TabType =
@@ -730,7 +738,13 @@ function MainApp() {
         key={showProfile ? 'profile-open' : 'profile-closed'}
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
+        onOpenTour={() => {
+          setShowProfile(false);
+          setShowTour(true);
+        }}
       />
+
+      {showTour && <WelcomeTour onClose={() => setShowTour(false)} />}
 
       <VisitModal
         restaurant={visitTarget?.restaurant ?? null}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LogOut, Check, Trash2, UserRound, Monitor, Sun, Moon } from 'lucide-react';
+import { LogOut, Check, Trash2, UserRound, Monitor, Sun, Moon, Compass } from 'lucide-react';
 import { Modal, ModalHeader } from './Modal';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,7 @@ import { FIELD, LABEL } from '../utils/ui';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onOpenTour: () => void;
 }
 
 const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.FC<{ className?: string }> }[] = [
@@ -21,7 +22,7 @@ const THEME_OPTIONS: { value: ThemePreference; label: string; icon: React.FC<{ c
 
 const FOOD_AVATARS = ['🍕', '🍣', '🥘', '🍷', '🌮', '🍔', '🥗', '🍜', '🥑', '🥞', '☕', '🍰'];
 
-export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
+export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) => {
   const { userProfile, updateProfile, logout, deleteAccount, authUser } = useAuth();
   const { theme, setTheme } = useTheme();
   const [nickname, setNickname] = useState(userProfile?.nickname || '');
@@ -183,6 +184,21 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose }) => {
             ))}
           </div>
         </div>
+
+        {/* Guia de benvinguda */}
+        <button
+          type="button"
+          onClick={onOpenTour}
+          className="w-full flex items-center gap-3 p-3 rounded-2xl bg-stone-50 hover:bg-stone-100 text-left transition-colors"
+        >
+          <span className="size-9 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
+            <Compass className="size-4" />
+          </span>
+          <span className="min-w-0">
+            <span className="block text-sm font-semibold text-stone-900">Com funciona l'app</span>
+            <span className="block text-xs text-stone-500">Torna a veure la guia de benvinguda</span>
+          </span>
+        </button>
 
         {/* Sign out */}
         <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">

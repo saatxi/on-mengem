@@ -5,6 +5,7 @@ import { toGroup, toProfile } from '../supabase/mappers';
 import { subscribeToChanges } from '../supabase/realtime';
 import type { TablesUpdate } from '../supabase/database';
 import { UserProfile, Group } from '../types';
+import { markLoginTourPending } from '../utils/loginTour';
 
 export interface AuthUser {
   uid: string;
@@ -158,6 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     userGroups.find((g) => g.id === userProfile?.activeGroupId) ?? null;
 
   const loginWithGoogle = async () => {
+    markLoginTourPending();
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

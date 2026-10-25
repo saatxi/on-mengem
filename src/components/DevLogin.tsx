@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FlaskConical } from 'lucide-react';
 import { supabase } from '../supabase/client';
 import { Button } from './Button';
+import { markLoginTourPending } from '../utils/loginTour';
 
 // Usuaris de supabase/seed.sql. Aquest component només es renderitza en mode localdb (make dev),
 // i el build de producció l'elimina.
@@ -22,6 +23,7 @@ export const DevLogin: React.FC = () => {
     setLoadingEmail(email);
     setError(null);
     // onAuthStateChange (AuthContext) recull la sessió nova.
+    markLoginTourPending();
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password: SEED_PASSWORD });
     if (authError) {
       console.error('Error iniciant sessió amb l\'usuari de prova:', authError);
