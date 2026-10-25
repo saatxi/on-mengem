@@ -237,7 +237,7 @@ Permet provar sense tocar el projecte de Supabase al núvol. Cal Docker.
 1. *(Opcional, només per entrar amb el teu compte de Google)* A Google Cloud (part C), afegeix com a *Authorized redirect URI*: `http://127.0.0.1:54321/auth/v1/callback`, i omple `supabase/.env` amb `SUPABASE_AUTH_GOOGLE_CLIENT_ID` i `SUPABASE_AUTH_GOOGLE_SECRET` (el fitxer està ignorat per git).
 2. `make local`: arrenca Supabase (aplica les migracions i, el primer cop, les dades de prova), genera `.env.localdb` i engega l'app a `http://localhost:3000`.
 
-Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades i torna a carregar les de prova), `make db-test`, `make db-types`. `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
+Altres ordres (`make help` les llista totes): `make db-stop`, `make db-reset` (esborra les dades i torna a carregar les de prova), `make db-test`, `make db-types`, `make audit` (vulnerabilitats conegudes de les dependències, amb `npm audit`). `npm run dev` continua usant el `.env` del núvol. Studio és a `http://127.0.0.1:54323`.
 
 ### Dades de prova
 

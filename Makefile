@@ -10,7 +10,7 @@ ifneq ($(filter release,$(MAKECMDGOALS)),)
 $(RELEASE_ARG): ; @:
 endif
 
-.PHONY: help release local db-start db-stop db-status db-reset db-test db-types env dev clean-env
+.PHONY: help release local db-start db-stop db-status db-reset db-test db-types env dev audit clean-env
 
 help: ## Mostra aquesta ajuda
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -53,6 +53,9 @@ env: ## Genera .env.localdb amb la URL i la clau de Supabase local
 dev: ## Arrenca Vite contra la BD local (http://localhost:3000)
 	@test -f $(ENV_FILE) || $(MAKE) env
 	npx vite --mode localdb --port=3000 --host=0.0.0.0
+
+audit: ## Revisa les vulnerabilitats conegudes de les dependències (npm audit)
+	npm audit
 
 clean-env: ## Esborra .env.localdb
 	rm -f $(ENV_FILE) $(ENV_FILE).tmp
