@@ -13,7 +13,7 @@ export const WelcomeOnboarding: React.FC = () => {
     setLoginError(null);
     try {
       await loginWithGoogle();
-    } catch (err: any) {
+    } catch (err) {
       console.error(err);
       setLoginError('No s\'ha pogut completar l\'inici de sessió amb Google. Torna-ho a provar.');
       setGoogleLoading(false);

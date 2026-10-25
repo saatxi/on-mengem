@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { CalendarHeart, Share2 } from 'lucide-react';
 import { Restaurant, WishlistItem } from '../types';
-import { monthName, yearSummary, yearSummaryText, yearsWithVisits } from '../utils/stats';
+import { monthName, plural, yearSummary, yearSummaryText, yearsWithVisits } from '../utils/stats';
 import { useCountUp } from '../hooks/useCountUp';
 import { cn } from '../utils/cn';
 import { Modal, ModalHeader } from './Modal';
@@ -97,8 +97,6 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
     </Modal>
   );
 };
-
-const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 

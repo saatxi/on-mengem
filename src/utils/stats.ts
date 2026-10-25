@@ -226,7 +226,8 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
   };
 };
 
-const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+/** «1 visita», «3 visites». */
+export const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
 /** Nom del mes en català («gener», «octubre»…). */
 export const monthName = (month: number) => new Date(2000, month, 1).toLocaleDateString('ca', { month: 'long' });

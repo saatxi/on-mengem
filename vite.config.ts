@@ -1,6 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import path from 'path';
 import {defineConfig, loadEnv} from 'vite';
 import {VitePWA} from 'vite-plugin-pwa';
 import pkg from './package.json' with {type: 'json'};
@@ -43,7 +42,7 @@ export default defineConfig(({mode}) => {
       contentSecurityPolicy(env.VITE_SUPABASE_URL ?? ''),
       tailwindcss(),
       VitePWA({
-        // L'app avisa de les versions noves (UpdatePrompt) en lloc d'activar-les soles
+        // L'app avisa de les versions noves (UpdateProvider i UpdateButton) en lloc d'activar-les soles
         registerType: 'prompt',
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
         manifest: {
@@ -85,11 +84,6 @@ export default defineConfig(({mode}) => {
     build: {
       // Les fonts van sempre en fitxer: la CSP (font-src 'self') bloqueja les que Vite incrustaria com a data:
       assetsInlineLimit: (file: string) => (file.endsWith('.woff2') ? false : undefined),
-    },
-    resolve: {
-      alias: {
-        '@': path.resolve(import.meta.dirname, '.'),
-      },
     },
   };
 });
