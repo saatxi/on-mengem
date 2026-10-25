@@ -11,6 +11,10 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+# El codi de l'app va amb 2 espais (HTML, JSON i SQL es queden amb 4)
+[*.{ts,tsx,css}]
+indent_size = 2
+
 # Generat per "make db-types": no s'edita a mà.
 [src/supabase/database.types.ts]
 trim_trailing_whitespace = false
