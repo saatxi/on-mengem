@@ -607,7 +607,7 @@ function MainApp() {
         {/* TAB: RESUM */}
         {effectiveTab === 'stats' && (
           <div className="space-y-6">
-            <StatTiles restaurants={restaurants} wishlistCount={visibleWishlist.length} />
+            <StatTiles restaurants={restaurants} wishlist={visibleWishlist} />
             <CuisineStatsChart
               restaurants={restaurants}
               groupName={activeGroup?.name}

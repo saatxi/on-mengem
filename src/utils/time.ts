@@ -12,3 +12,11 @@ export const timeAgo = (dateStr: string | undefined, now = Date.now()): string =
   if (d < 7) return `fa ${d} dies`;
   return date.toLocaleDateString('ca', { day: 'numeric', month: 'short', year: d > 300 ? 'numeric' : undefined });
 };
+
+/** Si la data és del mes en curs (hora local). Accepta dates soles («2026-10-05») i instants ISO. */
+export const isInCurrentMonth = (dateStr: string | undefined, now = new Date()): boolean => {
+  if (!dateStr) return false;
+  // Una data sola és local; new Date() la llegiria com a UTC i podria canviar de mes
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(dateStr) ? new Date(`${dateStr}T00:00`) : new Date(dateStr);
+  return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+};
