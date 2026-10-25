@@ -1,6 +1,6 @@
 # Especificació de seguretat (Supabase RLS)
 
-Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 278 comprovacions).
+Totes les taules tenen RLS activada ([migracions](../supabase/migrations/)). Cada invariant i cada atac d'aquest document està verificat per [supabase/tests/rls.test.sql](../supabase/tests/rls.test.sql) (pgTAP, 307 comprovacions). L'esquema vigent és a `0001_schema.sql`; els fitxers `00NN_….sql` que cita aquest document són les migracions originals, consolidades i disponibles a l'historial de git (`git show 9c7ffb0:supabase/migrations/<fitxer>`).
 
 Executar-los: `npx supabase start` (requereix Docker) i després `npx supabase test db`. Si canvies una política, una funció o un trigger, actualitza el test corresponent i aquest document.
 

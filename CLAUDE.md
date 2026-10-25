@@ -31,7 +31,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - `src/supabase/realtime.ts`: `subscribeToChanges()` escolta els avisos dels canals privats `group:<id>` i `user:<id>` (Broadcast des dels triggers de la BD; les taules no són a la publicació de `postgres_changes`). Una taula nova que s'hagi de veure en directe necessita els triggers `broadcast_changes` i el seu cas a `change_topics()`.
 - `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
 - `src/types/index.ts`: tipus compartits.
-- `supabase/migrations/`: esquema, RLS i funcions. `0001_init.sql` és l'esquema inicial; cada canvi posterior va en una migració nova numerada (`0002_…`).
+- `supabase/migrations/`: esquema, RLS i funcions. `0001_schema.sql` és l'esquema complet (dump consolidat); cada canvi posterior va en una migració nova numerada (`0002_…`). Les migracions originals (0001–0024) són a l'historial de git (`git show 9c7ffb0:supabase/migrations/<fitxer>`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
 - `supabase/seed.sql`: dades de prova només per a local (`make db-reset`); si canvia l'esquema, mantén-lo al dia. `src/components/DevLogin.tsx` hi entra amb els usuaris de prova (només mode `localdb`).
 - `docs/CONFIGURACIO.md` (guia de configuració) i `docs/SEGURETAT.md` (especificació de seguretat).
@@ -50,7 +50,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 - L'app ja és en producció: **no modifiquis ni fusionis migracions existents**. Qualsevol canvi d'esquema, política o funció va en un fitxer nou a `supabase/migrations/` que s'aplica amb `npx supabase db push` (vegeu `docs/CONFIGURACIO.md`).
 - RLS és el límit de seguretat. Si canvies una política, funció o trigger, actualitza `supabase/tests/rls.test.sql` i `docs/SEGURETAT.md` al mateix commit.
-- Les taules noves de `public` no tenen privilegis per defecte (`0018_explicit_table_grants.sql`): cada `create table` va amb els seus `grant` a `authenticated` (només les operacions que tenen política) i a `service_role`, a la mateixa migració. El mateix per a vistes (amb `security_invoker = on`) i seqüències.
+- Les taules noves de `public` no tenen privilegis per defecte: cada `create table` va amb els seus `grant` a `authenticated` (només les operacions que tenen política) i a `service_role`, a la mateixa migració. El mateix per a vistes (amb `security_invoker = on`) i seqüències.
 - Mai `service_role` ni claus `sb_secret_` al client; només la clau pública (anon).
 - Files de BD en snake_case, tipus de l'app en camelCase: una columna nova implica `make db-types` i actualitzar `mappers.ts` i `types/index.ts`.
 - `groupId: null` / `group_id IS NULL` vol dir espai personal.

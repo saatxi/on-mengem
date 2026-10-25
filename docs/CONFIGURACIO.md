@@ -153,6 +153,20 @@ npx supabase migration repair --status applied 0001
 ```
 Repeteix-ho amb cada migració que ja hagis executat a mà (`0002`, …) i comprova-ho amb `npx supabase migration list --linked`.
 
+### Migracions consolidades
+
+Les migracions `0001`–`0024` es van consolidar en `0001_schema.sql` (un `pg_dump` de l'esquema de producció). Les originals, amb l'origen de cada mesura que cita `docs/SEGURETAT.md`, són a l'historial de git (`git show 9c7ffb0:supabase/migrations/<fitxer>`). Una BD que ja tenia les 24 migracions aplicades no necessita res més que deixar-ne una sola al registre:
+
+```sql
+delete from supabase_migrations.schema_migrations;
+```
+```bash
+npx supabase migration repair --status applied 0001
+npx supabase db push --dry-run   # ha de dir «Remote database is up to date»
+```
+
+El dump crea les FK en el mateix ordre que les migracions originals: Postgres executa els `on delete cascade` en ordre de creació, i l'esborrat de comptes en depèn. Si mai el regeneres, conserva aquest ordre i afegeix-hi el que `pg_dump --schema=public` no inclou (triggers d'`auth.users`, política de `realtime.messages`, `grant`/`revoke` de taules i funcions).
+
 > **Per buidar la BD i tornar a aplicar des de zero:** `npx supabase db reset --linked`. Esborra totes les dades i torna a aplicar les migracions. No facis servir `drop schema public cascade; create schema public;`: l'esquema nou no té els permisos per defecte de Supabase (`anon`, `authenticated`) i l'app falla amb `permission denied for schema public`. A més, `supabase db push` no torna a aplicar les migracions que ja consten com a aplicades.
 
 ---
@@ -168,7 +182,7 @@ Repeteix-ho amb cada migració que ja hagis executat a mà (`0002`, …) i compr
 | "Falten VITE_SUPABASE_URL…" a la consola | Falta `.env` o no has reiniciat el servidor | Crea el `.env` i reinicia |
 | El client no connecta | La URL acaba en `/rest/v1/` | Treu aquest final (E1.4) |
 | `permission denied for schema public` (42501) | S'ha recreat l'esquema `public` a mà i ha perdut els permisos per defecte | `supabase db reset --linked`, o restaura els `grant` sobre l'esquema |
-| `permission denied for table …` (42501) en una taula nova | Les taules noves de `public` no reben privilegis per defecte (`0018`) | Afegeix els `grant` a la migració que crea la taula (vegeu `docs/SEGURETAT.md`, invariant 20) |
+| `permission denied for table …` (42501) en una taula nova | Les taules noves de `public` no reben privilegis per defecte | Afegeix els `grant` a la migració que crea la taula (vegeu `docs/SEGURETAT.md`, invariant 20) |
 
 ## Quan publiquis l'app a Cloudflare
 
@@ -224,7 +238,7 @@ La vista de mapa dels restaurants fa servir [Leaflet](https://leafletjs.com) amb
 - Nominatim només es consulta quan l'usuari desa un restaurant amb una adreça nova o prem «Ubicar-los» al mapa, com a màxim una petició per segon (`src/utils/geocode.ts`). Res d'autocompletat ni de consultes automàtiques en segon pla.
 - Són serveis de voluntaris sense garanties: si no responen, el restaurant es desa igualment sense ubicació i es pot ubicar més tard des del mapa. Si l'ús creix molt, cal passar a un proveïdor amb clau (p. ex. MapTiler), canviant la URL de `src/components/RestaurantMap.tsx` i `src/utils/geocode.ts` i la CSP.
 
-Les coordenades es guarden a les columnes `lat` i `lng` de `restaurants` (migració `0016_restaurant_coordinates.sql`, que s'aplica amb `npx supabase db push` com les altres). Els restaurants que ja existien abans no tenen coordenades: surten al mapa un cop algú prem «Ubicar-los» o els torna a desar.
+Les coordenades es guarden a les columnes `lat` i `lng` de `restaurants` (originalment, migració `0016_restaurant_coordinates.sql`). Els restaurants que ja existien abans no tenen coordenades: surten al mapa un cop algú prem «Ubicar-los» o els torna a desar.
 
 ## Nota sobre el pla gratuït
 

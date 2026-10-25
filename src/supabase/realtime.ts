@@ -1,7 +1,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from './client';
 
-/** Taules que avisen dels seus canvis (trigger broadcast_changes a supabase/migrations/0015_realtime_broadcast.sql). */
+/** Taules que avisen dels seus canvis (trigger broadcast_changes a supabase/migrations/0001_schema.sql). */
 export type ChangedTable =
   | 'restaurants'
   | 'restaurant_visits'

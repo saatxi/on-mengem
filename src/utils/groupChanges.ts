@@ -1,6 +1,6 @@
 import { GroupChange, GroupChangeItemType, WishlistStatus } from '../types';
 
-// Noms dels camps que desa l'historial (history_fields a supabase/migrations/0013_group_history.sql)
+// Noms dels camps que desa l'historial (history_fields a supabase/migrations/0001_schema.sql)
 const FIELD_LABELS: Record<GroupChangeItemType, Record<string, string>> = {
   restaurant: {
     name: 'Nom',
