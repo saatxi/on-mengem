@@ -104,6 +104,8 @@ function MainApp() {
   const [showProfile, setShowProfile] = useState(false);
   // Es guarda l'id i no l'objecte perquè el detall reflecteixi els canvis en temps real
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
+  // Restaurant triat amb «Sorprèn-me»: el detall el destaca i permet tornar a tirar
+  const [randomPickId, setRandomPickId] = useState<string | null>(null);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
   const [shareTarget, setShareTarget] = useState<
     | { mode: 'copy' | 'move'; type: 'restaurant' | 'wishlist'; id: string; name: string }
@@ -191,9 +193,17 @@ function MainApp() {
 
   // «On mengem avui?»: obre un restaurant a l'atzar d'entre els que es veuen amb els filtres actuals
   const openRandomRestaurant = () => {
-    if (filteredRestaurants.length === 0) return;
-    const pick = filteredRestaurants[Math.floor(Math.random() * filteredRestaurants.length)];
+    // En tornar a tirar no surt el mateix restaurant (si n'hi ha d'altres)
+    const candidates = filteredRestaurants.length > 1 ? filteredRestaurants.filter((r) => r.id !== selectedRestaurantId) : filteredRestaurants;
+    if (candidates.length === 0) return;
+    const pick = candidates[Math.floor(Math.random() * candidates.length)];
     setSelectedRestaurantId(pick.id);
+    setRandomPickId(pick.id);
+  };
+
+  const closeRestaurantDetail = () => {
+    setSelectedRestaurantId(null);
+    setRandomPickId(null);
   };
 
   const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
@@ -663,18 +673,19 @@ function MainApp() {
 
       <RestaurantDetailModal
         restaurant={selectedRestaurant}
-        onClose={() => setSelectedRestaurantId(null)}
+        onClose={closeRestaurantDetail}
+        onReroll={selectedRestaurantId !== null && selectedRestaurantId === randomPickId ? openRandomRestaurant : undefined}
         onEdit={setEditingRestaurant}
         onToggleFavorite={toggleFavorite}
         onDelete={deleteRestaurant}
         onRegisterVisit={(r, v) => setVisitTarget({ restaurant: r, visit: v })}
         onDeleteVisit={deleteVisit}
         onCopyToGroup={(r) => {
-          setSelectedRestaurantId(null);
+          closeRestaurantDetail();
           setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
         }}
         onMoveToGroup={isPersonal ? (r) => {
-          setSelectedRestaurantId(null);
+          closeRestaurantDetail();
           setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
         } : undefined}
       />

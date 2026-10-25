@@ -15,9 +15,11 @@ import {
   Globe,
   Plus,
   ClipboardList,
+  Dices,
 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
+import { Button } from './Button';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
 import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
@@ -28,6 +30,8 @@ import { useGroupMembers } from '../hooks/useGroupMembers';
 interface Props {
   restaurant: Restaurant | null;
   onClose: () => void;
+  /** Només si s'ha obert amb «Sorprèn-me»: destaca el detall i permet tirar de nou. */
+  onReroll?: () => void;
   onEdit: (r: Restaurant) => void;
   onToggleFavorite: (r: Restaurant) => void;
   onDelete: (id: string) => void;
@@ -40,6 +44,7 @@ interface Props {
 export const RestaurantDetailModal: React.FC<Props> = ({
   restaurant,
   onClose,
+  onReroll,
   onEdit,
   onToggleFavorite,
   onDelete,
@@ -78,7 +83,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
     iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
 
   return (
-    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} size="lg">
+    <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} size="lg" className={onReroll && 'border-beam'}>
       {/* Capçalera */}
       <div className="sticky top-0 z-10 flex items-start justify-between gap-3 px-5 sm:px-6 pt-4 pb-3 bg-surface/90 backdrop-blur-md border-b border-stone-100">
         <div className="min-w-0">
@@ -133,6 +138,19 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
       {/* Content */}
       <div className="p-5 sm:p-6 space-y-4">
+        {onReroll && (
+          // La key torna a reproduir l'entrada cada vegada que el dau tria un altre restaurant
+          <div key={restaurant.id} className="flex items-center justify-between gap-3 animate-scale-in">
+            <p className="flex items-center gap-2 text-sm font-bold text-accent">
+              <Dices className="w-4 h-4" />
+              Avui toca anar aquí!
+            </p>
+            <Button onClick={onReroll} variant="secondary" size="sm">
+              <Dices className="w-3.5 h-3.5" />
+              Tornar a tirar
+            </Button>
+          </div>
+        )}
         {/* Notes */}
         {restaurant.notes ? (
           <div className="p-4 rounded-2xl bg-accent-soft/70">

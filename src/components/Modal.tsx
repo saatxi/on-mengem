@@ -8,6 +8,8 @@ interface Props {
   onClose: () => void;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg';
+  /** Classes extra del panell (p. ex. border-beam per destacar-lo). */
+  className?: string;
 }
 
 const SIZES = {
@@ -26,7 +28,7 @@ const openModals: symbol[] = [];
 let ignoreNextPopState = false;
 
 // Al mòbil és un full que puja des de baix; a partir de `sm`, un diàleg centrat.
-export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }) => {
+export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', className }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   // onClose sol ser una funció nova a cada render: es guarda en una ref perquè l'efecte només s'executi en muntar.
   const onCloseRef = useRef(onClose);
@@ -107,6 +109,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md' }
           'max-h-[calc(100dvh-1.5rem)] rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up',
           'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:pb-0 sm:ring-1 sm:ring-stone-900/5 sm:animate-scale-in',
           SIZES[size],
+          className,
         )}
       >
         <div aria-hidden="true" className="sm:hidden mx-auto mt-2 -mb-1 h-1.5 w-10 shrink-0 rounded-full bg-stone-300" />
