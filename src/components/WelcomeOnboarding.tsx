@@ -21,8 +21,14 @@ export const WelcomeOnboarding: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-surface rounded-[2rem] p-6 sm:p-9 shadow-2xl shadow-accent/10 ring-1 ring-stone-900/5 text-center">
+    <div className="relative isolate overflow-hidden min-h-screen flex flex-col justify-center items-center p-4">
+      {/* Fons «aurora»: taques difuminades dels colors de marca que es mouen a poc a poc */}
+      <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-40 pointer-events-none">
+        <div className="absolute -top-20 left-[10%] size-80 rounded-full bg-accent blur-3xl animate-drift-1" />
+        <div className="absolute -bottom-28 right-[8%] size-80 rounded-full bg-accent-2 blur-3xl animate-drift-2" />
+        <div className="absolute top-1/3 left-[55%] size-56 rounded-full bg-amber-400 blur-3xl animate-drift-3" />
+      </div>
+      <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[2rem] p-6 sm:p-9 shadow-2xl shadow-accent/10 ring-1 ring-stone-900/5 text-center">
         {/* Brand Icon */}
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-brand text-white shadow-xl shadow-accent/30 mb-5 -rotate-6">
           <Utensils className="w-10 h-10" />

@@ -2,6 +2,7 @@ import React from 'react';
 import { Check, Globe, MapPin, Plus, Star } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
+import { CuisineTile } from './CuisineTile';
 import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
@@ -24,8 +25,9 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
 
   return (
     <article className={cn(CARD, 'group relative flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200')}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3">
+        <CuisineTile cuisine={res.cuisine} />
+        <div className="min-w-0 flex-1">
           <h3 className="text-lg font-extrabold tracking-tight leading-snug text-stone-900 group-hover:text-accent transition-colors">
             <button
               type="button"

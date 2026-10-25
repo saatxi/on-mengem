@@ -440,7 +440,7 @@ function MainApp() {
                 />
               </Suspense>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
                 {filteredRestaurants.map((res) => (
                   <RestaurantCard
                     key={res.id}
@@ -527,7 +527,7 @@ function MainApp() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger">
                 {filteredWishlist.map((item) => (
                   <WishlistCard
                     key={item.id}

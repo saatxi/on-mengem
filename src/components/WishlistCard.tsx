@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Pencil, Trash2 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
+import { CuisineTile } from './CuisineTile';
 import { WishlistItem } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
@@ -27,8 +28,9 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
 
   return (
     <article className={cn(CARD, 'flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200')}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className="flex items-start gap-3">
+        <CuisineTile cuisine={item.cuisine} />
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="text-lg font-extrabold tracking-tight leading-snug text-stone-900">{item.restaurantName}</h3>
             {item.status === 'visited' && (

@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Restaurant, Visit } from '../types';
 import {
   canEditVisit,
+  CUISINES,
+  cuisineStyle,
   INSTAGRAM_INPUT_PATTERN,
   isInstagramHandle,
   localToday,
@@ -170,5 +172,18 @@ describe('sortRestaurants', () => {
   it('no modifica la llista original', () => {
     sortRestaurants(list, 'name');
     expect(names(list)).toEqual(['Bar Pinotxo', 'àbac', 'Can Culleretes']);
+  });
+});
+
+describe('cuisineStyle', () => {
+  it('totes les cuines de la llista tenen emoji propi', () => {
+    for (const cuisine of CUISINES) {
+      expect(cuisineStyle(cuisine).emoji, cuisine).not.toBe(cuisineStyle(undefined).emoji);
+    }
+  });
+
+  it('les cuines desconegudes o buides tenen el plat genèric', () => {
+    expect(cuisineStyle('Marciana')).toEqual(cuisineStyle(''));
+    expect(cuisineStyle(undefined).emoji).toBe('🍽️');
   });
 });
