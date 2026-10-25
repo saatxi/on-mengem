@@ -3,46 +3,43 @@ import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
 import { isVisited } from '../utils/restaurantFields';
+import { cuisineRows, type CuisineRow } from '../utils/stats';
 import { Utensils, Award, CheckCircle, TrendingUp, Flame, Star } from 'lucide-react';
 
 interface Props {
   restaurants: Restaurant[];
   groupName?: string;
+  /** Mida de tota la col·lecció, quan `restaurants` només en té una part (p. ex. els visitats aquest any). */
+  collectionSize?: number;
 }
 
-interface CuisineRow {
-  cuisine: string;
-  visits: number;
-  favorites: number;
-  total: number;
-}
-
-type ViewMode = 'visits' | 'total';
+type ViewMode = 'visits' | 'total' | 'rating';
 
 const VIEW_LABELS: Record<ViewMode, string> = {
   visits: 'Per visites',
   total: 'Per restaurants',
+  rating: 'Per nota',
 };
 
-export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) => {
+const VIEW_DESCRIPTIONS: Record<ViewMode, string> = {
+  visits: ', segons les visites.',
+  total: ', segons els restaurants guardats.',
+  rating: ', segons la nota mitjana.',
+};
+
+// Valor de la barra; les cuines sense cap nota compten com a 0
+const rowValue = (row: CuisineRow, mode: ViewMode) => row[mode] ?? 0;
+
+export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName, collectionSize = restaurants.length }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('visits');
 
-  const rows = useMemo(() => {
-    const byCuisine = new Map<string, CuisineRow>();
-    for (const r of restaurants) {
-      const cuisine = r.cuisine?.trim() || 'Altres';
-      const row = byCuisine.get(cuisine) ?? { cuisine, visits: 0, favorites: 0, total: 0 };
-      row.total += 1;
-      // «Visites» suma les visites reals de cada restaurant
-      row.visits += r.visits.length;
-      if (r.favorite) row.favorites += 1;
-      byCuisine.set(cuisine, row);
-    }
-    return Array.from(byCuisine.values());
-  }, [restaurants]);
+  const rows = useMemo(() => cuisineRows(restaurants), [restaurants]);
 
   const sortedRows = useMemo(
-    () => [...rows].sort((a, b) => b[viewMode] - a[viewMode] || b.favorites - a.favorites || a.cuisine.localeCompare(b.cuisine, 'ca')),
+    () =>
+      [...rows].sort(
+        (a, b) => rowValue(b, viewMode) - rowValue(a, viewMode) || b.favorites - a.favorites || a.cuisine.localeCompare(b.cuisine, 'ca'),
+      ),
     [rows, viewMode],
   );
 
@@ -53,7 +50,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
   const topVisited = topBy('visits');
   const topFavorite = topBy('favorites');
   const totalVisited = restaurants.filter(isVisited).length;
-  const maxValue = Math.max(1, ...sortedRows.map((row) => row[viewMode]));
+  const maxValue = viewMode === 'rating' ? 5 : Math.max(1, ...sortedRows.map((row) => rowValue(row, viewMode)));
 
   if (restaurants.length === 0) {
     return (
@@ -79,18 +76,18 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
           </div>
           <p className="text-xs text-stone-500 mt-0.5">
             {groupName ? `Les cuines del grup «${groupName}»` : 'Les cuines del teu espai'}
-            {viewMode === 'visits' ? ', segons les visites.' : ', segons els restaurants guardats.'}
+            {VIEW_DESCRIPTIONS[viewMode]}
           </p>
         </div>
 
-        <div className="flex items-center rounded-full bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Ordre del gràfic">
+        <div className="flex items-center max-w-full overflow-x-auto rounded-full bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Ordre del gràfic">
           {(Object.keys(VIEW_LABELS) as ViewMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
               aria-pressed={viewMode === mode}
               className={cn(
-                'px-3.5 py-1.5 rounded-full transition-[background-color,color,box-shadow]',
+                'shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full transition-[background-color,color,box-shadow]',
                 viewMode === mode ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-500 hover:text-stone-800',
               )}
             >
@@ -129,17 +126,17 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
             <span>Restaurants visitats</span>
           </div>
           <div className="text-xl font-extrabold tracking-tight text-stone-900 tabular-nums">
-            {totalVisited} de {restaurants.length}
+            {totalVisited} de {collectionSize}
           </div>
           <div className="text-xs text-stone-600 mt-0.5">
-            {Math.round((totalVisited / restaurants.length) * 100)}% de la col·lecció provada
+            {Math.round((totalVisited / Math.max(1, collectionSize)) * 100)}% de la col·lecció provada
           </div>
         </div>
       </div>
 
       <ul className="space-y-2.5" aria-label={`Cuines ${VIEW_LABELS[viewMode].toLowerCase()}`}>
         {sortedRows.map((row) => {
-          const value = row[viewMode];
+          const value = rowValue(row, viewMode);
           return (
             <li key={row.cuisine} className="grid grid-cols-[minmax(0,7.5rem)_1fr_auto] items-center gap-3 text-xs">
               <span className="truncate font-semibold text-stone-700" title={row.cuisine}>
@@ -152,7 +149,9 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName }) =
                 />
               </div>
               <span className="flex items-center gap-2 justify-end tabular-nums">
-                <strong className="w-6 text-right text-stone-800">{value}</strong>
+                <strong className={cn('text-right text-stone-800', viewMode === 'rating' ? 'w-7' : 'w-6')}>
+                  {viewMode !== 'rating' ? value : row.rating == null ? '—' : value.toFixed(1)}
+                </strong>
                 <span
                   className={cn('flex items-center gap-0.5 w-7 text-amber-600', row.favorites === 0 && 'invisible')}
                   title={`${row.favorites} favorits`}

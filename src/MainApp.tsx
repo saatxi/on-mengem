@@ -15,6 +15,9 @@ import { GroupMembers } from './components/GroupMembers';
 import { GroupHistory } from './components/GroupHistory';
 import { CuisineStatsChart } from './components/CuisineStatsChart';
 import { StatTiles } from './components/StatTiles';
+import { ActivityChart } from './components/ActivityChart';
+import { RankingsCard } from './components/RankingsCard';
+import { PriceStatsCard } from './components/PriceStatsCard';
 import { AlertsFeed } from './components/AlertsFeed';
 import { BottomNav } from './components/BottomNav';
 import { RestaurantCard } from './components/RestaurantCard';
@@ -26,6 +29,7 @@ import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type Restau
 import { VisitModal } from './components/VisitModal';
 import { WelcomeTour } from './components/WelcomeTour';
 import { consumeLoginTourPending } from './utils/loginTour';
+import { filterByPeriod, type StatsPeriod } from './utils/stats';
 import { useRestaurantLink } from './hooks/useRestaurantLink';
 import { isBoolean, isString, oneOf, usePersistentState } from './hooks/usePersistentState';
 import { Utensils, UtensilsCrossed, Sparkles, BookmarkPlus, Users, Bell, Search, Plus, Star, Share2, Copy, Check, BarChart3, X, Dices, List, Map as MapIcon } from 'lucide-react';
@@ -44,6 +48,8 @@ type RestaurantView = (typeof RESTAURANT_VIEWS)[number];
 
 const VISITED_FILTERS = { all: 'Tots', visited: 'Visitats', not_visited: 'Per anar' } as const;
 type VisitedFilter = keyof typeof VISITED_FILTERS;
+
+const STATS_PERIODS: Record<StatsPeriod, string> = { year: 'Aquest any', all: 'Sempre' };
 
 const WISHLIST_FILTERS = { all: 'Tots', pending: 'Pendents', planned: 'Planificats', visited: 'Provats' } as const;
 type WishlistFilter = keyof typeof WISHLIST_FILTERS;
@@ -125,6 +131,7 @@ export function MainApp() {
   const [wishlistQuery, setWishlistQuery] = useState('');
   const [wishlistFilter, setWishlistFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOf(...keysOf(WISHLIST_FILTERS)));
   const [copiedGroupCode, setCopiedGroupCode] = useState(false);
+  const [statsPeriod, setStatsPeriod] = usePersistentState<StatsPeriod>('stats-period', 'all', oneOf(...keysOf(STATS_PERIODS)));
 
   // Avís d'èxit (amb acció opcional, p. ex. «Desfer»)
   const [notice, setNotice] = useState<{ message: string; action?: { label: string; onClick: () => void } } | null>(null);
@@ -193,6 +200,8 @@ export function MainApp() {
     setSelectedRestaurantId(null);
     setRandomPickId(null);
   };
+
+  const periodRestaurants = filterByPeriod(restaurants, statsPeriod);
 
   const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
   const filteredWishlist = visibleWishlist.filter(
@@ -593,10 +602,25 @@ export function MainApp() {
         {effectiveTab === 'stats' && (
           <div className="space-y-6">
             <StatTiles restaurants={restaurants} wishlist={visibleWishlist} />
+            <ActivityChart restaurants={restaurants} />
+
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-bold text-stone-600">Rànquings i preferències</h2>
+              <div className="flex items-center rounded-full bg-stone-200/60 p-1 text-xs" role="group" aria-label="Període">
+                {keysOf(STATS_PERIODS).map((period) => (
+                  <button key={period} onClick={() => setStatsPeriod(period)} aria-pressed={statsPeriod === period} className={segmentClass(statsPeriod === period)}>
+                    {STATS_PERIODS[period]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <RankingsCard restaurants={periodRestaurants} allRestaurants={restaurants} onSelect={setSelectedRestaurantId} />
             <CuisineStatsChart
-              restaurants={restaurants}
+              restaurants={periodRestaurants}
               groupName={activeGroup?.name}
+              collectionSize={restaurants.length}
             />
+            <PriceStatsCard restaurants={periodRestaurants} />
           </div>
         )}
 
