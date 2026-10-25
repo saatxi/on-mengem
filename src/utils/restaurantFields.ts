@@ -1,54 +1,54 @@
 // Camps compartits pels formularis de restaurants i desitjats.
 
 export const CUISINES = [
-  'Mediterrània',
-  'Espanyola',
-  'Catalana',
+  'Americana',
+  'Asiàtica',
+  'Bar',
   'Basca',
+  'Brunch',
+  'Cafè',
+  'Catalana',
+  'Cerveseria',
+  'Esmorzar',
+  'Espanyola',
+  'Fleca',
+  'Graella',
+  'Índia',
   'Italiana',
   'Japonesa',
-  'Asiàtica',
-  'Índia',
-  'Orient Mitjà',
-  'Americana',
   'Marisc',
-  'Bar',
-  'Cerveseria',
-  'Vinoteca',
-  'Cafè',
-  'Fleca',
-  'Postres',
-  'Esmorzar',
-  'Brunch',
-  'Graella',
+  'Mediterrània',
   'Menjar ràpid',
+  'Orient Mitjà',
+  'Postres',
   'Vegetariana',
+  'Vinoteca',
 ];
 
 // Emoji i to (hue OKLCH del fons bg-cuisine) de cada cuina
 export const CUISINE_STYLES: Record<string, { emoji: string; hue: number }> = {
-  'Mediterrània': { emoji: '🫒', hue: 130 },
-  'Espanyola': { emoji: '🥘', hue: 45 },
-  'Catalana': { emoji: '🍅', hue: 30 },
+  'Americana': { emoji: '🍔', hue: 50 },
+  'Asiàtica': { emoji: '🥢', hue: 350 },
+  'Bar': { emoji: '🍸', hue: 200 },
   'Basca': { emoji: '🍢', hue: 60 },
+  'Brunch': { emoji: '🥞', hue: 65 },
+  'Cafè': { emoji: '☕', hue: 60 },
+  'Catalana': { emoji: '🍅', hue: 30 },
+  'Cerveseria': { emoji: '🍺', hue: 90 },
+  'Esmorzar': { emoji: '🥐', hue: 80 },
+  'Espanyola': { emoji: '🥘', hue: 45 },
+  'Fleca': { emoji: '🥖', hue: 75 },
+  'Graella': { emoji: '🥩', hue: 20 },
+  'Índia': { emoji: '🍛', hue: 70 },
   'Italiana': { emoji: '🍝', hue: 25 },
   'Japonesa': { emoji: '🍣', hue: 10 },
-  'Asiàtica': { emoji: '🥢', hue: 350 },
-  'Índia': { emoji: '🍛', hue: 70 },
-  'Orient Mitjà': { emoji: '🧆', hue: 85 },
-  'Americana': { emoji: '🍔', hue: 50 },
   'Marisc': { emoji: '🦐', hue: 230 },
-  'Bar': { emoji: '🍸', hue: 200 },
-  'Cerveseria': { emoji: '🍺', hue: 90 },
-  'Vinoteca': { emoji: '🍷', hue: 320 },
-  'Cafè': { emoji: '☕', hue: 60 },
-  'Fleca': { emoji: '🥖', hue: 75 },
-  'Postres': { emoji: '🍰', hue: 350 },
-  'Esmorzar': { emoji: '🥐', hue: 80 },
-  'Brunch': { emoji: '🥞', hue: 65 },
-  'Graella': { emoji: '🥩', hue: 20 },
+  'Mediterrània': { emoji: '🫒', hue: 130 },
   'Menjar ràpid': { emoji: '🍟', hue: 95 },
+  'Orient Mitjà': { emoji: '🧆', hue: 85 },
+  'Postres': { emoji: '🍰', hue: 350 },
   'Vegetariana': { emoji: '🥗', hue: 145 },
+  'Vinoteca': { emoji: '🍷', hue: 320 },
 };
 
 const DEFAULT_CUISINE_STYLE = { emoji: '🍽️', hue: 40 };
@@ -56,7 +56,7 @@ const DEFAULT_CUISINE_STYLE = { emoji: '🍽️', hue: 40 };
 /** Emoji i to d'una cuina; les desconegudes o buides tenen el plat genèric. */
 export const cuisineStyle = (cuisine?: string) => (cuisine && CUISINE_STYLES[cuisine]) || DEFAULT_CUISINE_STYLE;
 
-export const PRICE_RANGES =['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'];
+export const PRICE_RANGES = ['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'];
 export const DEFAULT_PRICE_RANGE = '10-20 €';
 
 // Patró de l'input: «@usuari», «usuari» o un enllaç a instagram.com (compatible amb la bandera `v`)
@@ -108,7 +108,7 @@ export const visitAverage = (r: Restaurant): number | null => {
 };
 
 /** Retorna cert si l'usuari pot editar o esborrar la visita.
- * Equivalent a la funció SQL can_edit_visit, però al client. */
+* Equivalent a la funció SQL can_edit_visit, però al client. */
 export const canEditVisit = (visit: Visit, uid: string): boolean => {
   if (visit.groupId === null) return visit.createdBy === uid;
   return visit.shared || visit.createdBy === uid || visit.createdBy == null;
