@@ -1124,12 +1124,23 @@ insert into public.wishlist (id, group_id, restaurant_name, user_id) values
   ('30000000-0000-0000-0000-000000000080', '10000000-0000-0000-0000-000000000008', 'Desitjat de Quim', '00000000-0000-0000-0000-0000000000c9'),
   ('30000000-0000-0000-0000-000000000081', '10000000-0000-0000-0000-000000000008', 'Desitjat de Rut', '00000000-0000-0000-0000-0000000000ca'),
   ('30000000-0000-0000-0000-000000000082', '10000000-0000-0000-0000-000000000008', 'Desitjat de Sara', '00000000-0000-0000-0000-0000000000cb');
+insert into public.restaurant_visits (id, restaurant_id, group_id, visited_on, rating, shared, created_by) values
+  ('50000000-0000-0000-0000-000000000080', '20000000-0000-0000-0000-000000000081', '10000000-0000-0000-0000-000000000008',
+   current_date, 3.0, false, '00000000-0000-0000-0000-0000000000c9');
 
 -- L'owner no surt del grup ni quan el DELETE no passa per members_delete (p. ex. una sortida simultània a una cessió)
 select throws_ok($$ delete from public.group_members
                     where group_id = '10000000-0000-0000-0000-000000000008' and user_id = '00000000-0000-0000-0000-0000000000c8' $$,
                  'P0001', 'L''owner no pot sortir del grup: cedeix-lo o esborra''l',
                  'protect_group_owner no deixa treure l''owner de group_members');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000cb","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000cb', true);
+set local role authenticated;
+select throws_ok($$ select public.save_visit('20000000-0000-0000-0000-000000000081', current_date, 1.0, '', '{}', false,
+                                             '50000000-0000-0000-0000-000000000080') $$,
+                 'P0001', 'No pots editar aquesta visita', 'sara no pot editar la visita privada de quim mentre és al grup');
+reset role;
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c9","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c9', true);
@@ -1183,6 +1194,16 @@ select isnt_empty($$ delete from public.restaurants where id = '20000000-0000-00
                   'l''autor que encara és membre pot esborrar el seu restaurant del grup');
 select isnt_empty($$ delete from public.wishlist where id = '30000000-0000-0000-0000-000000000082' returning 1 $$,
                   'l''autor que encara és membre pot esborrar el seu desitjat del grup');
+-- Visita privada d'un autor que ja no és al grup: com si hagués esborrat el compte
+select lives_ok($$ select public.save_visit('20000000-0000-0000-0000-000000000081', current_date, 5.0, 'Editada per sara',
+                                            '{}', false, '50000000-0000-0000-0000-000000000080') $$,
+                'sara pot editar la visita privada de quim després que surti del grup');
+select throws_ok($$ select public.save_visit('20000000-0000-0000-0000-000000000081', current_date, 5.0, '', '{}', true,
+                                             '50000000-0000-0000-0000-000000000080') $$,
+                 'P0001', 'Només l''autor pot canviar si la visita és privada',
+                 'sara no pot fer grupal la visita privada de quim');
+select lives_ok($$ select public.delete_visit('50000000-0000-0000-0000-000000000080') $$,
+                'sara pot esborrar la visita privada de quim després que surti del grup');
 reset role;
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c8","role":"authenticated"}', true);

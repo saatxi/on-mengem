@@ -96,19 +96,25 @@ describe('localToday', () => {
 });
 
 describe('canEditVisit', () => {
+  const members = ['alice', 'bob'];
+
   it('a l\'espai personal només l\'autor', () => {
-    expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'alice')).toBe(true);
-    expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'bob')).toBe(false);
+    expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'alice', [])).toBe(true);
+    expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'bob', [])).toBe(false);
   });
 
   it('en un grup, una visita grupal la pot editar qualsevol membre', () => {
-    expect(canEditVisit(visit({ shared: true, createdBy: 'alice' }), 'bob')).toBe(true);
+    expect(canEditVisit(visit({ shared: true, createdBy: 'alice' }), 'bob', members)).toBe(true);
   });
 
   it('en un grup, una visita privada només l\'autor, o tothom si l\'autor ha esborrat el compte', () => {
-    expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'alice')).toBe(true);
-    expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'bob')).toBe(false);
-    expect(canEditVisit(visit({ shared: false, createdBy: undefined }), 'bob')).toBe(true);
+    expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'alice', members)).toBe(true);
+    expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'bob', members)).toBe(false);
+    expect(canEditVisit(visit({ shared: false, createdBy: undefined }), 'bob', members)).toBe(true);
+  });
+
+  it('en un grup, una visita privada la pot editar qualsevol membre si l\'autor ja no hi és', () => {
+    expect(canEditVisit(visit({ shared: false, createdBy: 'carol' }), 'bob', members)).toBe(true);
   });
 });
 

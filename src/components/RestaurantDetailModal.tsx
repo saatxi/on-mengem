@@ -315,7 +315,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             </div>
             <div className="space-y-2">
               {restaurant.visits.map((v) => {
-                const canEdit = canEditVisit(v, uid);
+                const canEdit = canEditVisit(v, uid, activeGroup?.memberUids ?? []);
                 const attendeeNames = v.attendeeIds
                   .map((id) => members[id]?.nickname ?? (id === uid ? (userProfile?.nickname || 'Tu') : null))
                   .filter(Boolean)

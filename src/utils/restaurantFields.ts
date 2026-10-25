@@ -110,10 +110,12 @@ export const visitAverage = (r: Restaurant): number | null => {
 };
 
 /** Retorna cert si l'usuari pot editar o esborrar la visita.
-* Equivalent a la funció SQL can_edit_visit, però al client. */
-export const canEditVisit = (visit: Visit, uid: string): boolean => {
+* Equivalent a la funció SQL can_edit_visit, però al client: memberUids són els membres del grup de la visita. */
+export const canEditVisit = (visit: Visit, uid: string, memberUids: readonly string[]): boolean => {
   if (visit.groupId === null) return visit.createdBy === uid;
-  return visit.shared || visit.createdBy === uid || visit.createdBy == null;
+  // Si l'autor ha esborrat el compte o ja no és al grup, la visita privada la pot editar qualsevol membre.
+  const authorGone = visit.createdBy == null || !memberUids.includes(visit.createdBy);
+  return visit.shared || visit.createdBy === uid || authorGone;
 };
 
 // Cerca
