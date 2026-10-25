@@ -5,6 +5,7 @@ import { forgotten, mostRepeated, topRated, type RankedRestaurant } from '../uti
 import { cuisineStyle } from '../utils/restaurantFields';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
+import { SegmentedControl } from './SegmentedControl';
 
 interface Props {
   /** Restaurants del període triat (millor valorats i més repetits). */
@@ -58,21 +59,7 @@ export const RankingsCard: React.FC<Props> = ({ restaurants, allRestaurants, onS
           </p>
         </div>
 
-        <div className="flex items-center max-w-full overflow-x-auto rounded-full bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Rànquing">
-          {(Object.keys(MODE_LABELS) as RankingMode[]).map((m) => (
-            <button
-              key={m}
-              onClick={() => setMode(m)}
-              aria-pressed={mode === m}
-              className={cn(
-                'shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full transition-[background-color,color,box-shadow]',
-                mode === m ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-500 hover:text-stone-800',
-              )}
-            >
-              {MODE_LABELS[m]}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl label="Rànquing" options={MODE_LABELS} value={mode} onChange={setMode} />
       </div>
 
       {ranked.length === 0 ? (

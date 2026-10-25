@@ -24,13 +24,15 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 ## Estructura
 
 - `src/App.tsx`: proveïdors i porta d'entrada (càrrega, onboarding o pantalla principal). `src/MainApp.tsx`: pantalla principal (pestanyes i estat dels modals), carregada amb `lazy()` perquè l'inici de sessió no la descarregui.
-- `src/components/`: components i modals.
+- `src/components/`: components i modals. Cada pestanya té el seu component (`RestaurantsTab`, `WishlistTab`, `GroupTab`, `StatsTab`); `MainApp` hi connecta les dades i els modals. `SegmentedControl` és el selector de píndoles (filtres, vistes, períodes).
 - `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
+- `src/hooks/useRestaurantFilters.ts`: cerca, filtres i ordre dels restaurants (a `MainApp`, perquè «Sorprèn-me» del detall tria d'entre els filtrats).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
 - `src/supabase/realtime.ts`: `subscribeToChanges()` escolta els avisos dels canals privats `group:<id>` i `user:<id>` (Broadcast des dels triggers de la BD; les taules no són a la publicació de `postgres_changes`). Una taula nova que s'hagi de veure en directe necessita els triggers `broadcast_changes` i el seu cas a `change_topics()`.
 - `src/supabase/database.types.ts`: tipus generats amb `make db-types` (no s'edita a mà); `database.ts` hi corregeix els arguments RPC que accepten NULL.
 - `src/types/index.ts`: tipus compartits.
+- `src/utils/stats.ts`: estadístiques de la pestanya Resum i de l'«Any en xifres» (funcions pures, amb tests).
 - `supabase/migrations/`: esquema, RLS i funcions. `0001_schema.sql` és l'esquema complet (dump consolidat); cada canvi posterior va en una migració nova numerada (`0002_…`). Les migracions originals (0001–0024) són a l'historial de git (`git show 9c7ffb0:supabase/migrations/<fitxer>`).
 - `supabase/tests/rls.test.sql`: tests de seguretat.
 - `supabase/seed.sql`: dades de prova només per a local (`make db-reset`); si canvia l'esquema, mantén-lo al dia. `src/components/DevLogin.tsx` hi entra amb els usuaris de prova (només mode `localdb`).
@@ -42,7 +44,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Components: funcions `React.FC<Props>` amb `interface Props` local i export nomenat (sense `default`). Fitxers en PascalCase.
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
 - Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#f4511e`, `accent-soft` per a fons suaus, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; degradat de marca amb `bg-brand` (accent → `accent-2` rosa); el violeta és el color dels desitjats i l'ambre, el de les estrelles i favorits. Classes condicionals amb `cn()` (`src/utils/cn.ts`).
-- Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants) i les classes `FIELD`, `LABEL` i `CARD` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
+- Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants), `SegmentedControl` i les classes `FIELD`, `LABEL`, `CARD` i `EMPTY_STATE` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
 - Imports relatius (l'àlies `@/` existeix però no s'usa).
 - Respecta `.editorconfig` (UTF-8, LF, final de línia); imita l'estil dels fitxers veïns (cometes simples, punt i coma).
 

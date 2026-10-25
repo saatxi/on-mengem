@@ -39,3 +39,6 @@ export const oneOf =
 
 export const isBoolean = (value: unknown): value is boolean => typeof value === 'boolean';
 export const isString = (value: unknown): value is string => typeof value === 'string';
+
+/** Validador per a valors que han de ser una de les claus de l'objecte (p. ex. un mapa valor → etiqueta). */
+export const oneOfKeys = <T extends object>(options: T) => oneOf(...(Object.keys(options) as (keyof T & string)[]));

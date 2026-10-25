@@ -9,3 +9,6 @@ export const LABEL = 'flex items-center gap-1 mb-1.5 text-sm font-semibold text-
 
 /** Superfície de targeta: ombra en clar i una vora fina que es veu en fosc. */
 export const CARD = 'bg-surface rounded-3xl shadow-card ring-1 ring-stone-900/5';
+
+/** Estat buit d'una llista (sense resultats o encara sense elements). */
+export const EMPTY_STATE = `${CARD} py-16 px-8 text-center space-y-3`;

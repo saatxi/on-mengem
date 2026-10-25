@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
+import { SegmentedControl } from './SegmentedControl';
 import { isVisited } from '../utils/restaurantFields';
 import { cuisineRows, type CuisineRow } from '../utils/stats';
 import { Utensils, Award, CheckCircle, TrendingUp, Flame, Star } from 'lucide-react';
@@ -80,21 +81,7 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName, col
           </p>
         </div>
 
-        <div className="flex items-center max-w-full overflow-x-auto rounded-full bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Ordre del gràfic">
-          {(Object.keys(VIEW_LABELS) as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              aria-pressed={viewMode === mode}
-              className={cn(
-                'shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full transition-[background-color,color,box-shadow]',
-                viewMode === mode ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-500 hover:text-stone-800',
-              )}
-            >
-              {VIEW_LABELS[mode]}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl label="Ordre del gràfic" options={VIEW_LABELS} value={viewMode} onChange={setViewMode} />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
