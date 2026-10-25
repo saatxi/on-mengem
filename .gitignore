@@ -1,12 +1,19 @@
+# Dependències i artefactes de build
 node_modules/
 build/
 dist/
 coverage/
+dev-dist/
+
+# Sistema operatiu
 .DS_Store
+
+# Registres
 *.log
+
+# Variables d'entorn (excepte l'exemple)
 .env*
 !.env.example
-dev-dist/
 
 # Fitxers locals de la CLI de Supabase
 supabase/.temp/
@@ -17,3 +24,7 @@ backups/
 
 # Registres d'auditoria
 audits/
+
+# Configuració local de l'agent
+.agents/
+.claude/
