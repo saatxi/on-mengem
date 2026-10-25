@@ -1091,6 +1091,95 @@ reset role;
 select is((select count(*)::int from public.group_changes where group_id = '10000000-0000-0000-0000-000000000005'), 0,
           'esborrar el grup s''endu l''historial i no en crea cap entrada');
 
+-- ------------------------------------------------------------ Esborrar després de sortir del grup (G8, propietat de Pau)
+-- Quim surt del grup i Rut n'és expulsada: cap dels dos pot esborrar el que hi havia afegit. Sara continua sent-ne
+-- membre i Pau n'és l'owner. Els DELETE sense WHERE no apliquen la política de lectura: només els frena la d'esborrat.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000c8', 'pau@test.dev', '{"full_name":"Pau"}'),
+  ('00000000-0000-0000-0000-0000000000c9', 'quim@test.dev', '{"full_name":"Quim"}'),
+  ('00000000-0000-0000-0000-0000000000ca', 'rut@test.dev', '{"full_name":"Rut"}'),
+  ('00000000-0000-0000-0000-0000000000cb', 'sara@test.dev', '{"full_name":"Sara"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000008', 'G8', 'PPPPPP', '00000000-0000-0000-0000-0000000000c8', 'Pau');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000c8'),
+  ('10000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000c9'),
+  ('10000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000ca'),
+  ('10000000-0000-0000-0000-000000000008', '00000000-0000-0000-0000-0000000000cb');
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000080', '10000000-0000-0000-0000-000000000008', 'De Quim 1', '00000000-0000-0000-0000-0000000000c9'),
+  ('20000000-0000-0000-0000-000000000081', '10000000-0000-0000-0000-000000000008', 'De Quim 2', '00000000-0000-0000-0000-0000000000c9'),
+  ('20000000-0000-0000-0000-000000000082', '10000000-0000-0000-0000-000000000008', 'De Rut', '00000000-0000-0000-0000-0000000000ca'),
+  ('20000000-0000-0000-0000-000000000083', '10000000-0000-0000-0000-000000000008', 'De Sara', '00000000-0000-0000-0000-0000000000cb'),
+  ('20000000-0000-0000-0000-000000000084', null, 'Quim personal', '00000000-0000-0000-0000-0000000000c9');
+insert into public.wishlist (id, group_id, restaurant_name, user_id) values
+  ('30000000-0000-0000-0000-000000000080', '10000000-0000-0000-0000-000000000008', 'Desitjat de Quim', '00000000-0000-0000-0000-0000000000c9'),
+  ('30000000-0000-0000-0000-000000000081', '10000000-0000-0000-0000-000000000008', 'Desitjat de Rut', '00000000-0000-0000-0000-0000000000ca'),
+  ('30000000-0000-0000-0000-000000000082', '10000000-0000-0000-0000-000000000008', 'Desitjat de Sara', '00000000-0000-0000-0000-0000000000cb');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c9","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c9', true);
+set local role authenticated;
+select lives_ok($$ delete from public.group_members
+                   where group_id = '10000000-0000-0000-0000-000000000008' and user_id = '00000000-0000-0000-0000-0000000000c9' $$,
+                'quim surt de G8');
+select lives_ok($$
+  delete from public.restaurants where id = '20000000-0000-0000-0000-000000000080';
+  delete from public.restaurants where true;
+  with pgrst_source as (delete from public.wishlist returning 1) select count(*) from pgrst_source;
+  delete from public.restaurants;
+  delete from public.wishlist
+$$, 'quim intenta esborrar el que havia afegit a G8, amb WHERE, sense i amb la forma de PostgREST');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c8","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c8', true);
+set local role authenticated;
+select lives_ok($$ delete from public.group_members
+                   where group_id = '10000000-0000-0000-0000-000000000008' and user_id = '00000000-0000-0000-0000-0000000000ca' $$,
+                'pau expulsa rut de G8');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ca","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ca', true);
+set local role authenticated;
+select lives_ok($$
+  delete from public.restaurants where id = '20000000-0000-0000-0000-000000000082';
+  delete from public.restaurants;
+  delete from public.wishlist where id = '30000000-0000-0000-0000-000000000081';
+  delete from public.wishlist
+$$, 'rut intenta esborrar el que havia afegit a G8, amb WHERE i sense');
+reset role;
+
+select is((select array_agg(name order by name)::text[] from public.restaurants
+            where group_id = '10000000-0000-0000-0000-000000000008'),
+          array['De Quim 1', 'De Quim 2', 'De Rut', 'De Sara'],
+          'un ex-membre (sortit o expulsat) no pot esborrar els restaurants que havia afegit al grup');
+select is((select array_agg(restaurant_name order by restaurant_name)::text[] from public.wishlist
+            where group_id = '10000000-0000-0000-0000-000000000008'),
+          array['Desitjat de Quim', 'Desitjat de Rut', 'Desitjat de Sara'],
+          'un ex-membre (sortit o expulsat) no pot esborrar els desitjats que havia afegit al grup');
+select is((select count(*)::int from public.restaurants where id = '20000000-0000-0000-0000-000000000084'), 0,
+          'qui surt d''un grup continua podent esborrar el seu espai personal');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000cb","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000cb', true);
+set local role authenticated;
+select isnt_empty($$ delete from public.restaurants where id = '20000000-0000-0000-0000-000000000083' returning 1 $$,
+                  'l''autor que encara és membre pot esborrar el seu restaurant del grup');
+select isnt_empty($$ delete from public.wishlist where id = '30000000-0000-0000-0000-000000000082' returning 1 $$,
+                  'l''autor que encara és membre pot esborrar el seu desitjat del grup');
+reset role;
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c8","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c8', true);
+set local role authenticated;
+select isnt_empty($$ delete from public.restaurants where id = '20000000-0000-0000-0000-000000000080' returning 1 $$,
+                  'l''owner pot esborrar el restaurant d''un ex-membre');
+select isnt_empty($$ delete from public.wishlist where id = '30000000-0000-0000-0000-000000000081' returning 1 $$,
+                  'l''owner pot esborrar el desitjat d''un ex-membre');
+reset role;
+
 -- ------------------------------------------------------------ Coordenades (G7, propietat d'Ona)
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000c7', 'ona@test.dev', '{"full_name":"Ona"}');
