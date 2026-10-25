@@ -12,7 +12,13 @@ export type ChangedTable =
   | 'group_members'
   | 'profiles';
 
-type Listener = (table: ChangedTable) => void;
+/** Què ha canviat: una taula, o 'resync' quan es poden haver perdut avisos i cal tornar-ho a llegir tot. */
+export type ChangeNotice = ChangedTable | 'resync';
+
+type Listener = (notice: ChangeNotice) => void;
+
+// Temps amb l'app amagada a partir del qual, en tornar-hi, es torna a llegir tot (el mòbil pot haver tallat la connexió)
+const RESYNC_AFTER_HIDDEN_MS = 30_000;
 
 interface Subscription {
   listeners: Set<Listener>;
@@ -26,8 +32,24 @@ const subscriptions = new Map<string, Subscription>();
 // supabase.channel() retornaria el canal que es tanca. Un canal nou del mateix topic s'obre després.
 const closing = new Map<string, Promise<unknown>>();
 
+const notifyAll = (notice: ChangeNotice) => subscriptions.forEach(({ listeners }) => listeners.forEach((notify) => notify(notice)));
+
+// Els avisos que arriben mentre el mòbil dorm o no hi ha xarxa es perden: en tornar, es demana una resincronització
+let hiddenAt: number | null = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    hiddenAt = Date.now();
+    return;
+  }
+  if (hiddenAt !== null && Date.now() - hiddenAt >= RESYNC_AFTER_HIDDEN_MS) notifyAll('resync');
+  hiddenAt = null;
+});
+window.addEventListener('online', () => notifyAll('resync'));
+
 const openChannel = async (topic: string, listeners: Set<Listener>) => {
   await closing.get(topic);
+  // El client torna a entrar sol al canal després d'un tall; els avisos d'enmig s'han perdut
+  let joined = false;
   return supabase
     .channel(topic, { config: { private: true } })
     .on('broadcast', { event: 'change' }, ({ payload }) => {
@@ -35,12 +57,16 @@ const openChannel = async (topic: string, listeners: Set<Listener>) => {
     })
     .subscribe((status, err) => {
       if (status === 'CHANNEL_ERROR') console.error(`[Realtime] ${topic}:`, err);
+      if (status !== 'SUBSCRIBED') return;
+      if (joined) listeners.forEach((notify) => notify('resync'));
+      joined = true;
     });
 };
 
 /**
  * Escolta els avisos de canvis d'un canal privat: `group:<id>` (contingut del grup) o `user:<id>` (espai personal,
- * perfil i grups propis). L'avís només diu quina taula ha canviat; qui escolta torna a llegir les dades.
+ * perfil i grups propis). L'avís només diu quina taula ha canviat, o 'resync' si cal tornar-ho a llegir tot;
+ * qui escolta torna a llegir les dades.
  * Retorna la funció per deixar d'escoltar.
  */
 export function subscribeToChanges(topic: string, listener: Listener): () => void {

@@ -127,7 +127,10 @@ export function useRealtimeData() {
       wishlist: debounced(fetchWishlist),
       alerts: debounced(fetchAlerts),
     };
-    const unsubscribe = subscribeToChanges(groupId ? `group:${groupId}` : `user:${uid}`, (table) => refreshers[table]?.());
+    const unsubscribe = subscribeToChanges(groupId ? `group:${groupId}` : `user:${uid}`, (notice) => {
+      if (notice === 'resync') new Set(Object.values(refreshers)).forEach((refresh) => refresh());
+      else refreshers[notice]?.();
+    });
 
     return () => {
       cancelled = true;

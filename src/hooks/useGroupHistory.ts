@@ -42,8 +42,8 @@ export function useGroupHistory(groupId: string) {
       clearTimeout(timer);
       timer = setTimeout(fetchChanges, REFRESH_DEBOUNCE_MS);
     };
-    const unsubscribe = subscribeToChanges(`group:${groupId}`, (table) => {
-      if (table === 'group_changes') refresh();
+    const unsubscribe = subscribeToChanges(`group:${groupId}`, (notice) => {
+      if (notice === 'group_changes' || notice === 'resync') refresh();
     });
     return () => {
       clearTimeout(timer);

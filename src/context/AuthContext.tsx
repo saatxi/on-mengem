@@ -142,9 +142,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       timer = setTimeout(fetchGroups, GROUPS_REFRESH_DEBOUNCE_MS);
     };
     // El canal de l'usuari avisa dels canvis del perfil propi i dels grups on és (nom, owner, membres, entrades i sortides).
-    const unsubscribe = subscribeToChanges(`user:${uid}`, (table) => {
-      if (table === 'profiles') fetchProfile();
-      else if (table === 'groups' || table === 'group_members') refreshGroups();
+    const unsubscribe = subscribeToChanges(`user:${uid}`, (notice) => {
+      if (notice === 'profiles' || notice === 'resync') fetchProfile();
+      if (notice === 'groups' || notice === 'group_members' || notice === 'resync') refreshGroups();
     });
 
     return () => {
