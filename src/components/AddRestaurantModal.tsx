@@ -6,11 +6,11 @@ import { Modal, ModalHeader } from './Modal';
 import { Restaurant } from '../types';
 import {
   CUISINES,
-  DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
   normalizeText,
   INSTAGRAM_INPUT_PATTERN,
   PRICE_RANGES,
+  optionOrEmpty,
   toInstagramHandle,
 } from '../utils/restaurantFields';
 import { FIELD, LABEL } from '../utils/ui';
@@ -27,12 +27,10 @@ interface Props {
 
 export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, restaurant, existingNames = [] }) => {
   const isEditing = !!restaurant;
-  // Una cuina que ja no és a la llista obliga a triar-ne una de nova
-  const initialCuisine = isEditing ? restaurant.cuisine ?? '' : 'Mediterrània';
-
   const [name, setName] = useState(restaurant?.name ?? '');
-  const [cuisine, setCuisine] = useState(CUISINES.includes(initialCuisine) ? initialCuisine : '');
-  const [priceRange, setPriceRange] = useState(restaurant?.priceRange || DEFAULT_PRICE_RANGE);
+  // Cuina i preu són obligatoris i comencen buits: un valor que no és a la llista (o cap) obliga a triar-ne un
+  const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, restaurant?.cuisine));
+  const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, restaurant?.priceRange));
   const [address, setAddress] = useState(restaurant?.address ?? '');
   const [rating, setRating] = useState<number | null>(restaurant?.rating ?? null);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
@@ -46,7 +44,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !CUISINES.includes(cuisine)) return;
+    if (!name.trim() || !CUISINES.includes(cuisine) || !PRICE_RANGES.includes(priceRange)) return;
 
     setIsSubmitting(true);
     try {
@@ -103,7 +101,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className={LABEL}>
-              Tipus de cuina
+              Tipus de cuina *
             </label>
             <select
               value={cuisine}
@@ -120,13 +118,15 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
           <div>
             <label className={LABEL}>
-              Nivell de preu
+              Nivell de preu *
             </label>
             <select
               value={priceRange}
               onChange={(e) => setPriceRange(e.target.value)}
+              required
               className={FIELD}
             >
+              <option value="" disabled>Tria un preu...</option>
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}

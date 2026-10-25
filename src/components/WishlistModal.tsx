@@ -6,10 +6,10 @@ import { Modal, ModalHeader } from './Modal';
 import { WishlistItem } from '../types';
 import {
   CUISINES,
-  DEFAULT_PRICE_RANGE,
   INSTAGRAM_INPUT_MESSAGE,
   INSTAGRAM_INPUT_PATTERN,
   PRICE_RANGES,
+  optionOrEmpty,
   toInstagramHandle,
 } from '../utils/restaurantFields';
 import { FIELD, LABEL } from '../utils/ui';
@@ -29,8 +29,9 @@ interface Props {
 export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }) => {
   const isEditing = !!item;
   const [restaurantName, setRestaurantName] = useState(item?.restaurantName ?? '');
-  const [cuisine, setCuisine] = useState(item?.cuisine || 'Mediterrània');
-  const [priceRange, setPriceRange] = useState(item?.priceRange || DEFAULT_PRICE_RANGE);
+  // Cuina i preu són opcionals i comencen buits («Sense especificar»)
+  const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, item?.cuisine));
+  const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, item?.priceRange));
   const [recommendedBy, setRecommendedBy] = useState(item?.recommendedBy ?? '');
   const [address, setAddress] = useState(item?.address ?? '');
   const [notes, setNotes] = useState(item?.notes ?? '');
@@ -96,6 +97,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
               onChange={(e) => setCuisine(e.target.value)}
               className={FIELD}
             >
+              <option value="">Sense especificar</option>
               {CUISINES.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
@@ -110,6 +112,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
               onChange={(e) => setPriceRange(e.target.value)}
               className={FIELD}
             >
+              <option value="">Sense especificar</option>
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>{p}</option>
               ))}

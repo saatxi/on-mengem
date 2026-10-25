@@ -9,6 +9,7 @@ import {
   localToday,
   matchesQuery,
   normalizeText,
+  optionOrEmpty,
   safeHttpUrl,
   sortRestaurants,
   toInstagramHandle,
@@ -185,5 +186,15 @@ describe('cuisineStyle', () => {
   it('les cuines desconegudes o buides tenen el plat genèric', () => {
     expect(cuisineStyle('Marciana')).toEqual(cuisineStyle(''));
     expect(cuisineStyle(undefined).emoji).toBe('🍽️');
+  });
+});
+
+describe('optionOrEmpty', () => {
+  it('manté un valor que és a les opcions', () => {
+    expect(optionOrEmpty(['Bar', 'Fleca'], 'Fleca')).toBe('Fleca');
+  });
+
+  it.each([undefined, '', 'Marciana'])('«%s» -> buit', (value) => {
+    expect(optionOrEmpty(['Bar', 'Fleca'], value)).toBe('');
   });
 });

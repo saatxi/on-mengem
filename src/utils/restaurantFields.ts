@@ -57,7 +57,9 @@ const DEFAULT_CUISINE_STYLE = { emoji: '🍽️', hue: 40 };
 export const cuisineStyle = (cuisine?: string) => (cuisine && CUISINE_STYLES[cuisine]) || DEFAULT_CUISINE_STYLE;
 
 export const PRICE_RANGES = ['1-10 €', '10-20 €', '20-30 €', '30-40 €', '40-50 €', '50 € o més'];
-export const DEFAULT_PRICE_RANGE = '10-20 €';
+
+/** Valor inicial d'un desplegable: el desat si és una de les opcions; si no, buit (cal triar-ne un). */
+export const optionOrEmpty = (options: string[], value?: string) => (value && options.includes(value) ? value : '');
 
 // Patró de l'input: «@usuari», «usuari» o un enllaç a instagram.com (compatible amb la bandera `v`)
 export const INSTAGRAM_INPUT_PATTERN =
