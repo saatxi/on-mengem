@@ -1,0 +1,13 @@
+# Generat o de tercers: no es formata
+dist/
+dev-dist/
+coverage/
+public/
+package.json
+package-lock.json
+skills-lock.json
+src/supabase/database.types.ts
+
+# Docs, SQL i configuració de Supabase: es formaten a mà
+*.md
+supabase/

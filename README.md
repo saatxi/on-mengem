@@ -36,12 +36,13 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 | `npm run build` | Build de producció a `dist/` |
 | `npm run preview` | Serveix la build en local |
 | `npm run lint` | Comprova els tipus (`tsc --noEmit`) i les regles dels hooks de React (`oxlint`) |
+| `npm run format` | Formata el codi amb Prettier (`format:check` només comprova; ho fa el CI) |
 | `npm test` | Tests de les funcions pures amb Vitest (`*.test.ts` al costat del codi) |
 | `npx supabase test db` | Tests de seguretat de la base de dades (cal Docker i `npx supabase start`) |
 | `make audit` | Vulnerabilitats conegudes de les dependències (`npm audit`) |
 | `make local` | BD local en Docker amb dades de prova i usuaris ficticis (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md#dades-de-prova)) |
 
-GitHub Actions (`.github/workflows/ci.yml`) executa el lint, els tests, el build i els tests de la BD a cada push a `devel` i `main` i a cada pull request.
+GitHub Actions (`.github/workflows/ci.yml`) executa la comprovació de format, el lint, els tests, el build i els tests de la BD a cada push a `devel` i `main` i a cada pull request.
 
 ## Estructura
 

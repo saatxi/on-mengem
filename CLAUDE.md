@@ -13,11 +13,12 @@ nvm use && npm install
 cp .env.example .env      # omplir VITE_SUPABASE_URL i VITE_SUPABASE_ANON_KEY
 npm run dev               # http://localhost:3000
 npm run build
-npm run lint              # = tsc --noEmit + oxlint (només les regles de hooks; no hi ha Prettier)
+npm run lint              # = tsc --noEmit + oxlint (només les regles de hooks)
+npm run format            # Prettier (format:check al CI)
 npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de localToday)
 ```
 
-- Tests JS amb Vitest només per a funcions pures (`src/**/*.test.ts`, al costat del codi). Per verificar canvis de frontend: `npm run lint` + `npm test` + `npm run build`.
+- Tests JS amb Vitest només per a funcions pures (`src/**/*.test.ts`, al costat del codi). Per verificar canvis de frontend: `npm run format` + `npm run lint` + `npm test` + `npm run build`.
 - Tests de la BD (pgTAP, cal Docker): `npx supabase start` i `npx supabase test db`.
 - Reinicia el servidor de desenvolupament després de canviar `.env`.
 
@@ -46,7 +47,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#f4511e`, `accent-soft` per a fons suaus, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; degradat de marca amb `bg-brand` (accent → `accent-2` rosa); el violeta és el color dels desitjats i l'ambre, el de les estrelles i favorits. Classes condicionals amb `cn()` (`src/utils/cn.ts`).
 - Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants), `SegmentedControl` i les classes `FIELD`, `LABEL`, `CARD` i `EMPTY_STATE` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
 - Imports relatius (l'àlies `@/` existeix però no s'usa).
-- Respecta `.editorconfig` (UTF-8, LF, final de línia); imita l'estil dels fitxers veïns (cometes simples, punt i coma).
+- El format el decideix Prettier (`.prettierrc.json`: cometes simples, punt i coma, 140 columnes; sagnat de `.editorconfig`). Passa `npm run format` abans de fer commit. No formata Markdown, SQL ni `supabase/` (`.prettierignore`): allà imita l'estil dels fitxers veïns.
 
 ## Regles de domini i seguretat
 

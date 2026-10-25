@@ -269,7 +269,7 @@ Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. L
 
 ### Comprovacions automàtiques (GitHub Actions)
 
-Cada `git push` a `devel` o `main`, i cada pull request, executa `.github/workflows/ci.yml` a GitHub: `npm run lint`, `npm test`, `npm run build` i, en un altre job, `supabase start` + `supabase test db` (els tests de seguretat de `supabase/tests/rls.test.sql`). No necessita cap secret: el build fa servir una URL i una clau de mentida, i la BD és una de local que es crea al moment.
+Cada `git push` a `devel` o `main`, i cada pull request, executa `.github/workflows/ci.yml` a GitHub: `npm run format:check`, `npm run lint`, `npm test`, `npm run build` i, en un altre job, `supabase start` + `supabase test db` (els tests de seguretat de `supabase/tests/rls.test.sql`). No necessita cap secret: el build fa servir una URL i una clau de mentida, i la BD és una de local que es crea al moment.
 
 El CI no bloqueja el deploy de Cloudflare, que va per separat. Abans de fusionar `devel` a `main`, comprova a la pestanya **Actions** del repositori que l'última execució de `devel` ha passat. Si vols que sigui obligatori, activa una regla de protecció per a `main` (**Settings → Branches**) que exigeixi el check **CI** i treballa amb pull requests.
 

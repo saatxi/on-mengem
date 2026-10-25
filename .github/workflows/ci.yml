@@ -1,4 +1,4 @@
-# Comprovacions de cada canvi: tipus, lint de hooks, tests, build i tests de seguretat de la BD (RLS).
+# Comprovacions de cada canvi: format, tipus, lint de hooks, tests, build i tests de seguretat de la BD (RLS).
 name: CI
 
 on:
@@ -24,6 +24,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - run: npm run format:check
       - run: npm run lint
       - run: npm test
       # El build només incrusta aquests valors al bundle: n'hi ha prou amb uns de mentida

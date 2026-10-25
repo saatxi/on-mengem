@@ -11,8 +11,8 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
-# El codi de l'app va amb 2 espais (HTML, JSON i SQL es queden amb 4)
-[*.{ts,tsx,css}]
+# El codi de l'app, el JSON i el YAML van amb 2 espais (HTML i SQL es queden amb 4)
+[*.{ts,tsx,css,json,jsonc,yml,yaml}]
 indent_size = 2
 
 # Generat per "make db-types": no s'edita a mà.
