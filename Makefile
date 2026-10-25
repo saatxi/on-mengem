@@ -4,7 +4,7 @@
 SUPABASE := npx supabase
 ENV_FILE := .env.localdb
 
-.PHONY: help local db-start db-stop db-status db-reset db-test db-types env dev audit clean-env
+.PHONY: help local db-start db-stop db-status db-reset db-test db-types db-backup env dev audit clean-env
 
 help: ## Mostra aquesta ajuda
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
@@ -30,6 +30,14 @@ db-test: ## Executa els tests pgTAP de la BD
 
 db-types: ## Regenera els tipus TypeScript des de la BD local (src/supabase/database.types.ts)
 	$(SUPABASE) gen types typescript --local > src/supabase/database.types.ts
+
+db-backup: ## Còpia de producció a backups/ (cal PROD_DB_URL; contrasenya a ~/.pgpass o PGPASSWORD)
+	@test -n "$(PROD_DB_URL)" || { echo "Falta PROD_DB_URL (vegeu docs/CONFIGURACIO.md, Còpies de seguretat)" >&2; exit 1; }
+	@dir=backups/$$(date +%Y%m%d) && ts=$$(date +%H%M%S) && mkdir -p $$dir && \
+	pg_dump "$(PROD_DB_URL)" -Fc --data-only --table=auth.users --table=auth.identities -f $$dir/$$ts-auth.dump && \
+	pg_dump "$(PROD_DB_URL)" -Fc --data-only --schema=public -f $$dir/$$ts-public.dump && \
+	pg_dump "$(PROD_DB_URL)" -Fc --schema-only --schema=public -f $$dir/$$ts-schema.dump && \
+	echo ">> Còpia feta: $$dir/$$ts-{auth,public,schema}.dump"
 
 env: ## Genera .env.localdb amb la URL i la clau de Supabase local
 	@$(SUPABASE) status -o env 2>/dev/null | awk -F= \

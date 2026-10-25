@@ -171,6 +171,57 @@ El dump crea les FK en el mateix ordre que les migracions originals: Postgres ex
 
 ---
 
+## Còpies de seguretat
+
+### Fer-ne una
+
+Cal `pg_dump` 17 o posterior (el de la BD). La URL és la del pooler en **mode sessió** (port `5432`; el `6543` no serveix per a `pg_dump`), que trobaràs a *Connect* del dashboard. La URL va **sense contrasenya**, i la contrasenya, a `~/.pgpass` (o a `PGPASSWORD`), perquè no quedi a l'historial de l'shell:
+
+```bash
+# ~/.pgpass (chmod 600): host:port:base:usuari:contrasenya
+aws-0-<regio>.pooler.supabase.com:5432:postgres:postgres.<ref>:<contrasenya>
+```
+```bash
+make db-backup PROD_DB_URL="postgresql://postgres.<ref>@aws-0-<regio>.pooler.supabase.com:5432/postgres"
+```
+
+Deixa tres fitxers a `backups/<AAAAMMDD>/` (`backups/` és ignorat per git), amb l'hora de la còpia com a prefix (`<HHMMSS>-…`):
+
+| Fitxer | Contingut |
+|---|---|
+| `…-auth.dump` | Dades dels usuaris (`auth.users` i `auth.identities`). L'esquema `auth` el gestiona Supabase. |
+| `…-public.dump` | Dades de totes les taules de l'app, en ordre de dependències. |
+| `…-schema.dump` | Esquema de `public` (taules, funcions, polítiques, permisos), per comparar-lo amb les migracions. No es restaura. |
+
+`pg_restore --list <fitxer>` en mostra el contingut sense tocar cap BD.
+
+### Restaurar-la
+
+L'esquema surt sempre de les migracions i el backup només hi aporta les dades. No restauris l'esquema amb `pg_restore --clean`: faria `drop schema public` i l'app perdria els permisos per defecte de Supabase (vegeu més amunt).
+
+1. Deixa la BD de destinació amb l'esquema i sense dades: en local, `npx supabase db reset --local --no-seed`; en un projecte nou, `npx supabase db push`.
+2. Restaura els usuaris. El trigger `on_auth_user_created` els crea un perfil nou, que es substitueix al pas 4:
+   ```bash
+   pg_restore -d "$URL" --data-only --exit-on-error backups/<AAAAMMDD>/<HHMMSS>-auth.dump
+   ```
+3. Desactiva els triggers de les taules de l'app perquè la càrrega no generi alertes, entrades d'historial, quotes ni avisos de Realtime. A Supabase, `postgres` no pot fer servir `--disable-triggers` ni `session_replication_role`, però sí que és l'owner de les taules:
+   ```bash
+   psql "$URL" -c "do \$\$ declare t text; begin for t in select tablename from pg_tables where schemaname = 'public' loop execute format('alter table public.%I disable trigger user', t); end loop; end \$\$;"
+   ```
+4. Buida els perfils del pas 2 i carrega les dades de l'app en una sola transacció:
+   ```bash
+   psql "$URL" -c 'truncate public.profiles'
+   pg_restore -d "$URL" --data-only --exit-on-error --single-transaction backups/<AAAAMMDD>/<HHMMSS>-public.dump
+   ```
+5. **Torna a activar els triggers** (repeteix el pas 3 amb `enable` en lloc de `disable`), també si el pas 4 ha fallat. Sense ells, deixen de funcionar la seguretat (`lock_ownership`, `assign_item_id`), les quotes, l'historial i el temps real. Comprova que no en queda cap de desactivat (ha de retornar `0`):
+   ```bash
+   psql "$URL" -Atc "select count(*) from pg_trigger t join pg_class c on c.oid = t.tgrelid where c.relnamespace = 'public'::regnamespace and not t.tgisinternal and t.tgenabled = 'D'"
+   ```
+
+Prova la restauració en local abans de fer-la en un projecte real (`URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres`).
+
+---
+
 ## Errors habituals
 
 | Error | Causa | Solució |
