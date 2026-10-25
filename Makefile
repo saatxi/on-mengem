@@ -4,20 +4,10 @@
 SUPABASE := npx supabase
 ENV_FILE := .env.localdb
 
-# "make release patch": l'argument és un objectiu més, que es defineix buit perquè make no es queixi.
-RELEASE_ARG := $(filter-out release,$(MAKECMDGOALS))
-ifneq ($(filter release,$(MAKECMDGOALS)),)
-$(RELEASE_ARG): ; @:
-endif
-
-.PHONY: help release local db-start db-stop db-status db-reset db-test db-types env dev audit clean-env
+.PHONY: help local db-start db-stop db-status db-reset db-test db-types env dev audit clean-env
 
 help: ## Mostra aquesta ajuda
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-10s %s\n", $$1, $$2}'
-
-release: ## Nova versió: make release patch|minor|major|0.2.0 (obre l'editor pel missatge)
-	@test -n "$(RELEASE_ARG)" || { echo "Cal indicar la versió: make release patch|minor|major|0.2.0"; exit 1; }
-	npm version $(RELEASE_ARG)
 
 local: db-start env dev ## Arrenca la BD local i l'app apuntant-hi
 

@@ -89,12 +89,13 @@ Add project setup with Vite, React, Tailwind and Supabase
 
 ## Releases
 
-- `make release patch|minor|major|X.Y.Z` executa `npm version`, que crea el commit de versió (`package.json` i `package-lock.json`) i l'etiqueta `vX.Y.Z` amb **el mateix missatge** (`scripts/release-commit.sh`).
-- L'editor s'obre amb «Release X.Y.Z»: **substitueix-ho per una descripció de la release**, no deixis «Release X.Y.Z» com a assumpte.
+- Les fa Claude quan l'usuari demana una release (o un tag de release) amb `patch`, `minor`, `major` o `X.Y.Z`. Si no diu quin, proposa'n un segons els canvis i pregunta-ho.
+- Passos, des de `devel` amb l'arbre net: `npm version <tipus>` (amb `git-tag-version=false` a `.npmrc`, només actualitza `package.json` i `package-lock.json`); commit només d'aquests dos fitxers amb el missatge de la release; etiqueta anotada `vX.Y.Z` amb **el mateix missatge** (`git log -1 --format=%B | git tag -a vX.Y.Z -F -`).
+- Mai «Release X.Y.Z» com a assumpte: ha de ser una descripció de la release.
 - El missatge segueix l'estil de commits: en anglès, assumpte en imperatiu que resumeixi els canvis principals (40–70 caràcters, sense punt final) i cos amb llista de guions.
 - El cos recull els canvis des de l'etiqueta anterior (`git log vANTERIOR..HEAD`), agrupats per funcionalitat i pensant en qui fa servir l'app; deixa fora els canvis interns menors (Makefile, format…).
 - Si cal una acció en desplegar (p. ex. un script SQL per a una BD existent), afegeix-la com a darrer punt.
-- Pujar-la: `git push && git push --tags`.
+- Pujar-la: `git push && git push --tags` (només si l'usuari ho demana).
 
 Exemple:
 

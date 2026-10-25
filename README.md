@@ -40,7 +40,6 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 | `npx supabase test db` | Tests de seguretat de la base de dades (cal Docker i `npx supabase start`) |
 | `make audit` | Vulnerabilitats conegudes de les dependències (`npm audit`) |
 | `make local` | BD local en Docker amb dades de prova i usuaris ficticis (vegeu [docs/CONFIGURACIO.md](docs/CONFIGURACIO.md#dades-de-prova)) |
-| `npm version <x.y.z>` | Puja la versió, obre l'editor de git per escriure el missatge del commit (proposa `Release x.y.z`) i crea l'etiqueta `vx.y.z` (també: `make release patch|minor|major|x.y.z`) |
 
 ## Estructura
 
@@ -67,9 +66,13 @@ L'app es publica a Cloudflare Workers amb fitxers estàtics (`wrangler.jsonc`): 
 Des de `devel`, amb l'arbre net:
 
 ```bash
-npm version minor -m "Release %s"   # o patch / major: actualitza package.json, crea commit i tag vX.Y.Z
+npm version minor          # o patch / major / X.Y.Z: només actualitza package.json i package-lock.json
+git commit -m "<resum de la release>" -m "<canvis>" -- package.json package-lock.json
+git log -1 --format=%B | git tag -a "v$(node -p "require('./package.json').version")" -F -
 git push --follow-tags
 ```
+
+El commit i l'etiqueta porten el mateix missatge: un resum dels canvis des de l'etiqueta anterior (vegeu l'estil a `CLAUDE.md`).
 
 La versió de `package.json` es mostra a l'app (modal del perfil). Després integra `devel` a `main`.
 
