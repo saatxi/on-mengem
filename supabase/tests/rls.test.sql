@@ -202,6 +202,25 @@ select lives_ok($$
   'bob crea un restaurant amb un created_by_name fals');
 select throws_ok($$ update public.restaurants set created_by_name = 'Alice' where name = 'Nom fals' $$,
                  'P0001', null, 'created_by_name és immutable');
+-- Atac 42: canviar o triar l'id d'un element (l'historial i restore_group_change hi depenen)
+select throws_ok($$ update public.restaurants set id = gen_random_uuid() where id = '20000000-0000-0000-0000-000000000003' $$,
+                 'P0001', 'id és immutable', 'bob no pot canviar l''id d''un restaurant de G1');
+select is((select count(*)::int from public.restaurants
+            where id = '20000000-0000-0000-0000-000000000003' and notes = 'Editat per bob'), 0,
+          'abans d''editar, el restaurant de G1 no té la nota de bob');
+select lives_ok($$ update public.restaurants set notes = 'Editat per bob' where id = '20000000-0000-0000-0000-000000000003' $$,
+                'bob (membre) pot editar un restaurant de G1 sense tocar-ne l''id');
+select lives_ok($$
+  insert into public.wishlist (id, group_id, restaurant_name, user_id)
+  values ('30000000-0000-0000-0000-0000000000b0', '10000000-0000-0000-0000-000000000001', 'Desitjat de Bob',
+          '00000000-0000-0000-0000-00000000000b') $$,
+  'bob crea un desitjat a G1 amb un id triat per ell');
+select is((select count(*)::int from public.wishlist where id = '30000000-0000-0000-0000-0000000000b0'), 0,
+          'l''id d''una alta des del client el genera el servidor');
+select throws_ok($$ update public.wishlist set id = '30000000-0000-0000-0000-0000000000b0' where restaurant_name = 'Desitjat de Bob' $$,
+                 'P0001', 'id és immutable', 'bob no pot canviar l''id d''un desitjat de G1');
+select lives_ok($$ update public.wishlist set notes = 'Editat per bob' where restaurant_name = 'Desitjat de Bob' $$,
+                'bob (membre) pot editar un desitjat de G1 sense tocar-ne l''id');
 -- Atac 18: perfil i grup
 select throws_ok($$ update public.profiles set active_group_id = '10000000-0000-0000-0000-000000000002'
                     where id = '00000000-0000-0000-0000-00000000000b' $$,
@@ -593,10 +612,10 @@ reset role;
 -- ------------------------------------------------------------ Visites a l'espai personal
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000a1","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000a1', true);
-set local role authenticated;
-
+-- Com a postgres: des del client, l'id el genera el servidor (0019).
 insert into public.restaurants (id, group_id, name, created_by) values
   ('20000000-0000-0000-0000-000000000012', null, 'Personal visites', '00000000-0000-0000-0000-0000000000a1');
+set local role authenticated;
 select lives_ok($$
   select public.save_visit('20000000-0000-0000-0000-000000000012'::uuid,
     current_date, 4.0, '', '{}'::uuid[], true, null)
@@ -1152,25 +1171,24 @@ insert into auth.users (id, email, raw_user_meta_data) values
 
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000e1","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000e1', true);
-set local role authenticated;
 
--- Espai personal
+-- Espai personal (les files amb id fix, com a postgres: des del client, l'id el genera el servidor)
 insert into public.restaurants (id, name, created_by) values
   ('20000000-0000-0000-0000-0000000000e1', 'Eve personal 1', '00000000-0000-0000-0000-0000000000e1'),
   ('20000000-0000-0000-0000-0000000000e2', 'Eve personal 2', '00000000-0000-0000-0000-0000000000e1');
-select throws_ok($$
-  insert into public.restaurants (name, created_by) values ('Eve personal 3', '00000000-0000-0000-0000-0000000000e1')
-$$, 'OMQ01', null, 'no es poden afegir més restaurants personals que la quota');
 insert into public.wishlist (id, restaurant_name, user_id) values
   ('30000000-0000-0000-0000-0000000000e1', 'Eve desitjat 1', '00000000-0000-0000-0000-0000000000e1'),
   ('30000000-0000-0000-0000-0000000000e2', 'Eve desitjat 2', '00000000-0000-0000-0000-0000000000e1');
+set local role authenticated;
+select throws_ok($$
+  insert into public.restaurants (name, created_by) values ('Eve personal 3', '00000000-0000-0000-0000-0000000000e1')
+$$, 'OMQ01', null, 'no es poden afegir més restaurants personals que la quota');
 select throws_ok($$
   insert into public.wishlist (restaurant_name, user_id) values ('Eve desitjat 3', '00000000-0000-0000-0000-0000000000e1')
 $$, 'OMQ01', null, 'no es poden afegir més desitjats personals que la quota');
 select lives_ok($$
   delete from public.restaurants where id = '20000000-0000-0000-0000-0000000000e2';
-  insert into public.restaurants (id, name, created_by) values
-    ('20000000-0000-0000-0000-0000000000e2', 'Eve personal 2 bis', '00000000-0000-0000-0000-0000000000e1')
+  insert into public.restaurants (name, created_by) values ('Eve personal 2 bis', '00000000-0000-0000-0000-0000000000e1')
 $$, 'esborrar un restaurant personal allibera quota');
 
 -- Grups
