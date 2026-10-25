@@ -466,6 +466,8 @@ select is((select count(*)::int from public.profiles where id = '00000000-0000-0
           'delete_my_account esborra el seu perfil');
 select is((select count(*)::int from auth.users where id = '00000000-0000-0000-0000-00000000000d'), 1,
           'delete_my_account no toca els altres usuaris');
+select is((select count(*)::int from public.groups where id = '10000000-0000-0000-0000-000000000002'), 0,
+          'esborrar el compte de l''owner d''un grup sense més membres s''endu el grup (protect_group_owner no ho impedeix)');
 
 -- ------------------------------------------------------------ Visites (G3, propietat d'alice2)
 -- Les proves d'esborrat de comptes han eliminat G1 (carol n'era l'última membre i el grup ha caigut pel cascade).
@@ -1117,6 +1119,12 @@ insert into public.wishlist (id, group_id, restaurant_name, user_id) values
   ('30000000-0000-0000-0000-000000000081', '10000000-0000-0000-0000-000000000008', 'Desitjat de Rut', '00000000-0000-0000-0000-0000000000ca'),
   ('30000000-0000-0000-0000-000000000082', '10000000-0000-0000-0000-000000000008', 'Desitjat de Sara', '00000000-0000-0000-0000-0000000000cb');
 
+-- L'owner no surt del grup ni quan el DELETE no passa per members_delete (p. ex. una sortida simultània a una cessió)
+select throws_ok($$ delete from public.group_members
+                    where group_id = '10000000-0000-0000-0000-000000000008' and user_id = '00000000-0000-0000-0000-0000000000c8' $$,
+                 'P0001', 'L''owner no pot sortir del grup: cedeix-lo o esborra''l',
+                 'protect_group_owner no deixa treure l''owner de group_members');
+
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c9","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c9', true);
 set local role authenticated;
@@ -1285,6 +1293,28 @@ select lives_ok($$ select public.create_group('Quota 1'); select public.create_g
                 'eve crea tants grups com permet la quota');
 select throws_ok($$ select public.create_group('Quota 3') $$, 'OMQ01', null,
                  'no es poden crear més grups propis que la quota');
+
+-- Cedir un grup a algú que ja té el màxim de grups propis
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000e2', 'fede@test.dev', '{"full_name":"Fede"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-0000000000e2', 'De Fede', 'FFFFFF', '00000000-0000-0000-0000-0000000000e2', 'Fede');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000e2'),
+  ('10000000-0000-0000-0000-0000000000e2', '00000000-0000-0000-0000-0000000000e1');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000e2","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000e2', true);
+set local role authenticated;
+select throws_ok($$ select public.transfer_group_ownership('10000000-0000-0000-0000-0000000000e2',
+                                                          '00000000-0000-0000-0000-0000000000e1') $$,
+                 'OMQ01', null, 'no es pot cedir un grup a algú que ja té el màxim de grups propis');
+reset role;
+select is((select owner_id from public.groups where id = '10000000-0000-0000-0000-0000000000e2'),
+          '00000000-0000-0000-0000-0000000000e2'::uuid, 'el grup continua sent de qui l''intentava cedir');
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000e1","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000e1', true);
+set local role authenticated;
 
 -- Contingut de grup: la quota també s'aplica en moure i copiar ítems al grup
 select lives_ok($$
