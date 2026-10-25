@@ -7,6 +7,7 @@ import { quotaErrorMessage } from '../supabase/errors';
 import { useTheme, type ThemePreference } from '../context/ThemeContext';
 import { cn } from '../utils/cn';
 import { FIELD, LABEL } from '../utils/ui';
+import { Button } from './Button';
 
 interface Props {
   isOpen: boolean;
@@ -81,7 +82,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
     <Modal label="El teu perfil" onClose={onClose}>
       <ModalHeader title="El teu perfil" icon={UserRound} onClose={onClose} />
 
-      <div className="p-5 sm:p-6 space-y-5">
+      <div className="p-5 sm:p-6 space-y-6">
         {/* Compte de Google */}
         <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
           {authUser?.photoURL ? (
@@ -92,23 +93,47 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
               className="size-10 rounded-full object-cover shrink-0"
             />
           ) : (
-            <span className="size-10 rounded-full bg-accent-soft flex items-center justify-center text-xl shrink-0">
-              {userProfile?.avatar || '🍕'}
+            <span className="size-10 rounded-full bg-stone-200 text-stone-500 flex items-center justify-center shrink-0">
+              <UserRound className="size-5" />
             </span>
           )}
-          <div className="min-w-0 text-xs">
+          <div className="min-w-0 flex-1 text-xs">
             <p className="font-semibold text-stone-800 truncate">{authUser?.displayName || userProfile?.nickname}</p>
             <p className="text-stone-500 truncate">{authUser?.email || 'Sense correu associat'}</p>
           </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={async () => {
+              if (await confirm({ message: 'Vols tancar la sessió?', details: 'Hauràs de tornar a entrar amb el teu compte de Google.', confirmLabel: 'Tancar sessió' })) {
+                await logout();
+                onClose();
+              }
+            }}
+          >
+            <LogOut className="size-3.5" />
+            Tancar sessió
+          </Button>
         </div>
 
-        {/* Form to update display name / avatar */}
+        {/* Com et veuen els altres membres: nom i avatar */}
         <form onSubmit={handleSave} className="space-y-4">
+          <div className="flex items-center gap-3">
+            <span className="size-12 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-2xl">
+              {avatar}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-bold text-stone-900 truncate">{nickname.trim() || 'El teu nom'}</p>
+              <p className="text-xs text-stone-500">Així et veuen els altres membres dels grups</p>
+            </div>
+          </div>
+
           <div>
-            <label className={LABEL}>
-              Nom que veuran els altres membres del grup
+            <label htmlFor="profile-nickname" className={LABEL}>
+              Nom
             </label>
             <input
+              id="profile-nickname"
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
@@ -121,20 +146,18 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
           </div>
 
           <div>
-            <label className={cn(LABEL, 'mb-2')}>
-              Tria el teu avatar culinari
-            </label>
-            <div className="grid grid-cols-6 gap-2">
+            <p className={LABEL}>Avatar</p>
+            <div className="grid grid-cols-6 gap-2" role="group" aria-label="Avatar">
               {FOOD_AVATARS.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   onClick={() => setAvatar(emoji)}
-                  className={`h-10 rounded-2xl text-xl flex items-center justify-center transition ${
-                    avatar === emoji
-                      ? 'bg-accent-soft ring-2 ring-accent scale-105'
-                      : 'bg-stone-100 hover:bg-stone-200'
-                  }`}
+                  aria-pressed={avatar === emoji}
+                  className={cn(
+                    'h-10 rounded-2xl text-xl flex items-center justify-center transition',
+                    avatar === emoji ? 'bg-accent-soft ring-2 ring-accent' : 'bg-stone-100 hover:bg-stone-200',
+                  )}
                 >
                   {emoji}
                 </button>
@@ -142,17 +165,13 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
-            <button
-              type="submit"
-              disabled={isSaving || nickname.trim().length < 2}
-              className="px-4 py-2.5 rounded-2xl bg-accent hover:bg-accent-hover text-white text-xs font-bold shadow-card disabled:opacity-50 transition"
-            >
-              {isSaving ? 'Guardant...' : savedSuccess ? 'Guardat!' : 'Desar el perfil'}
-            </button>
+          <div className="flex items-center gap-3">
+            <Button type="submit" size="sm" disabled={isSaving || nickname.trim().length < 2}>
+              {isSaving ? 'Desant...' : 'Desar'}
+            </Button>
             {savedSuccess && (
               <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                <Check className="w-4 h-4" /> Dades desades
+                <Check className="size-4" /> Dades desades
               </span>
             )}
             {saveError && (
@@ -200,42 +219,18 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
           </span>
         </button>
 
-        {/* Sign out */}
-        <div className="pt-3 border-t border-stone-200 flex justify-between items-center text-xs">
-          <span className="text-stone-500 text-xs font-mono">
-            Versió {__APP_VERSION__} · UID: {authUser?.uid.slice(0, 8)}...
-          </span>
+        {/* Peu: versió i eliminar el compte (el diàleg de confirmació n'explica les conseqüències) */}
+        <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-3 text-xs">
+          <span className="text-stone-400">Versió {__APP_VERSION__}</span>
           <button
-            onClick={async () => {
-              if (await confirm({ message: 'Vols tancar la sessió?', details: 'Hauràs de tornar a entrar amb el teu compte de Google.', confirmLabel: 'Tancar sessió' })) {
-                await logout();
-                onClose();
-              }
-            }}
-            className="inline-flex items-center gap-1.5 text-stone-600 hover:text-red-600 font-semibold transition"
+            type="button"
+            onClick={handleDeleteAccount}
+            disabled={isDeleting}
+            className="inline-flex items-center gap-1.5 px-2 py-1 -mr-2 rounded-full text-stone-500 hover:text-red-600 hover:bg-red-50 font-semibold disabled:opacity-50 transition-colors"
           >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Tancar sessió</span>
+            <Trash2 className="size-3.5" />
+            {isDeleting ? 'Eliminant...' : 'Eliminar el compte'}
           </button>
-        </div>
-
-        <div className="p-4 rounded-2xl border border-red-200 bg-red-50/50 space-y-3">
-          <div>
-            <h3 className="text-xs font-semibold text-red-700">Eliminar el compte</h3>
-            <p className="mt-1 text-xs text-stone-600">
-              Esborra el teu perfil i el teu espai personal. Aquesta acció no es pot desfer.
-            </p>
-          </div>
-          <div className="flex justify-end">
-            <button
-              onClick={handleDeleteAccount}
-              disabled={isDeleting}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl border border-red-300 bg-surface text-red-600 hover:bg-red-600 hover:text-white text-xs font-bold disabled:opacity-50 transition"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-              <span>{isDeleting ? 'Eliminant...' : 'Eliminar compte'}</span>
-            </button>
-          </div>
         </div>
       </div>
     </Modal>
