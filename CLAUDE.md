@@ -13,7 +13,7 @@ nvm use && npm install
 cp .env.example .env      # omplir VITE_SUPABASE_URL i VITE_SUPABASE_ANON_KEY
 npm run dev               # http://localhost:3000
 npm run build
-npm run lint              # = tsc --noEmit (no hi ha ESLint ni Prettier)
+npm run lint              # = tsc --noEmit + oxlint (només les regles de hooks; no hi ha Prettier)
 npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de localToday)
 ```
 
@@ -113,4 +113,5 @@ Add restaurant editing, Instagram links and fixed cuisine list
 ## Peculiaritats conegudes
 
 - El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`. Les versions noves no s'activen soles: `UpdateProvider` (`src/context/UpdateContext.tsx`) les detecta, `UpdateButton` apareix a la barra superior i l'usuari decideix quan recarregar (vegeu `docs/CONFIGURACIO.md`).
+- El lint usa oxlint (`.oxlintrc.json`, només `react-hooks/rules-of-hooks` i `exhaustive-deps`) perquè `typescript-eslint` no suporta TypeScript 7. Les dependències que falten a propòsit es marquen amb `// eslint-disable-line react-hooks/exhaustive-deps` (oxlint ho respecta) i un comentari que n'explica el motiu.
 - El build injecta una `Content-Security-Policy` (meta) a `vite.config.ts`; si afegeixes un domini extern, cal autoritzar-lo allà.

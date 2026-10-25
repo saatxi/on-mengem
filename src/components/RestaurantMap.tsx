@@ -96,7 +96,7 @@ export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }
     const map = mapRef.current;
     if (!map || located.length === 0) return;
     map.fitBounds(L.latLngBounds(located.map((r) => [r.lat, r.lng])), { padding: [32, 32], maxZoom: MAX_FIT_ZOOM });
-  }, [boundsKey]);
+  }, [boundsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [notFound, setNotFound] = useState(0);

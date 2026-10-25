@@ -35,7 +35,7 @@ Cal Node 24 (`nvm use` llegeix `.nvmrc`), un projecte gratuït de [Supabase](htt
 | `npm run dev` | Servidor de desenvolupament al port 3000 |
 | `npm run build` | Build de producció a `dist/` |
 | `npm run preview` | Serveix la build en local |
-| `npm run lint` | Comprova els tipus (`tsc --noEmit`) |
+| `npm run lint` | Comprova els tipus (`tsc --noEmit`) i les regles dels hooks de React (`oxlint`) |
 | `npm test` | Tests de les funcions pures amb Vitest (`*.test.ts` al costat del codi) |
 | `npx supabase test db` | Tests de seguretat de la base de dades (cal Docker i `npx supabase start`) |
 | `make audit` | Vulnerabilitats conegudes de les dependències (`npm audit`) |
