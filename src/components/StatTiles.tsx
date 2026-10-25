@@ -1,7 +1,7 @@
 import React from 'react';
 import { UtensilsCrossed, CheckCircle2, Star, Heart, type LucideIcon } from 'lucide-react';
 import { Restaurant, WishlistItem } from '../types';
-import { isVisited } from '../utils/restaurantFields';
+import { isVisited, shownRating } from '../utils/restaurantFields';
 import { isInCurrentMonth } from '../utils/time';
 import { useCountUp } from '../hooks/useCountUp';
 import { cn } from '../utils/cn';
@@ -14,11 +14,9 @@ interface Props {
 
 export const StatTiles: React.FC<Props> = ({ restaurants, wishlist }) => {
   const visitedCount = restaurants.filter(isVisited).length;
-  const ratedRestaurants = restaurants.filter((r) => r.rating != null && r.rating > 0);
-  const avgRating =
-    ratedRestaurants.length > 0
-      ? ratedRestaurants.reduce((sum, r) => sum + r.rating!, 0) / ratedRestaurants.length
-      : null;
+  // Mateixa nota que es mostra a les targetes i a l'ordre «Millor valorats»
+  const ratings = restaurants.map(shownRating).filter((rating): rating is number => rating != null && rating > 0);
+  const avgRating = ratings.length > 0 ? ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length : null;
 
   // Novetats del mes en curs
   const addedThisMonth = restaurants.filter((r) => isInCurrentMonth(r.createdAt)).length;

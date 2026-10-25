@@ -145,7 +145,8 @@ export const RESTAURANT_SORTS: Record<RestaurantSort, string> = {
   lastVisit: 'Visitats fa menys',
 };
 
-const shownRating = (r: Restaurant) => visitAverage(r) ?? r.rating ?? null;
+/** Nota que es mostra d'un restaurant: la mitjana de les visites o, si no n'hi ha, la nota desada. */
+export const shownRating = (r: Restaurant): number | null => visitAverage(r) ?? r.rating ?? null;
 
 /** Retorna una còpia ordenada; els que no tenen el valor (sense nota, sense visites) van al final. */
 export const sortRestaurants = (list: Restaurant[], sort: RestaurantSort): Restaurant[] => {
