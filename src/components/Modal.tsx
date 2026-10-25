@@ -96,8 +96,20 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Clicar el fons tanca el diàleg, però només si el clic hi ha començat: seleccionar text d'un camp i
+  // deixar anar el botó fora del panell també genera un clic al fons, i no ha de tancar res
+  const pressedOnBackdropRef = useRef(false);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/40 backdrop-blur-sm sm:p-4 animate-fade-in">
+    <div
+      onPointerDown={(e) => {
+        pressedOnBackdropRef.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (pressedOnBackdropRef.current && e.target === e.currentTarget) onClose();
+      }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/40 backdrop-blur-sm sm:p-4 animate-fade-in"
+    >
       <div
         ref={panelRef}
         role="dialog"
