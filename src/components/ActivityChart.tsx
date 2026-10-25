@@ -44,9 +44,9 @@ export const ActivityChart: React.FC<Props> = ({ restaurants }) => {
         {months.map(({ month, count }) => (
           <div key={month} role="listitem" className="flex h-full flex-col items-center justify-end gap-1" title={`${monthLabel(month)}: ${count}`}>
             <span className={cn('text-[0.65rem] font-bold tabular-nums text-stone-600', count === 0 && 'invisible')}>{count}</span>
-            <div className="flex w-full min-h-0 flex-1 items-end">
+            <div className="flex w-full min-h-0 flex-1 items-end justify-center">
               <div
-                className={cn('w-full rounded-full transition-[height] duration-500', count > 0 ? 'bg-brand' : 'bg-stone-100')}
+                className={cn('w-full max-w-5 rounded-t-lg rounded-b-sm transition-[height] duration-500', count > 0 ? 'bg-brand' : 'bg-stone-100')}
                 style={{ height: count > 0 ? `${(count / max) * 100}%` : '0.375rem' }}
               />
             </div>
