@@ -29,13 +29,14 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
     try {
       await action();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No s\'ha pogut completar l\'acció.');
+      setError(err instanceof Error ? err.message : "No s'ha pogut completar l'acció.");
     } finally {
       setBusy(false);
     }
   };
 
-  const linkBtn = 'text-xs font-bold px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
+  const linkBtn =
+    'text-xs font-bold px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
 
   return (
     <div className={cn(CARD, 'p-5 sm:p-7')}>
@@ -61,7 +62,11 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
         </div>
       </div>
 
-      {error && <p role="alert" className="mb-3 text-xs font-semibold text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="mb-3 text-xs font-semibold text-red-600">
+          {error}
+        </p>
+      )}
 
       <div className="divide-y divide-stone-100">
         {group.memberUids.map((uid, index) => {
@@ -78,9 +83,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                 <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
                   <span>{isCurrent ? `${name} (Tu)` : name}</span>
                   {isGroupOwner && (
-                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">
-                      Creador
-                    </span>
+                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">Creador</span>
                   )}
                 </div>
               </div>
@@ -92,8 +95,13 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                       disabled={busy}
                       className={linkBtn}
                       onClick={() =>
-                        run({ message: `Vols cedir el grup "${group.name}" a ${name}?`, details: 'Deixaràs de ser-ne el creador.', confirmLabel: 'Cedir grup' }, () =>
-                          transferOwnership(group.id, uid)
+                        run(
+                          {
+                            message: `Vols cedir el grup "${group.name}" a ${name}?`,
+                            details: 'Deixaràs de ser-ne el creador.',
+                            confirmLabel: 'Cedir grup',
+                          },
+                          () => transferOwnership(group.id, uid),
                         )
                       }
                     >
@@ -102,7 +110,11 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                     <button
                       disabled={busy}
                       className={`${linkBtn} text-red-600`}
-                      onClick={() => run({ message: `Vols expulsar ${name} del grup?`, confirmLabel: 'Expulsar', destructive: true }, () => removeMember(group.id, uid))}
+                      onClick={() =>
+                        run({ message: `Vols expulsar ${name} del grup?`, confirmLabel: 'Expulsar', destructive: true }, () =>
+                          removeMember(group.id, uid),
+                        )
+                      }
                     >
                       Expulsar
                     </button>
@@ -112,7 +124,11 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                   <button
                     disabled={busy}
                     className={`${linkBtn} text-red-600`}
-                    onClick={() => run({ message: `Vols sortir del grup "${group.name}"?`, confirmLabel: 'Sortir', destructive: true }, () => leaveGroup(group.id))}
+                    onClick={() =>
+                      run({ message: `Vols sortir del grup "${group.name}"?`, confirmLabel: 'Sortir', destructive: true }, () =>
+                        leaveGroup(group.id),
+                      )
+                    }
                   >
                     Sortir del grup
                   </button>
@@ -129,8 +145,13 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
             disabled={busy}
             className={linkBtn}
             onClick={() =>
-              run({ message: 'Vols generar un codi d\'invitació nou?', details: 'El codi actual deixarà de funcionar.', confirmLabel: 'Generar' }, () =>
-                regenerateGroupCode(group.id)
+              run(
+                {
+                  message: "Vols generar un codi d'invitació nou?",
+                  details: 'El codi actual deixarà de funcionar.',
+                  confirmLabel: 'Generar',
+                },
+                () => regenerateGroupCode(group.id),
               )
             }
           >
@@ -143,11 +164,11 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
               run(
                 {
                   message: `Vols esborrar el grup "${group.name}"?`,
-                  details: 'S\'eliminaran per a tothom els seus restaurants, desitjats i alertes.',
+                  details: "S'eliminaran per a tothom els seus restaurants, desitjats i alertes.",
                   confirmLabel: 'Esborrar el grup',
                   destructive: true,
                 },
-                () => deleteGroup(group.id)
+                () => deleteGroup(group.id),
               )
             }
           >

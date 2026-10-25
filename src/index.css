@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* Tokens de l'app. Els colors semàntics canvien amb el tema; la resta de components fan servir la paleta de Tailwind. */
 @theme {
@@ -201,7 +201,14 @@
   border: 2px solid transparent;
   background:
     linear-gradient(var(--color-surface), var(--color-surface)) padding-box,
-    conic-gradient(from var(--beam-angle), var(--color-stone-200) 0 55%, var(--color-accent) 75%, var(--color-accent-2) 90%, var(--color-stone-200)) border-box;
+    conic-gradient(
+        from var(--beam-angle),
+        var(--color-stone-200) 0 55%,
+        var(--color-accent) 75%,
+        var(--color-accent-2) 90%,
+        var(--color-stone-200)
+      )
+      border-box;
   animation: var(--animate-beam);
 }
 

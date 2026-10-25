@@ -53,7 +53,7 @@ describe('isInstagramHandle', () => {
     expect(isInstagramHandle('a'.repeat(30))).toBe(true);
   });
 
-  it('rebutja buits, massa llargs o amb caràcters que podrien alterar l\'URL', () => {
+  it("rebutja buits, massa llargs o amb caràcters que podrien alterar l'URL", () => {
     expect(isInstagramHandle(undefined)).toBe(false);
     expect(isInstagramHandle('')).toBe(false);
     expect(isInstagramHandle('a'.repeat(31))).toBe(false);
@@ -82,13 +82,13 @@ describe('localToday', () => {
     vi.useRealTimers();
   });
 
-  it('dona la data en hora local, amb zeros a l\'esquerra', () => {
+  it("dona la data en hora local, amb zeros a l'esquerra", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 0, 5, 12, 0));
     expect(localToday()).toBe('2026-01-05');
   });
 
-  it('just després de mitjanit ja és el dia nou (toISOString encara donaria ahir a l\'est d\'UTC)', () => {
+  it("just després de mitjanit ja és el dia nou (toISOString encara donaria ahir a l'est d'UTC)", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 2, 1, 0, 30));
     expect(localToday()).toBe('2026-03-01');
@@ -98,7 +98,7 @@ describe('localToday', () => {
 describe('canEditVisit', () => {
   const members = ['alice', 'bob'];
 
-  it('a l\'espai personal només l\'autor', () => {
+  it("a l'espai personal només l'autor", () => {
     expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'alice', [])).toBe(true);
     expect(canEditVisit(visit({ groupId: null, createdBy: 'alice' }), 'bob', [])).toBe(false);
   });
@@ -107,13 +107,13 @@ describe('canEditVisit', () => {
     expect(canEditVisit(visit({ shared: true, createdBy: 'alice' }), 'bob', members)).toBe(true);
   });
 
-  it('en un grup, una visita privada només l\'autor, o tothom si l\'autor ha esborrat el compte', () => {
+  it("en un grup, una visita privada només l'autor, o tothom si l'autor ha esborrat el compte", () => {
     expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'alice', members)).toBe(true);
     expect(canEditVisit(visit({ shared: false, createdBy: 'alice' }), 'bob', members)).toBe(false);
     expect(canEditVisit(visit({ shared: false, createdBy: undefined }), 'bob', members)).toBe(true);
   });
 
-  it('en un grup, una visita privada la pot editar qualsevol membre si l\'autor ja no hi és', () => {
+  it("en un grup, una visita privada la pot editar qualsevol membre si l'autor ja no hi és", () => {
     expect(canEditVisit(visit({ shared: false, createdBy: 'carol' }), 'bob', members)).toBe(true);
   });
 });
@@ -125,7 +125,7 @@ describe('visitAverage', () => {
     expect(visitAverage(restaurant([visit({ rating: 4 }), visit({ rating: 5 }), visit({})]))).toBe(4.5);
   });
 
-  it('ignora les valoracions de 0 i retorna null si no n\'hi ha cap', () => {
+  it("ignora les valoracions de 0 i retorna null si no n'hi ha cap", () => {
     expect(visitAverage(restaurant([visit({ rating: 0 }), visit({})]))).toBeNull();
     expect(visitAverage(restaurant([]))).toBeNull();
   });
@@ -151,7 +151,13 @@ describe('matchesQuery', () => {
 });
 
 describe('sortRestaurants', () => {
-  const r = (overrides: Partial<Restaurant>): Restaurant => ({ id: overrides.name ?? 'r', name: 'R', groupId: null, visits: [], ...overrides });
+  const r = (overrides: Partial<Restaurant>): Restaurant => ({
+    id: overrides.name ?? 'r',
+    name: 'R',
+    groupId: null,
+    visits: [],
+    ...overrides,
+  });
   const names = (list: Restaurant[]) => list.map((x) => x.name);
 
   const list = [

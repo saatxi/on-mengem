@@ -16,8 +16,10 @@ describe('timeAgo', () => {
     expect(timeAgo(ago(ms), now)).toBe(text);
   });
 
-  it('a partir d\'una setmana mostra la data', () => {
-    expect(timeAgo('2026-10-01T12:00:00Z', now)).toBe(new Date('2026-10-01T12:00:00Z').toLocaleDateString('ca', { day: 'numeric', month: 'short' }));
+  it("a partir d'una setmana mostra la data", () => {
+    expect(timeAgo('2026-10-01T12:00:00Z', now)).toBe(
+      new Date('2026-10-01T12:00:00Z').toLocaleDateString('ca', { day: 'numeric', month: 'short' }),
+    );
   });
 
   it('sense data retorna un text buit', () => {

@@ -35,9 +35,7 @@ export const GroupTab: React.FC<Props> = ({ group, onJoinGroup, onCreateGroup })
       <div className={cn(CARD, 'p-5 sm:p-7')}>
         <div className="flex flex-col md:flex-row justify-between gap-5">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-accent">
-              Grup actiu{group.ownerName ? ` · creat per ${group.ownerName}` : ''}
-            </p>
+            <p className="text-sm font-semibold text-accent">Grup actiu{group.ownerName ? ` · creat per ${group.ownerName}` : ''}</p>
             <h2 className="mt-1 text-3xl font-extrabold text-stone-900 tracking-tight break-words">{group.name}</h2>
             {group.description && <p className="mt-1 text-sm text-stone-600 max-w-lg">{group.description}</p>}
           </div>

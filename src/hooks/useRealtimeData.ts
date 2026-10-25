@@ -1,12 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabase/client';
-import {
-  toRestaurant,
-  toWishlistItem,
-  toAlert,
-  restaurantToRow,
-  wishlistToRow,
-} from '../supabase/mappers';
+import { toRestaurant, toWishlistItem, toAlert, restaurantToRow, wishlistToRow } from '../supabase/mappers';
 import { quotaErrorMessage } from '../supabase/errors';
 import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
@@ -18,7 +12,7 @@ function logError(action: string, error: unknown) {
   console.error(`[Supabase] ${action}:`, error);
 }
 
-const ERROR_MESSAGE = 'No s\'ha pogut completar l\'acció. Comprova la connexió i torna-ho a provar.';
+const ERROR_MESSAGE = "No s'ha pogut completar l'acció. Comprova la connexió i torna-ho a provar.";
 /** Els canvis ràpids consecutius (p. ex. una còpia a varis grups) es resolen amb un sol refresc. */
 const REFRESH_DEBOUNCE_MS = 300;
 
@@ -145,16 +139,14 @@ export function useRealtimeData() {
   const addRestaurant = async (data: NewRestaurant) => {
     if (!uid || !userProfile) return false;
     const coords = data.address ? await geocodeAddress(data.address) : null;
-    const { error } = await supabase
-      .from('restaurants')
-      .insert({
-        ...restaurantToRow(data),
-        ...coordinateColumns(coords),
-        name: data.name,
-        group_id: groupId,
-        created_by: uid,
-        created_by_name: userProfile.nickname,
-      });
+    const { error } = await supabase.from('restaurants').insert({
+      ...restaurantToRow(data),
+      ...coordinateColumns(coords),
+      name: data.name,
+      group_id: groupId,
+      created_by: uid,
+      created_by_name: userProfile.nickname,
+    });
     if (error) {
       fail('addRestaurant', error);
       return false;
@@ -167,17 +159,12 @@ export function useRealtimeData() {
     if (!uid) return false;
     // Es tornen a calcular les coordenades si l'adreça canvia o si encara no en tenia.
     const current = restaurants.find((r) => r.id === resId);
-    const relocate =
-      data.address !== undefined && (data.address !== (current?.address ?? '') || current?.lat === undefined);
+    const relocate = data.address !== undefined && (data.address !== (current?.address ?? '') || current?.lat === undefined);
     const row = relocate
       ? { ...restaurantToRow(data), ...coordinateColumns(data.address ? await geocodeAddress(data.address) : null) }
       : restaurantToRow(data);
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
-    const { data: rows, error } = await supabase
-      .from('restaurants')
-      .update(row)
-      .eq('id', resId)
-      .select('id');
+    const { data: rows, error } = await supabase.from('restaurants').update(row).eq('id', resId).select('id');
     if (error || !rows?.length) {
       fail('updateRestaurant', error ?? 'Cap fila actualitzada (RLS?)');
       return false;
@@ -201,11 +188,7 @@ export function useRealtimeData() {
    * Ubica des del mapa els restaurants amb adreça però sense coordenades, d'un en un (Nominatim, 1 petició/s).
    * Retorna quants no s'han pogut ubicar. `signal` l'atura (p. ex. en sortir del mapa).
    */
-  const locateRestaurants = async (
-    toLocate: Restaurant[],
-    onProgress: (done: number) => void,
-    signal?: AbortSignal,
-  ) => {
+  const locateRestaurants = async (toLocate: Restaurant[], onProgress: (done: number) => void, signal?: AbortSignal) => {
     if (!uid) return 0;
     let notFound = 0;
     for (const [i, res] of toLocate.entries()) {
@@ -262,19 +245,15 @@ export function useRealtimeData() {
   };
 
   // CRUD Wishlist
-  const addWishlistItem = async (
-    data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>
-  ) => {
+  const addWishlistItem = async (data: Omit<WishlistItem, 'id' | 'groupId' | 'userId' | 'userName' | 'createdAt' | 'updatedAt'>) => {
     if (!uid || !userProfile) return false;
-    const { error } = await supabase
-      .from('wishlist')
-      .insert({
-        ...wishlistToRow({ ...data, status: data.status || 'pending' }),
-        restaurant_name: data.restaurantName,
-        group_id: groupId,
-        user_id: uid,
-        user_name: userProfile.nickname,
-      });
+    const { error } = await supabase.from('wishlist').insert({
+      ...wishlistToRow({ ...data, status: data.status || 'pending' }),
+      restaurant_name: data.restaurantName,
+      group_id: groupId,
+      user_id: uid,
+      user_name: userProfile.nickname,
+    });
     if (error) {
       fail('addWishlistItem', error);
       return false;
@@ -286,11 +265,7 @@ export function useRealtimeData() {
   const updateWishlistItem = async (wishlistId: string, data: Partial<WishlistItem>) => {
     if (!uid) return false;
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
-    const { data: rows, error } = await supabase
-      .from('wishlist')
-      .update(wishlistToRow(data))
-      .eq('id', wishlistId)
-      .select('id');
+    const { data: rows, error } = await supabase.from('wishlist').update(wishlistToRow(data)).eq('id', wishlistId).select('id');
     if (error || !rows?.length) {
       fail('updateWishlistItem', error ?? 'Cap fila actualitzada (RLS?)');
       return false;
@@ -337,10 +312,7 @@ export function useRealtimeData() {
       // Els desitjats no tenen coordenades: el restaurant nou s'ubica un cop creat.
       const coords = wishlistItem.address ? await geocodeAddress(wishlistItem.address) : null;
       if (coords) {
-        const { error: locateError } = await supabase
-          .from('restaurants')
-          .update(coordinateColumns(coords))
-          .eq('id', restaurantId);
+        const { error: locateError } = await supabase.from('restaurants').update(coordinateColumns(coords)).eq('id', restaurantId);
         if (locateError) logError('convertWishlistToRestaurant', locateError);
         else await fetchRestaurants();
       }

@@ -15,7 +15,7 @@ export const WelcomeOnboarding: React.FC = () => {
       await loginWithGoogle();
     } catch (err) {
       console.error(err);
-      setLoginError('No s\'ha pogut completar l\'inici de sessió amb Google. Torna-ho a provar.');
+      setLoginError("No s'ha pogut completar l'inici de sessió amb Google. Torna-ho a provar.");
       setGoogleLoading(false);
     }
   };
@@ -35,9 +35,7 @@ export const WelcomeOnboarding: React.FC = () => {
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl font-extrabold text-stone-900 tracking-tight">
-          On mengem?
-        </h1>
+        <h1 className="text-4xl font-extrabold text-stone-900 tracking-tight">On mengem?</h1>
         <p className="mt-2 text-sm text-stone-600 leading-relaxed">
           L'aplicació per organitzar els teus restaurants preferits, la llista de desitjats i compartir-ho amb els teus grups en temps real.
         </p>
@@ -60,9 +58,7 @@ export const WelcomeOnboarding: React.FC = () => {
 
         {/* Error message if any */}
         {loginError && (
-          <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">
-            {loginError}
-          </div>
+          <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">{loginError}</div>
         )}
 
         {/* Google Sign-In Button */}
@@ -99,9 +95,7 @@ export const WelcomeOnboarding: React.FC = () => {
           )}
         </button>
 
-        <p className="mt-4 text-xs text-stone-500">
-          Autenticació oficial segura amb el teu compte de Google.
-        </p>
+        <p className="mt-4 text-xs text-stone-500">Autenticació oficial segura amb el teu compte de Google.</p>
 
         {/* Usuaris de supabase/seed.sql: el build de producció elimina aquest bloc */}
         {import.meta.env.MODE === 'localdb' && <DevLogin />}

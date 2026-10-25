@@ -37,7 +37,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setDescription('');
     } catch (err) {
       console.error(err);
-      setError(quotaErrorMessage(err) ?? 'No s\'ha pogut crear el grup. Torna-ho a provar.');
+      setError(quotaErrorMessage(err) ?? "No s'ha pogut crear el grup. Torna-ho a provar.");
     } finally {
       setIsSubmitting(false);
     }
@@ -49,9 +49,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>
-            Nom del grup *
-          </label>
+          <label className={LABEL}>Nom del grup *</label>
           <input
             type="text"
             value={name}
@@ -64,9 +62,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </div>
 
         <div>
-          <label className={LABEL}>
-            Descripció o propòsit (opcional)
-          </label>
+          <label className={LABEL}>Descripció o propòsit (opcional)</label>
           <textarea
             rows={2}
             value={description}
@@ -78,28 +74,21 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="p-3 rounded-2xl bg-accent-soft text-xs text-orange-900 border border-orange-200">
-          Es generarà automàticament un <strong>codi d'invitació de 6 caràcters</strong> que podràs compartir per WhatsApp o missatgeria amb els teus amics perquè s'hi uneixin a l'instant.
+          Es generarà automàticament un <strong>codi d'invitació de 6 caràcters</strong> que podràs compartir per WhatsApp o missatgeria amb
+          els teus amics perquè s'hi uneixin a l'instant.
         </div>
 
-        {error && <p role="alert" className="text-xs font-semibold text-red-600">{error}</p>}
+        {error && (
+          <p role="alert" className="text-xs font-semibold text-red-600">
+            {error}
+          </p>
+        )}
 
         <div className="flex gap-2 pt-2">
-          <Button
-            type="button"
-            onClick={handleClose}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="button" onClick={handleClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || !name.trim()}
-            variant="primary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="submit" disabled={isSubmitting || !name.trim()} variant="primary" size="lg" className="flex-1">
             {isSubmitting ? 'Creant...' : 'Crear grup'}
           </Button>
         </div>

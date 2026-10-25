@@ -3,7 +3,12 @@ import { parseNominatim } from './geocode';
 
 describe('parseNominatim', () => {
   it('llegeix les coordenades del primer resultat (Nominatim les dona en text)', () => {
-    expect(parseNominatim([{ lat: '41.4030', lon: '2.1570' }, { lat: '0', lon: '0' }])).toEqual({ lat: 41.403, lng: 2.157 });
+    expect(
+      parseNominatim([
+        { lat: '41.4030', lon: '2.1570' },
+        { lat: '0', lon: '0' },
+      ]),
+    ).toEqual({ lat: 41.403, lng: 2.157 });
   });
 
   it('accepta coordenades numèriques', () => {

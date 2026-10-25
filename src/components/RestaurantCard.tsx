@@ -24,7 +24,12 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
   const visitCount = res.visits.length;
 
   return (
-    <article className={cn(CARD, 'group relative flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200')}>
+    <article
+      className={cn(
+        CARD,
+        'group relative flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+      )}
+    >
       <div className="flex items-start gap-3">
         <CuisineTile cuisine={res.cuisine} />
         <div className="min-w-0 flex-1">
@@ -82,7 +87,10 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
           target="_blank"
           rel="noopener noreferrer"
           title="Obrir al mapa"
-          className={cn(OVER, 'flex items-center gap-1.5 min-w-0 self-start max-w-full text-sm text-stone-500 hover:text-accent transition-colors')}
+          className={cn(
+            OVER,
+            'flex items-center gap-1.5 min-w-0 self-start max-w-full text-sm text-stone-500 hover:text-accent transition-colors',
+          )}
         >
           <MapPin className="w-3.5 h-3.5 shrink-0" />
           <span className="truncate">{res.address}</span>
@@ -121,12 +129,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
               <Globe className="w-4 h-4" />
             </a>
           )}
-          <Button
-            onClick={() => onRegisterVisit(res)}
-            variant="success"
-            size="sm"
-            className={cn(OVER, 'ml-1 gap-1')}
-          >
+          <Button onClick={() => onRegisterVisit(res)} variant="success" size="sm" className={cn(OVER, 'ml-1 gap-1')}>
             <Plus className="w-3.5 h-3.5" />
             <span>Visita</span>
           </Button>

@@ -20,14 +20,20 @@ interface Props {
   onMarkVisited: (item: WishlistItem) => void;
 }
 
-const ICON_BUTTON = 'p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 active:scale-[0.9] transition-[background-color,color,transform]';
+const ICON_BUTTON =
+  'p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 active:scale-[0.9] transition-[background-color,color,transform]';
 
 export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onTogglePlanned, onMarkVisited }) => {
   const isPlanned = item.status === 'planned';
   const link = safeHttpUrl(item.link);
 
   return (
-    <article className={cn(CARD, 'flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200')}>
+    <article
+      className={cn(
+        CARD,
+        'flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+      )}
+    >
       <div className="flex items-start gap-3">
         <CuisineTile cuisine={item.cuisine} />
         <div className="min-w-0 flex-1">
@@ -36,9 +42,7 @@ export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, on
             {item.status === 'visited' && (
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800">Provat</span>
             )}
-            {isPlanned && (
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800">Planificat</span>
-            )}
+            {isPlanned && <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800">Planificat</span>}
           </div>
           <p className="mt-0.5 text-sm text-stone-500 truncate">
             {[item.cuisine || 'Sense cuina', item.priceRange].filter(Boolean).join(' · ')}

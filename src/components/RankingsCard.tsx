@@ -25,7 +25,7 @@ const MODE_LABELS: Record<RankingMode, string> = {
 
 const EMPTY_TEXTS: Record<RankingMode, string> = {
   rated: 'Encara no hi ha restaurants valorats.',
-  repeated: 'Cap restaurant té més d\'una visita encara.',
+  repeated: "Cap restaurant té més d'una visita encara.",
   forgotten: 'Cap restaurant de 4 estrelles o més fa més de 6 mesos que no es visita.',
 };
 

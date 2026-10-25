@@ -20,7 +20,9 @@ export function useRestaurantFilters(restaurants: Restaurant[]) {
   const [sort, setSort] = usePersistentState<RestaurantSort>('sort', 'recent', oneOfKeys(RESTAURANT_SORTS));
 
   // Cuines d'aquest espai; la desada pot ser d'un altre espai i llavors no filtra
-  const cuisines = Array.from(new Set(restaurants.map((r) => r.cuisine).filter(Boolean) as string[])).sort((a, b) => a.localeCompare(b, 'ca'));
+  const cuisines = Array.from(new Set(restaurants.map((r) => r.cuisine).filter(Boolean) as string[])).sort((a, b) =>
+    a.localeCompare(b, 'ca'),
+  );
   const cuisine = cuisines.includes(selectedCuisine) ? selectedCuisine : ALL_CUISINES;
 
   const filtered = sortRestaurants(

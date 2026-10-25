@@ -76,15 +76,16 @@ export function MainApp() {
   // Restaurant triat amb «Sorprèn-me»: el detall el destaca i permet tornar a tirar
   const [randomPickId, setRandomPickId] = useState<string | null>(null);
   const [editingRestaurant, setEditingRestaurant] = useState<Restaurant | null>(null);
-  const [shareTarget, setShareTarget] = useState<
-    | { mode: 'copy' | 'move'; type: 'restaurant' | 'wishlist'; id: string; name: string }
-    | null
-  >(null);
+  const [shareTarget, setShareTarget] = useState<{
+    mode: 'copy' | 'move';
+    type: 'restaurant' | 'wishlist';
+    id: string;
+    name: string;
+  } | null>(null);
   // Modal de visita: { restaurant, visit? (undefined = nova visita) }
   const [visitTarget, setVisitTarget] = useState<{ restaurant: Restaurant; visit?: Visit } | null>(null);
   // Modal de conversió desitjat → restaurant
   const [wishlistToConvert, setWishlistToConvert] = useState<WishlistItem | null>(null);
-
 
   const restaurantFilters = useRestaurantFilters(restaurants);
   const filteredRestaurants = restaurantFilters.filtered;
@@ -110,15 +111,15 @@ export function MainApp() {
   }, [hasProfile]);
 
   // En l'espai personal no hi ha pestanyes de grup ni activitat
-  const effectiveTab: TabType =
-    isPersonal && (currentTab === 'group' || currentTab === 'alerts') ? 'restaurants' : currentTab;
+  const effectiveTab: TabType = isPersonal && (currentTab === 'group' || currentTab === 'alerts') ? 'restaurants' : currentTab;
 
   const selectedRestaurant = restaurants.find((r) => r.id === selectedRestaurantId) ?? null;
 
   // «On mengem avui?»: obre un restaurant a l'atzar d'entre els que es veuen amb els filtres actuals
   const openRandomRestaurant = () => {
     // En tornar a tirar no surt el mateix restaurant (si n'hi ha d'altres)
-    const candidates = filteredRestaurants.length > 1 ? filteredRestaurants.filter((r) => r.id !== selectedRestaurantId) : filteredRestaurants;
+    const candidates =
+      filteredRestaurants.length > 1 ? filteredRestaurants.filter((r) => r.id !== selectedRestaurantId) : filteredRestaurants;
     if (candidates.length === 0) return;
     const pick = candidates[Math.floor(Math.random() * candidates.length)];
     setSelectedRestaurantId(pick.id);
@@ -185,12 +186,7 @@ export function MainApp() {
               onClick={() => setCurrentTab('group')}
             />
           )}
-          <TabButton
-            icon={BarChart3}
-            label="Resum"
-            active={effectiveTab === 'stats'}
-            onClick={() => setCurrentTab('stats')}
-          />
+          <TabButton icon={BarChart3} label="Resum" active={effectiveTab === 'stats'} onClick={() => setCurrentTab('stats')} />
           {!isPersonal && (
             <TabButton
               icon={Bell}
@@ -245,9 +241,7 @@ export function MainApp() {
           />
         )}
 
-        {effectiveTab === 'alerts' && (
-          <AlertsFeed alerts={alerts} markAllAlertsAsRead={markAllAlertsAsRead} />
-        )}
+        {effectiveTab === 'alerts' && <AlertsFeed alerts={alerts} markAllAlertsAsRead={markAllAlertsAsRead} />}
       </main>
 
       {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}
@@ -313,10 +307,14 @@ export function MainApp() {
           closeRestaurantDetail();
           setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
         }}
-        onMoveToGroup={isPersonal ? (r) => {
-          closeRestaurantDetail();
-          setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
-        } : undefined}
+        onMoveToGroup={
+          isPersonal
+            ? (r) => {
+                closeRestaurantDetail();
+                setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
+              }
+            : undefined
+        }
       />
 
       <AddRestaurantModal
@@ -349,15 +347,9 @@ export function MainApp() {
         }}
       />
 
-      <CreateGroupModal
-        isOpen={showCreateGroup}
-        onClose={() => setShowCreateGroup(false)}
-      />
+      <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
 
-      <JoinGroupModal
-        isOpen={showJoinGroup}
-        onClose={() => setShowJoinGroup(false)}
-      />
+      <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
 
       <ProfileModal
         key={showProfile ? 'profile-open' : 'profile-closed'}
@@ -383,15 +375,19 @@ export function MainApp() {
       />
 
       <VisitModal
-        restaurant={wishlistToConvert ? {
-          id: '__convert__',
-          name: wishlistToConvert.restaurantName,
-          cuisine: wishlistToConvert.cuisine,
-          priceRange: wishlistToConvert.priceRange,
-          groupId: wishlistToConvert.groupId,
-          createdBy: wishlistToConvert.userId,
-          visits: [],
-        } : null}
+        restaurant={
+          wishlistToConvert
+            ? {
+                id: '__convert__',
+                name: wishlistToConvert.restaurantName,
+                cuisine: wishlistToConvert.cuisine,
+                priceRange: wishlistToConvert.priceRange,
+                groupId: wishlistToConvert.groupId,
+                createdBy: wishlistToConvert.userId,
+                visits: [],
+              }
+            : null
+        }
         onClose={() => setWishlistToConvert(null)}
         onSave={async (_id, visitedOn, rating, notes, attendeeIds, shared) => {
           if (!wishlistToConvert) return false;
@@ -401,17 +397,16 @@ export function MainApp() {
         }}
       />
 
-
       <Toast message={dataError} onClose={clearError} />
       <Toast message={dataError ? null : linkError} onClose={clearLinkError} />
-      <Toast message={dataError || linkError ? null : notice?.message ?? null} action={notice?.action} variant="success" onClose={clearNotice} />
-
-      <BottomNav
-        activeTab={effectiveTab}
-        onTabChange={setCurrentTab}
-        isPersonal={isPersonal}
-        alertCount={unreadAlertCount}
+      <Toast
+        message={dataError || linkError ? null : (notice?.message ?? null)}
+        action={notice?.action}
+        variant="success"
+        onClose={clearNotice}
       />
+
+      <BottomNav activeTab={effectiveTab} onTabChange={setCurrentTab} isPersonal={isPersonal} alertCount={unreadAlertCount} />
 
       {/* Non-intrusive Offline Indicator */}
       <OfflineIndicator />

@@ -71,12 +71,12 @@ describe('daysSinceLastVisit', () => {
 });
 
 describe('monthStreak', () => {
-  it('compta mesos seguits i travessa el canvi d\'any', () => {
+  it("compta mesos seguits i travessa el canvi d'any", () => {
     const list = [restaurant('A', { visits: ['2026-02-01', '2026-01-10', '2025-12-24', '2025-10-01'].map((d) => visit(d)) })];
     expect(monthStreak(list, new Date('2026-02-15T12:00:00'))).toBe(3);
   });
 
-  it('si el mes en curs encara no té visites, compta des de l\'anterior', () => {
+  it("si el mes en curs encara no té visites, compta des de l'anterior", () => {
     const list = [restaurant('A', { visits: [visit('2026-09-10'), visit('2026-08-01')] })];
     expect(monthStreak(list, now)).toBe(2);
   });
@@ -157,7 +157,7 @@ describe('cuisineRows', () => {
 describe('filterByPeriod', () => {
   const list = [
     restaurant('Aquest any', { visits: [visit('2026-03-01'), visit('2025-05-01')] }),
-    restaurant('L\'any passat', { visits: [visit('2025-05-01')] }),
+    restaurant("L'any passat", { visits: [visit('2025-05-01')] }),
     restaurant('Sense visites'),
   ];
 
@@ -165,7 +165,7 @@ describe('filterByPeriod', () => {
     expect(filterByPeriod(list, 'all', now)).toBe(list);
   });
 
-  it('amb «year» deixa els visitats aquest any i només les visites d\'aquest any', () => {
+  it("amb «year» deixa els visitats aquest any i només les visites d'aquest any", () => {
     const filtered = filterByPeriod(list, 'year', now);
     expect(filtered.map((r) => r.name)).toEqual(['Aquest any']);
     expect(filtered[0].visits.map((v) => v.visitedOn)).toEqual(['2026-03-01']);
@@ -183,7 +183,7 @@ describe('yearSummary', () => {
     { id: 'w2', restaurantName: 'Y', groupId: null, status: 'pending', updatedAt: '2026-05-01T10:00:00Z' },
   ];
 
-  it('resumeix les visites de l\'any', () => {
+  it("resumeix les visites de l'any", () => {
     expect(yearSummary(list, wishlist, 2026)).toEqual({
       year: 2026,
       visits: 3,
@@ -226,6 +226,9 @@ describe('yearSummary', () => {
       `Mes més actiu: ${new Date(2000, 2, 1).toLocaleDateString('ca', { month: 'long' })}`,
       '1 desitjat complert',
     ]);
-    expect(yearSummaryText(yearSummary(list, [], 2020)).split('\n')).toEqual(['El 2020 en xifres 🍽️', '0 visites a 0 restaurants (0 de nous)']);
+    expect(yearSummaryText(yearSummary(list, [], 2020)).split('\n')).toEqual([
+      'El 2020 en xifres 🍽️',
+      '0 visites a 0 restaurants (0 de nous)',
+    ]);
   });
 });

@@ -34,9 +34,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
             <Bell className="w-5 h-5 text-accent" />
             Activitat del grup
           </h2>
-          <p className="text-xs text-stone-500">
-            Els darrers canvis que ha fet la gent del grup.
-          </p>
+          <p className="text-xs text-stone-500">Els darrers canvis que ha fet la gent del grup.</p>
         </div>
         {alerts.length > 0 && (
           <button
@@ -58,21 +56,14 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, markAllAlertsAsRead }) => 
             const config = ALERT_CONFIG[alert.type] ?? ALERT_CONFIG.restaurant_added;
             const Icon = config.icon;
             return (
-              <div
-                key={alert.id}
-                className="p-4 rounded-2xl bg-stone-50 flex items-start gap-3 hover:bg-accent-soft/50 transition-colors"
-              >
-                <div
-                  className={`size-9 rounded-2xl ${config.iconBg} flex items-center justify-center flex-shrink-0`}
-                >
+              <div key={alert.id} className="p-4 rounded-2xl bg-stone-50 flex items-start gap-3 hover:bg-accent-soft/50 transition-colors">
+                <div className={`size-9 rounded-2xl ${config.iconBg} flex items-center justify-center flex-shrink-0`}>
                   <Icon className={`size-4 ${config.iconColor}`} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-0.5">
                     <h4 className="text-sm font-bold text-stone-900">{alert.title}</h4>
-                    <span className="text-xs text-stone-500 whitespace-nowrap flex-shrink-0">
-                      {timeAgo(alert.createdAt)}
-                    </span>
+                    <span className="text-xs text-stone-500 whitespace-nowrap flex-shrink-0">{timeAgo(alert.createdAt)}</span>
                   </div>
                   <p className="text-xs text-stone-600 leading-relaxed">{alert.message}</p>
                 </div>

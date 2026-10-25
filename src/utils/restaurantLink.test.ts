@@ -4,11 +4,11 @@ import { readRestaurantParam, restaurantUrl, withoutRestaurantParam } from './re
 const ID = '20000000-0000-4000-8000-000000000001';
 
 describe('restaurantLink', () => {
-  it('construeix l\'enllaç a l\'arrel de l\'app', () => {
+  it("construeix l'enllaç a l'arrel de l'app", () => {
     expect(restaurantUrl(ID, 'https://onmengem.example')).toBe(`https://onmengem.example/?r=${ID}`);
   });
 
-  it('llegeix l\'id del que genera restaurantUrl', () => {
+  it("llegeix l'id del que genera restaurantUrl", () => {
     expect(readRestaurantParam(new URL(restaurantUrl(ID, 'https://x.dev')).search)).toBe(ID);
   });
 

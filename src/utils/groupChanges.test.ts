@@ -50,7 +50,7 @@ describe('formatFieldValue', () => {
 });
 
 describe('fieldChanges', () => {
-  it('llista els camps canviats en l\'ordre del formulari', () => {
+  it("llista els camps canviats en l'ordre del formulari", () => {
     const c = change({ oldData: { rating: 4, name: 'Can Pep' }, newData: { rating: 2, name: 'Cal Pep' } });
     expect(fieldChanges(c, nameOf)).toEqual([
       { label: 'Nom', before: 'Can Pep', after: 'Cal Pep' },
@@ -64,7 +64,7 @@ describe('fieldChanges', () => {
 });
 
 describe('deletedSummary', () => {
-  it('compta les visites d\'un restaurant esborrat', () => {
+  it("compta les visites d'un restaurant esborrat", () => {
     expect(deletedSummary(change({ action: 'delete', oldData: { visits: [{}, {}] } }))).toBe('Amb 2 visites');
     expect(deletedSummary(change({ action: 'delete', oldData: { visits: [] } }))).toBeNull();
   });

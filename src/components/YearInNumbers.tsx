@@ -41,7 +41,12 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
 
   return (
     <Modal label={`El ${year} en xifres`} onClose={onClose} size="lg">
-      <ModalHeader title={`El ${year} en xifres`} subtitle={spaceName ? `Grup «${spaceName}»` : 'El teu espai'} icon={CalendarHeart} onClose={onClose} />
+      <ModalHeader
+        title={`El ${year} en xifres`}
+        subtitle={spaceName ? `Grup «${spaceName}»` : 'El teu espai'}
+        icon={CalendarHeart}
+        onClose={onClose}
+      />
 
       <div className="p-5 sm:p-6 space-y-4">
         {years.length > 1 && (
@@ -66,26 +71,44 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
           <p className="text-sm font-semibold opacity-90">Visites</p>
           <BigNumber value={summary.visits} className="text-6xl" />
           <p className="text-sm font-medium opacity-90 mt-1">
-            a {summary.restaurants === 1 ? '1 restaurant' : `${summary.restaurants} restaurants`}, {summary.newRestaurants === 1 ? '1 de nou' : `${summary.newRestaurants} de nous`}
+            a {summary.restaurants === 1 ? '1 restaurant' : `${summary.restaurants} restaurants`},{' '}
+            {summary.newRestaurants === 1 ? '1 de nou' : `${summary.newRestaurants} de nous`}
           </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Fact label="Cuina preferida" value={summary.topCuisine?.cuisine} detail={summary.topCuisine && plural(summary.topCuisine.visits, 'visita', 'visites')} className="bg-accent-soft" />
+          <Fact
+            label="Cuina preferida"
+            value={summary.topCuisine?.cuisine}
+            detail={summary.topCuisine && plural(summary.topCuisine.visits, 'visita', 'visites')}
+            className="bg-accent-soft"
+          />
           <Fact
             label="Mes més actiu"
             value={summary.busiestMonth && capitalize(monthName(summary.busiestMonth.month))}
             detail={summary.busiestMonth && plural(summary.busiestMonth.visits, 'visita', 'visites')}
             className="bg-emerald-50"
           />
-          <Fact label="Millor nota" value={summary.bestRated?.name} detail={summary.bestRated && `${summary.bestRated.rating.toFixed(1)} ★`} className="bg-amber-50" />
-          <Fact label="Més repetit" value={summary.mostRepeated?.name} detail={summary.mostRepeated && `${summary.mostRepeated.visits} cops`} className="bg-stone-100" />
+          <Fact
+            label="Millor nota"
+            value={summary.bestRated?.name}
+            detail={summary.bestRated && `${summary.bestRated.rating.toFixed(1)} ★`}
+            className="bg-amber-50"
+          />
+          <Fact
+            label="Més repetit"
+            value={summary.mostRepeated?.name}
+            detail={summary.mostRepeated && `${summary.mostRepeated.visits} cops`}
+            className="bg-stone-100"
+          />
         </div>
 
         {summary.wishesFulfilled > 0 && (
           <div className="rounded-3xl bg-violet-50 p-4 flex items-baseline gap-2">
             <BigNumber value={summary.wishesFulfilled} className="text-3xl text-violet-700" />
-            <span className="text-sm font-semibold text-stone-700">{summary.wishesFulfilled === 1 ? 'desitjat complert' : 'desitjats complerts'}</span>
+            <span className="text-sm font-semibold text-stone-700">
+              {summary.wishesFulfilled === 1 ? 'desitjat complert' : 'desitjats complerts'}
+            </span>
           </div>
         )}
 

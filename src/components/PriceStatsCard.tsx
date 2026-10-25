@@ -46,7 +46,10 @@ export const PriceStatsCard: React.FC<Props> = ({ restaurants }) => {
           <li key={row.range} className="grid grid-cols-[4.5rem_1fr_auto] items-center gap-3 text-xs">
             <span className="font-semibold text-stone-700 whitespace-nowrap">{row.range}</span>
             <div className="h-2.5 rounded-full bg-stone-100 overflow-hidden">
-              <div className="h-full rounded-full bg-brand transition-[width] duration-500" style={{ width: `${(row.count / maxCount) * 100}%` }} />
+              <div
+                className="h-full rounded-full bg-brand transition-[width] duration-500"
+                style={{ width: `${(row.count / maxCount) * 100}%` }}
+              />
             </div>
             <span className="flex items-center gap-2 justify-end tabular-nums">
               <strong className="w-6 text-right text-stone-800">{row.count}</strong>

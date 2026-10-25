@@ -37,9 +37,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
   const [unknownDate, setUnknownDate] = useState<boolean>(!visit?.visitedOn && isEditing);
   const [rating, setRating] = useState<number>(visit?.rating ?? 0);
   const [notes, setNotes] = useState<string>(visit?.notes ?? '');
-  const [attendeeIds, setAttendeeIds] = useState<string[]>(
-    visit?.attendeeIds.length ? visit.attendeeIds : uid ? [uid] : [],
-  );
+  const [attendeeIds, setAttendeeIds] = useState<string[]>(visit?.attendeeIds.length ? visit.attendeeIds : uid ? [uid] : []);
   const [shared, setShared] = useState<boolean>(visit?.shared ?? true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +49,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
     setNotes(visit?.notes ?? '');
     setAttendeeIds(visit?.attendeeIds?.length ? visit.attendeeIds : uid ? [uid] : []);
     setShared(visit?.shared ?? true);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [restaurant?.id, visit?.id]);
 
   if (!restaurant) return null;
@@ -60,9 +58,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
   const canToggleShared = !isEditing || !visit?.createdBy || visit.createdBy === uid;
 
   const toggleAttendee = (id: string) => {
-    setAttendeeIds((prev) =>
-      prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id],
-    );
+    setAttendeeIds((prev) => (prev.includes(id) ? prev.filter((a) => a !== id) : [...prev, id]));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,7 +82,13 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
 
   return (
     <Modal label={isEditing ? 'Editar visita' : 'Registrar visita'} onClose={onClose}>
-      <ModalHeader title={isEditing ? 'Editar visita' : 'Registrar visita'} subtitle={restaurant.name} icon={CalendarCheck} iconClassName="bg-emerald-100 text-emerald-600" onClose={onClose} />
+      <ModalHeader
+        title={isEditing ? 'Editar visita' : 'Registrar visita'}
+        subtitle={restaurant.name}
+        icon={CalendarCheck}
+        iconClassName="bg-emerald-100 text-emerald-600"
+        onClose={onClose}
+      />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5">
         {/* Data */}
@@ -106,30 +108,17 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
               Data desconeguda
             </label>
             {!unknownDate && (
-              <input
-                type="date"
-                value={visitedOn}
-                max={today}
-                onChange={(e) => setVisitedOn(e.target.value)}
-                className={FIELD}
-              />
+              <input type="date" value={visitedOn} max={today} onChange={(e) => setVisitedOn(e.target.value)} className={FIELD} />
             )}
           </div>
         </div>
 
         {/* Valoració */}
         <div>
-          <label className={cn(LABEL, 'mb-2')}>
-            Valoració {rating > 0 ? `(${rating} / 5)` : '(opcional)'}
-          </label>
+          <label className={cn(LABEL, 'mb-2')}>Valoració {rating > 0 ? `(${rating} / 5)` : '(opcional)'}</label>
           <div className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((val) => (
-              <button
-                key={val}
-                type="button"
-                onClick={() => setRating(rating === val ? 0 : val)}
-                className="focus:outline-none"
-              >
+              <button key={val} type="button" onClick={() => setRating(rating === val ? 0 : val)} className="focus:outline-none">
                 <Star
                   className={`w-7 h-7 transition ${
                     rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300 hover:text-amber-300'
@@ -174,7 +163,8 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                   />
                   <span className="text-lg leading-none">{info.avatar}</span>
                   <span className="text-sm text-stone-800 font-medium">
-                    {info.nickname}{id === uid ? ' (Tu)' : ''}
+                    {info.nickname}
+                    {id === uid ? ' (Tu)' : ''}
                   </span>
                 </label>
               ))}
@@ -209,31 +199,17 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
               </button>
             </div>
             <p className="mt-1.5 text-xs text-stone-500">
-              {shared
-                ? 'Tothom del grup la pot editar i esborrar.'
-                : 'Tothom del grup la veu, però només tu la pots editar.'}
+              {shared ? 'Tothom del grup la pot editar i esborrar.' : 'Tothom del grup la veu, però només tu la pots editar.'}
             </p>
           </div>
         )}
 
         {/* Botons */}
         <div className="flex gap-2 pt-1">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="button" onClick={onClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            variant="success"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="submit" disabled={isSubmitting} variant="success" size="lg" className="flex-1">
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Registrar visita'}
           </Button>
         </div>

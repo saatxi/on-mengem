@@ -53,8 +53,8 @@ const buildSlides = (nickname?: string): Slide[] => [
     body: (
       <>
         Afegeix-los amb <Mobile>el botó + de baix a la dreta</Mobile>
-        <Desktop>el botó «Afegir restaurant»</Desktop>: cuina, preu, adreça, notes i enllaços. Marca els preferits amb l'estrella i
-        troba'ls amb la cerca, els filtres o la vista de mapa.
+        <Desktop>el botó «Afegir restaurant»</Desktop>: cuina, preu, adreça, notes i enllaços. Marca els preferits amb l'estrella i troba'ls
+        amb la cerca, els filtres o la vista de mapa.
       </>
     ),
     art: (
@@ -86,8 +86,8 @@ const buildSlides = (nickname?: string): Slide[] => [
     title: 'Apunta cada visita',
     body: (
       <>
-        Prem «Visita» a la targeta per registrar quan hi has anat, quina nota li poses i qui t'acompanyava. Les visites poden ser privades
-        o del grup, i la nota del restaurant és la mitjana de totes.
+        Prem «Visita» a la targeta per registrar quan hi has anat, quina nota li poses i qui t'acompanyava. Les visites poden ser privades o
+        del grup, i la nota del restaurant és la mitjana de totes.
       </>
     ),
     art: (
@@ -112,8 +112,8 @@ const buildSlides = (nickname?: string): Slide[] => [
     body: (
       <>
         Quan algú et recomani un lloc, afegeix-lo a <Mobile>la pestanya Desitjats</Mobile>
-        <Desktop>Desitjats</Desktop>. Marca'l com a planificat quan tingueu data i, quan hi aneu, converteix-lo en restaurant amb la
-        primera visita.
+        <Desktop>Desitjats</Desktop>. Marca'l com a planificat quan tingueu data i, quan hi aneu, converteix-lo en restaurant amb la primera
+        visita.
       </>
     ),
     art: (

@@ -20,7 +20,8 @@ const SIZES = {
   lg: 'sm:max-w-lg',
 };
 
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 // Diàlegs oberts, de més antic a més nou: Escape només tanca el de sobre (p. ex. la visita oberta des del detall).
 const openModals: symbol[] = [];
@@ -128,7 +129,9 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
           className,
         )}
       >
-        {!fullScreenOnMobile && <div aria-hidden="true" className="sm:hidden mx-auto mt-2 -mb-1 h-1.5 w-10 shrink-0 rounded-full bg-stone-300" />}
+        {!fullScreenOnMobile && (
+          <div aria-hidden="true" className="sm:hidden mx-auto mt-2 -mb-1 h-1.5 w-10 shrink-0 rounded-full bg-stone-300" />
+        )}
         {children}
       </div>
     </div>

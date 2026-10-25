@@ -22,7 +22,16 @@ import { Modal } from './Modal';
 import { Button } from './Button';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
-import { instagramUrl, isInstagramHandle, canEditVisit, isVisited, visitAverage, lastVisit, safeHttpUrl, mapsUrl } from '../utils/restaurantFields';
+import {
+  instagramUrl,
+  isInstagramHandle,
+  canEditVisit,
+  isVisited,
+  visitAverage,
+  lastVisit,
+  safeHttpUrl,
+  mapsUrl,
+} from '../utils/restaurantFields';
 import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
@@ -88,12 +97,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
       <div className="sticky top-0 z-10 flex items-start justify-between gap-3 px-5 sm:px-6 pt-4 pb-3 bg-surface/90 backdrop-blur-md border-b border-stone-100">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 mb-1.5 flex-wrap text-xs font-semibold">
-            <span className="px-2.5 py-1 rounded-full bg-accent-soft text-orange-800">
-              {restaurant.cuisine || 'Restaurant'}
-            </span>
-            {restaurant.priceRange && (
-              <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-700">{restaurant.priceRange}</span>
-            )}
+            <span className="px-2.5 py-1 rounded-full bg-accent-soft text-orange-800">{restaurant.cuisine || 'Restaurant'}</span>
+            {restaurant.priceRange && <span className="px-2.5 py-1 rounded-full bg-stone-100 text-stone-700">{restaurant.priceRange}</span>}
             {visited && (
               <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800">
                 {visitCount === 1 ? '1 visita' : `${visitCount} visites`}
@@ -154,9 +159,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         {/* Notes */}
         {restaurant.notes ? (
           <div className="p-4 rounded-2xl bg-accent-soft/70">
-            <h3 className="text-xs font-semibold text-orange-900 mb-1">
-              Notes i plats recomanats
-            </h3>
+            <h3 className="text-xs font-semibold text-orange-900 mb-1">Notes i plats recomanats</h3>
             <p className="text-sm text-stone-700 leading-relaxed">{restaurant.notes}</p>
           </div>
         ) : null}
@@ -216,12 +219,13 @@ export const RestaurantDetailModal: React.FC<Props> = ({
               </a>
             </div>
           )}
-
         </div>
 
         {/* Metadades */}
         <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-          <span>Afegit per: <strong className="text-stone-600">{restaurant.createdByName || 'Membre del grup'}</strong></span>
+          <span>
+            Afegit per: <strong className="text-stone-600">{restaurant.createdByName || 'Membre del grup'}</strong>
+          </span>
           {restaurant.createdAt && (
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
@@ -287,7 +291,14 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
           <button
             onClick={async () => {
-              if (await confirm({ message: 'Vols eliminar aquest restaurant?', details: 'També s\'esborraran totes les seves visites.', confirmLabel: 'Eliminar', destructive: true })) {
+              if (
+                await confirm({
+                  message: 'Vols eliminar aquest restaurant?',
+                  details: "També s'esborraran totes les seves visites.",
+                  confirmLabel: 'Eliminar',
+                  destructive: true,
+                })
+              ) {
                 onDelete(restaurant.id);
                 onClose();
               }
@@ -307,25 +318,18 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                 <ClipboardList className="w-3.5 h-3.5 text-emerald-600" />
                 Visites ({visitCount})
               </h3>
-              {last?.visitedOn && (
-                <span className="text-xs text-stone-500">
-                  Darrera: {formatDate(last.visitedOn)}
-                </span>
-              )}
+              {last?.visitedOn && <span className="text-xs text-stone-500">Darrera: {formatDate(last.visitedOn)}</span>}
             </div>
             <div className="space-y-2">
               {restaurant.visits.map((v) => {
                 const canEdit = canEditVisit(v, uid, activeGroup?.memberUids ?? []);
                 const attendeeNames = v.attendeeIds
-                  .map((id) => members[id]?.nickname ?? (id === uid ? (userProfile?.nickname || 'Tu') : null))
+                  .map((id) => members[id]?.nickname ?? (id === uid ? userProfile?.nickname || 'Tu' : null))
                   .filter(Boolean)
                   .join(', ');
 
                 return (
-                  <div
-                    key={v.id}
-                    className="p-3.5 rounded-2xl bg-stone-50 space-y-1.5"
-                  >
+                  <div key={v.id} className="p-3.5 rounded-2xl bg-stone-50 space-y-1.5">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-bold text-stone-700">
@@ -360,7 +364,9 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                           </button>
                           <button
                             onClick={async () => {
-                              if (await confirm({ message: 'Vols eliminar aquesta visita?', confirmLabel: 'Eliminar', destructive: true })) {
+                              if (
+                                await confirm({ message: 'Vols eliminar aquesta visita?', confirmLabel: 'Eliminar', destructive: true })
+                              ) {
                                 onDeleteVisit(v.id);
                               }
                             }}
@@ -373,15 +379,17 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                         </div>
                       )}
                     </div>
-                    {v.notes && (
-                      <p className="text-xs text-stone-600 leading-relaxed">{v.notes}</p>
-                    )}
+                    {v.notes && <p className="text-xs text-stone-600 leading-relaxed">{v.notes}</p>}
                     <div className="text-xs text-stone-500 flex flex-wrap gap-x-3 gap-y-0.5">
                       {v.createdByName && (
-                        <span>Per: <strong className="text-stone-500">{v.createdByName}</strong></span>
+                        <span>
+                          Per: <strong className="text-stone-500">{v.createdByName}</strong>
+                        </span>
                       )}
                       {attendeeNames && (
-                        <span>Assistents: <strong className="text-stone-500">{attendeeNames}</strong></span>
+                        <span>
+                          Assistents: <strong className="text-stone-500">{attendeeNames}</strong>
+                        </span>
                       )}
                     </div>
                   </div>

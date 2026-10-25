@@ -25,10 +25,28 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlist }) => {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      <StatTile label="Restaurants" value={restaurants.length} trend={addedThisMonth} icon={UtensilsCrossed} iconClassName="bg-accent-soft text-accent" />
-      <StatTile label="Visitats" value={visitedCount} trend={visitedThisMonth} icon={CheckCircle2} iconClassName="bg-emerald-100 text-emerald-600" />
+      <StatTile
+        label="Restaurants"
+        value={restaurants.length}
+        trend={addedThisMonth}
+        icon={UtensilsCrossed}
+        iconClassName="bg-accent-soft text-accent"
+      />
+      <StatTile
+        label="Visitats"
+        value={visitedCount}
+        trend={visitedThisMonth}
+        icon={CheckCircle2}
+        iconClassName="bg-emerald-100 text-emerald-600"
+      />
       <StatTile label="Nota mitjana" value={avgRating} decimals={1} icon={Star} iconClassName="bg-amber-100 text-amber-500" />
-      <StatTile label="Desitjats" value={wishlist.length} trend={wishedThisMonth} icon={Heart} iconClassName="bg-violet-100 text-violet-700" />
+      <StatTile
+        label="Desitjats"
+        value={wishlist.length}
+        trend={wishedThisMonth}
+        icon={Heart}
+        iconClassName="bg-violet-100 text-violet-700"
+      />
     </div>
   );
 };

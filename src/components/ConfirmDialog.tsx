@@ -22,7 +22,7 @@ const DialogContext = createContext<OpenDialog | null>(null);
 
 function useOpenDialog(): OpenDialog {
   const open = useContext(DialogContext);
-  if (!open) throw new Error('useConfirm i useAlert s\'han de fer servir dins de <DialogProvider>');
+  if (!open) throw new Error("useConfirm i useAlert s'han de fer servir dins de <DialogProvider>");
   return open;
 }
 
@@ -66,24 +66,14 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     <DialogContext.Provider value={open}>
       {children}
       {request && (
-        <Modal
-          label={request.message}
-          onClose={() => close(false)}
-          size="sm"
-        >
+        <Modal label={request.message} onClose={() => close(false)} size="sm">
           <div className="p-6 space-y-3">
             <p className="text-base font-bold text-stone-900">{request.message}</p>
             {request.details && <p className="text-sm text-stone-600 whitespace-pre-line">{request.details}</p>}
           </div>
           <div className="flex gap-2 px-6 pb-6">
             {!request.alertOnly && (
-              <Button
-                type="button"
-                onClick={() => close(false)}
-                variant="secondary"
-                size="lg"
-                className="flex-1"
-              >
+              <Button type="button" onClick={() => close(false)} variant="secondary" size="lg" className="flex-1">
                 Cancel·lar
               </Button>
             )}

@@ -182,7 +182,9 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
     return visits.length ? [{ restaurant: r, visits }] : [];
   });
 
-  const newRestaurants = visited.filter(({ restaurant }) => datedVisits(restaurant).every((v) => parseLocalDate(v.visitedOn).getFullYear() >= year)).length;
+  const newRestaurants = visited.filter(({ restaurant }) =>
+    datedVisits(restaurant).every((v) => parseLocalDate(v.visitedOn).getFullYear() >= year),
+  ).length;
 
   const cuisineVisits = new Map<string, number>();
   const monthVisits = new Map<number, number>();
@@ -222,7 +224,8 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
     mostRepeated: repeated && repeated[1] >= 2 ? { name: repeated[0], visits: repeated[1] } : null,
     bestRated: best && { name: best[0], rating: best[1] },
     busiestMonth: busiestMonth && { month: busiestMonth[0], visits: busiestMonth[1] },
-    wishesFulfilled: wishlist.filter((w) => w.status === 'visited' && w.updatedAt && parseLocalDate(w.updatedAt).getFullYear() === year).length,
+    wishesFulfilled: wishlist.filter((w) => w.status === 'visited' && w.updatedAt && parseLocalDate(w.updatedAt).getFullYear() === year)
+      .length,
   };
 };
 
@@ -235,7 +238,9 @@ export const monthName = (month: number) => new Date(2000, month, 1).toLocaleDat
 /** Resum en text per compartir l'«Any en xifres». */
 export const yearSummaryText = (summary: YearSummary, spaceName?: string): string => {
   const lines = [`El ${summary.year} ${spaceName ? `de «${spaceName}» ` : ''}en xifres 🍽️`];
-  lines.push(`${plural(summary.visits, 'visita', 'visites')} a ${plural(summary.restaurants, 'restaurant', 'restaurants')} (${summary.newRestaurants} de nous)`);
+  lines.push(
+    `${plural(summary.visits, 'visita', 'visites')} a ${plural(summary.restaurants, 'restaurant', 'restaurants')} (${summary.newRestaurants} de nous)`,
+  );
   if (summary.topCuisine) lines.push(`Cuina preferida: ${summary.topCuisine.cuisine}`);
   if (summary.mostRepeated) lines.push(`Més repetit: ${summary.mostRepeated.name} (${summary.mostRepeated.visits} cops)`);
   if (summary.bestRated) lines.push(`Millor nota: ${summary.bestRated.name} (${summary.bestRated.rating.toFixed(1)} ★)`);

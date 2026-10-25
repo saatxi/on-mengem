@@ -9,8 +9,7 @@ interface Props {
   restaurants: Restaurant[];
 }
 
-const monthLabel = (month: string) =>
-  new Date(`${month}-01T00:00`).toLocaleDateString('ca', { month: 'short' }).replace('.', '');
+const monthLabel = (month: string) => new Date(`${month}-01T00:00`).toLocaleDateString('ca', { month: 'short' }).replace('.', '');
 
 const lastVisitText = (days: number | null) => {
   if (days === null) return 'Encara cap';
@@ -35,18 +34,24 @@ export const ActivityChart: React.FC<Props> = ({ restaurants }) => {
           </span>
           <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Activitat</h3>
         </div>
-        <p className="text-xs text-stone-500 mt-0.5">
-          {total === 1 ? '1 visita' : `${total} visites`} els darrers 12 mesos.
-        </p>
+        <p className="text-xs text-stone-500 mt-0.5">{total === 1 ? '1 visita' : `${total} visites`} els darrers 12 mesos.</p>
       </div>
 
       <div className="grid grid-cols-12 items-end gap-1.5 h-36" role="list" aria-label="Visites per mes">
         {months.map(({ month, count }) => (
-          <div key={month} role="listitem" className="flex h-full flex-col items-center justify-end gap-1" title={`${monthLabel(month)}: ${count}`}>
+          <div
+            key={month}
+            role="listitem"
+            className="flex h-full flex-col items-center justify-end gap-1"
+            title={`${monthLabel(month)}: ${count}`}
+          >
             <span className={cn('text-[0.65rem] font-bold tabular-nums text-stone-600', count === 0 && 'invisible')}>{count}</span>
             <div className="flex w-full min-h-0 flex-1 items-end justify-center">
               <div
-                className={cn('w-full max-w-5 rounded-t-lg rounded-b-sm transition-[height] duration-500', count > 0 ? 'bg-brand' : 'bg-stone-100')}
+                className={cn(
+                  'w-full max-w-5 rounded-t-lg rounded-b-sm transition-[height] duration-500',
+                  count > 0 ? 'bg-brand' : 'bg-stone-100',
+                )}
                 style={{ height: count > 0 ? `${(count / max) * 100}%` : '0.375rem' }}
               />
             </div>

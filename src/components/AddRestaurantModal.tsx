@@ -18,7 +18,9 @@ import { FIELD, LABEL } from '../utils/ui';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
+  onSave: (
+    data: Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>,
+  ) => Promise<boolean>;
   // Si es passa, el formulari edita aquest restaurant en lloc de crear-ne un de nou
   restaurant?: Restaurant | null;
   /** Noms dels restaurants de l'espai, per avisar si se'n repeteix un en afegir-lo. */
@@ -48,20 +50,18 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
     setIsSubmitting(true);
     try {
-      const ok = await onSave(
-        {
-          name: name.trim().slice(0, 100),
-          cuisine,
-          priceRange,
-          address: address.trim().slice(0, 200),
-          rating: rating ?? undefined,
-          notes: notes.trim().slice(0, 500),
-          link: link.trim().slice(0, 300),
-          instagram: toInstagramHandle(instagram),
-          // En editar no es toca el favorit: es commuta des de la targeta i el detall
-          ...(isEditing ? {} : { favorite: false }),
-        },
-      );
+      const ok = await onSave({
+        name: name.trim().slice(0, 100),
+        cuisine,
+        priceRange,
+        address: address.trim().slice(0, 200),
+        rating: rating ?? undefined,
+        notes: notes.trim().slice(0, 500),
+        link: link.trim().slice(0, 300),
+        instagram: toInstagramHandle(instagram),
+        // En editar no es toca el favorit: es commuta des de la targeta i el detall
+        ...(isEditing ? {} : { favorite: false }),
+      });
       if (ok) onClose();
     } catch (err) {
       console.error(err);
@@ -77,9 +77,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         {/* Nom */}
         <div>
-          <label className={LABEL}>
-            Nom del restaurant *
-          </label>
+          <label className={LABEL}>Nom del restaurant *</label>
           <input
             type="text"
             value={name}
@@ -100,35 +98,29 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Cuina i Preu */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className={LABEL}>
-              Tipus de cuina *
-            </label>
-            <select
-              value={cuisine}
-              onChange={(e) => setCuisine(e.target.value)}
-              required
-              className={FIELD}
-            >
-              <option value="" disabled>Tria una cuina...</option>
+            <label className={LABEL}>Tipus de cuina *</label>
+            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} required className={FIELD}>
+              <option value="" disabled>
+                Tria una cuina...
+              </option>
               {CUISINES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className={LABEL}>
-              Nivell de preu *
-            </label>
-            <select
-              value={priceRange}
-              onChange={(e) => setPriceRange(e.target.value)}
-              required
-              className={FIELD}
-            >
-              <option value="" disabled>Tria un preu...</option>
+            <label className={LABEL}>Nivell de preu *</label>
+            <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} required className={FIELD}>
+              <option value="" disabled>
+                Tria un preu...
+              </option>
               {PRICE_RANGES.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </div>
@@ -246,22 +238,10 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Botons */}
         <div className="flex gap-2 pt-3">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="button" onClick={onClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || !name.trim()}
-            variant="primary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="submit" disabled={isSubmitting || !name.trim()} variant="primary" size="lg" className="flex-1">
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir restaurant'}
           </Button>
         </div>

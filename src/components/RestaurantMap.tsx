@@ -28,10 +28,7 @@ const hasCoordinates = (res: Restaurant): res is Restaurant & { lat: number; lng
 const markerIcon = (favorite?: boolean) =>
   L.divIcon({
     className: '',
-    html: `<span class="${cn(
-      'block size-4 rounded-full bg-brand ring-2 shadow-md',
-      favorite ? 'ring-amber-400' : 'ring-white',
-    )}"></span>`,
+    html: `<span class="${cn('block size-4 rounded-full bg-brand ring-2 shadow-md', favorite ? 'ring-amber-400' : 'ring-white')}"></span>`,
     iconSize: [16, 16],
     iconAnchor: [8, 8],
     popupAnchor: [0, -10],

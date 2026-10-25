@@ -27,28 +27,28 @@ export const CUISINES = [
 
 // Emoji i to (hue OKLCH del fons bg-cuisine) de cada cuina
 export const CUISINE_STYLES: Record<string, { emoji: string; hue: number }> = {
-  'Americana': { emoji: '🍔', hue: 50 },
-  'Asiàtica': { emoji: '🥢', hue: 350 },
-  'Bar': { emoji: '🍸', hue: 200 },
-  'Basca': { emoji: '🍢', hue: 60 },
-  'Brunch': { emoji: '🥞', hue: 65 },
-  'Cafè': { emoji: '☕', hue: 60 },
-  'Catalana': { emoji: '🍅', hue: 30 },
-  'Cerveseria': { emoji: '🍺', hue: 90 },
-  'Esmorzar': { emoji: '🥐', hue: 80 },
-  'Espanyola': { emoji: '🥘', hue: 45 },
-  'Fleca': { emoji: '🥖', hue: 75 },
-  'Graella': { emoji: '🥩', hue: 20 },
-  'Índia': { emoji: '🍛', hue: 70 },
-  'Italiana': { emoji: '🍝', hue: 25 },
-  'Japonesa': { emoji: '🍣', hue: 10 },
-  'Marisc': { emoji: '🦐', hue: 230 },
-  'Mediterrània': { emoji: '🫒', hue: 130 },
+  Americana: { emoji: '🍔', hue: 50 },
+  Asiàtica: { emoji: '🥢', hue: 350 },
+  Bar: { emoji: '🍸', hue: 200 },
+  Basca: { emoji: '🍢', hue: 60 },
+  Brunch: { emoji: '🥞', hue: 65 },
+  Cafè: { emoji: '☕', hue: 60 },
+  Catalana: { emoji: '🍅', hue: 30 },
+  Cerveseria: { emoji: '🍺', hue: 90 },
+  Esmorzar: { emoji: '🥐', hue: 80 },
+  Espanyola: { emoji: '🥘', hue: 45 },
+  Fleca: { emoji: '🥖', hue: 75 },
+  Graella: { emoji: '🥩', hue: 20 },
+  Índia: { emoji: '🍛', hue: 70 },
+  Italiana: { emoji: '🍝', hue: 25 },
+  Japonesa: { emoji: '🍣', hue: 10 },
+  Marisc: { emoji: '🦐', hue: 230 },
+  Mediterrània: { emoji: '🫒', hue: 130 },
   'Menjar ràpid': { emoji: '🍟', hue: 95 },
   'Orient Mitjà': { emoji: '🧆', hue: 85 },
-  'Postres': { emoji: '🍰', hue: 350 },
-  'Vegetariana': { emoji: '🥗', hue: 145 },
-  'Vinoteca': { emoji: '🍷', hue: 320 },
+  Postres: { emoji: '🍰', hue: 350 },
+  Vegetariana: { emoji: '🥗', hue: 145 },
+  Vinoteca: { emoji: '🍷', hue: 320 },
 };
 
 const DEFAULT_CUISINE_STYLE = { emoji: '🍽️', hue: 40 };
@@ -75,8 +75,7 @@ export const toInstagramHandle = (value: string) =>
     .replace(/^@/, '')
     .split(/[/?#]/)[0];
 
-export const isInstagramHandle = (value?: string): value is string =>
-  !!value && /^[A-Za-z0-9._]{1,30}$/.test(value);
+export const isInstagramHandle = (value?: string): value is string => !!value && /^[A-Za-z0-9._]{1,30}$/.test(value);
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`;
 
@@ -110,7 +109,7 @@ export const visitAverage = (r: Restaurant): number | null => {
 };
 
 /** Retorna cert si l'usuari pot editar o esborrar la visita.
-* Equivalent a la funció SQL can_edit_visit, però al client: memberUids són els membres del grup de la visita. */
+ * Equivalent a la funció SQL can_edit_visit, però al client: memberUids són els membres del grup de la visita. */
 export const canEditVisit = (visit: Visit, uid: string, memberUids: readonly string[]): boolean => {
   if (visit.groupId === null) return visit.createdBy === uid;
   // Si l'autor ha esborrat el compte o ja no és al grup, la visita privada la pot editar qualsevol membre.

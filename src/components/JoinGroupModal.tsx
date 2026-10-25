@@ -48,9 +48,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>
-            Codi d'invitació
-          </label>
+          <label className={LABEL}>Codi d'invitació</label>
           <input
             type="text"
             value={code}
@@ -60,9 +58,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             maxLength={12}
             className="w-full px-3.5 py-3 rounded-2xl border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-400 focus:border-accent focus:ring-4 focus:ring-accent/15 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
           />
-          <p className="mt-1 text-xs text-stone-500 text-center">
-            Demana el codi a l'administrador o creador del grup.
-          </p>
+          <p className="mt-1 text-xs text-stone-500 text-center">Demana el codi a l'administrador o creador del grup.</p>
         </div>
 
         {feedback && (
@@ -83,22 +79,10 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="button" onClick={onClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || !code.trim()}
-            variant="primary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="submit" disabled={isSubmitting || !code.trim()} variant="primary" size="lg" className="flex-1">
             {isSubmitting ? 'Connectant...' : 'Unir-me al grup'}
           </Button>
         </div>

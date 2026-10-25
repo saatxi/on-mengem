@@ -41,8 +41,8 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
     const confirmed = await confirm({
       message: 'Vols eliminar el teu compte?',
       details:
-        'Aquesta acció NO es pot desfer. S\'esborraran el teu perfil i totes les dades del teu espai personal (restaurants i llista de desitjos).\n\n' +
-        'El que hagis afegit als grups es mantindrà sense el teu nom d\'usuari, i els grups dels quals siguis propietari passaran al membre més antic.',
+        "Aquesta acció NO es pot desfer. S'esborraran el teu perfil i totes les dades del teu espai personal (restaurants i llista de desitjos).\n\n" +
+        "El que hagis afegit als grups es mantindrà sense el teu nom d'usuari, i els grups dels quals siguis propietari passaran al membre més antic.",
       confirmLabel: 'Eliminar el compte',
       destructive: true,
     });
@@ -53,7 +53,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
       onClose();
     } catch (err) {
       console.error('Error eliminant el compte:', err);
-      await showAlert('No s\'ha pogut eliminar el compte.', 'Torna-ho a provar més tard.');
+      await showAlert("No s'ha pogut eliminar el compte.", 'Torna-ho a provar més tard.');
       setIsDeleting(false);
     }
   };
@@ -72,7 +72,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
       setTimeout(() => setSavedSuccess(false), 2000);
     } catch (err) {
       console.error(err);
-      setSaveError(quotaErrorMessage(err) ?? 'No s\'ha pogut desar el perfil. Comprova la connexió i torna-ho a provar.');
+      setSaveError(quotaErrorMessage(err) ?? "No s'ha pogut desar el perfil. Comprova la connexió i torna-ho a provar.");
     } finally {
       setIsSaving(false);
     }
@@ -86,12 +86,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         {/* Compte de Google */}
         <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
           {authUser?.photoURL ? (
-            <img
-              src={authUser.photoURL}
-              referrerPolicy="no-referrer"
-              alt=""
-              className="size-10 rounded-full object-cover shrink-0"
-            />
+            <img src={authUser.photoURL} referrerPolicy="no-referrer" alt="" className="size-10 rounded-full object-cover shrink-0" />
           ) : (
             <span className="size-10 rounded-full bg-stone-200 text-stone-500 flex items-center justify-center shrink-0">
               <UserRound className="size-5" />
@@ -105,7 +100,13 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
             variant="secondary"
             size="sm"
             onClick={async () => {
-              if (await confirm({ message: 'Vols tancar la sessió?', details: 'Hauràs de tornar a entrar amb el teu compte de Google.', confirmLabel: 'Tancar sessió' })) {
+              if (
+                await confirm({
+                  message: 'Vols tancar la sessió?',
+                  details: 'Hauràs de tornar a entrar amb el teu compte de Google.',
+                  confirmLabel: 'Tancar sessió',
+                })
+              ) {
                 await logout();
                 onClose();
               }
@@ -119,9 +120,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         {/* Com et veuen els altres membres: nom i avatar */}
         <form onSubmit={handleSave} className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="size-12 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-2xl">
-              {avatar}
-            </span>
+            <span className="size-12 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-2xl">{avatar}</span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-stone-900 truncate">{nickname.trim() || 'El teu nom'}</p>
               <p className="text-xs text-stone-500">Així et veuen els altres membres dels grups</p>

@@ -1,10 +1,10 @@
 {
-    "name": "on-mengem",
-    "compatibility_date": "2026-10-12",
-    "assets": {
-        "directory": "./dist",
-        "not_found_handling": "single-page-application"
-    },
-    // Obligatori per a les builds de previsualització (wrangler preview), encara que sigui buit.
-    "previews": {}
+  "name": "on-mengem",
+  "compatibility_date": "2026-10-12",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  // Obligatori per a les builds de previsualització (wrangler preview), encara que sigui buit.
+  "previews": {}
 }

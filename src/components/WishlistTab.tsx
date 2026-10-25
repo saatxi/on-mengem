@@ -81,7 +81,14 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
               className={cn(FIELD, 'pl-11')}
             />
           </div>
-          <SegmentedControl label="Estat del desitjat" options={WISHLIST_FILTERS} value={filter} onChange={setFilter} tone="page" className="self-start" />
+          <SegmentedControl
+            label="Estat del desitjat"
+            options={WISHLIST_FILTERS}
+            value={filter}
+            onChange={setFilter}
+            tone="page"
+            className="self-start"
+          />
         </div>
       )}
 

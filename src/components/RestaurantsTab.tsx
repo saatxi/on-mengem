@@ -29,9 +29,11 @@ const RESTAURANT_VIEWS = {
 type RestaurantView = keyof typeof RESTAURANT_VIEWS;
 
 // Botons i selectors petits de la barra de filtres
-const CHIP = 'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
+const CHIP =
+  'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
 const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
-const CHIP_SELECT = 'px-3.5 py-2 rounded-full bg-surface ring-1 ring-stone-200 text-xs text-stone-700 font-medium focus:ring-2 focus:ring-accent outline-hidden';
+const CHIP_SELECT =
+  'px-3.5 py-2 rounded-full bg-surface ring-1 ring-stone-200 text-xs text-stone-700 font-medium focus:ring-2 focus:ring-accent outline-hidden';
 
 interface Props {
   restaurants: Restaurant[];
@@ -118,7 +120,12 @@ export const RestaurantsTab: React.FC<Props> = ({
             <span>Sorprèn-me</span>
           </button>
 
-          <select value={filters.sort} onChange={(e) => filters.setSort(e.target.value as RestaurantSort)} aria-label="Ordena per" className={CHIP_SELECT}>
+          <select
+            value={filters.sort}
+            onChange={(e) => filters.setSort(e.target.value as RestaurantSort)}
+            aria-label="Ordena per"
+            className={CHIP_SELECT}
+          >
             {(Object.keys(RESTAURANT_SORTS) as RestaurantSort[]).map((key) => (
               <option key={key} value={key}>
                 {RESTAURANT_SORTS[key]}

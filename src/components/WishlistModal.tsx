@@ -69,13 +69,16 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
   return (
     <Modal label={isEditing ? 'Editar desitjat' : 'Proposar desitjat'} onClose={onClose}>
-      <ModalHeader title={isEditing ? 'Editar desitjat' : 'Proposar desitjat'} icon={BookmarkPlus} iconClassName="bg-violet-100 text-violet-700" onClose={onClose} />
+      <ModalHeader
+        title={isEditing ? 'Editar desitjat' : 'Proposar desitjat'}
+        icon={BookmarkPlus}
+        iconClassName="bg-violet-100 text-violet-700"
+        onClose={onClose}
+      />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>
-            {isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}
-          </label>
+          <label className={LABEL}>{isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}</label>
           <input
             type="text"
             value={restaurantName}
@@ -89,32 +92,24 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={LABEL}>
-              Cuina
-            </label>
-            <select
-              value={cuisine}
-              onChange={(e) => setCuisine(e.target.value)}
-              className={FIELD}
-            >
+            <label className={LABEL}>Cuina</label>
+            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} className={FIELD}>
               <option value="">Sense especificar</option>
               {CUISINES.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c}>
+                  {c}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className={LABEL}>
-              Preu estimat
-            </label>
-            <select
-              value={priceRange}
-              onChange={(e) => setPriceRange(e.target.value)}
-              className={FIELD}
-            >
+            <label className={LABEL}>Preu estimat</label>
+            <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className={FIELD}>
               <option value="">Sense especificar</option>
               {PRICE_RANGES.map((p) => (
-                <option key={p} value={p}>{p}</option>
+                <option key={p} value={p}>
+                  {p}
+                </option>
               ))}
             </select>
           </div>
@@ -201,22 +196,10 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         </div>
 
         <div className="flex gap-2 pt-2">
-          <Button
-            type="button"
-            onClick={onClose}
-            variant="secondary"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="button" onClick={onClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting || !restaurantName.trim()}
-            variant="wish"
-            size="lg"
-            className="flex-1"
-          >
+          <Button type="submit" disabled={isSubmitting || !restaurantName.trim()} variant="wish" size="lg" className="flex-1">
             {isSubmitting ? 'Guardant...' : isEditing ? 'Desar canvis' : 'Afegir als desitjats'}
           </Button>
         </div>

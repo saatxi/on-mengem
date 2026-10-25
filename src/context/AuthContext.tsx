@@ -113,10 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchGroups = useCallback(async () => {
     if (!uid) return;
-    const { data, error } = await supabase
-      .from('groups')
-      .select('*, group_members(user_id)')
-      .order('created_at', { ascending: true });
+    const { data, error } = await supabase.from('groups').select('*, group_members(user_id)').order('created_at', { ascending: true });
     if (error) {
       console.error('Error carregant els grups:', error);
       return;
@@ -155,8 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [uid, fetchProfile, fetchGroups]);
 
   // Grup actiu derivat del perfil; sense coincidència => espai personal
-  const activeGroup =
-    userGroups.find((g) => g.id === userProfile?.activeGroupId) ?? null;
+  const activeGroup = userGroups.find((g) => g.id === userProfile?.activeGroupId) ?? null;
 
   const loginWithGoogle = async () => {
     markLoginTourPending();
@@ -191,7 +187,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setActiveGroupId = async (groupId: string | null) => {
     if (!uid) return;
     const { error } = await supabase.from('profiles').update({ active_group_id: groupId }).eq('id', uid);
-    if (error) console.error('Error canviant d\'espai:', error);
+    if (error) console.error("Error canviant d'espai:", error);
     else await fetchProfile();
   };
 
@@ -217,19 +213,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const result = data as { error?: string; id: string; name: string; already_member: boolean };
     if (result.error === 'GROUP_NOT_FOUND') {
-      return { success: false, message: 'No s\'ha trobat cap grup amb aquest codi.' };
+      return { success: false, message: "No s'ha trobat cap grup amb aquest codi." };
     }
     if (result.error === 'TOO_MANY_ATTEMPTS') {
-      return { success: false, message: 'Massa intents fallits. Torna-ho a provar d\'aquí a 10 minuts.' };
+      return { success: false, message: "Massa intents fallits. Torna-ho a provar d'aquí a 10 minuts." };
     }
 
     await Promise.all([fetchGroups(), fetchProfile()]);
     const group = result;
     return {
       success: true,
-      message: group.already_member
-        ? `Ja ets membre de "${group.name}". L'hem activat!`
-        : `T'has unit correctament a "${group.name}"!`,
+      message: group.already_member ? `Ja ets membre de "${group.name}". L'hem activat!` : `T'has unit correctament a "${group.name}"!`,
       groupId: group.id,
     };
   };
@@ -239,18 +233,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Les polítiques RLS no fallen quan no afecten cap fila: es comprova que s'hagi esborrat alguna cosa.
   const leaveGroup = async (groupId: string) => {
     if (!uid) return;
-    const { data, error } = await supabase
-      .from('group_members').delete().eq('group_id', groupId).eq('user_id', uid).select();
+    const { data, error } = await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', uid).select();
     if (error) throw error;
-    if (!data?.length) throw new Error('No pots sortir d\'aquest grup. Si n\'ets el creador, cedeix-lo o esborra\'l.');
+    if (!data?.length) throw new Error("No pots sortir d'aquest grup. Si n'ets el creador, cedeix-lo o esborra'l.");
     await refreshGroups();
   };
 
   const removeMember = async (groupId: string, userId: string) => {
-    const { data, error } = await supabase
-      .from('group_members').delete().eq('group_id', groupId).eq('user_id', userId).select();
+    const { data, error } = await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', userId).select();
     if (error) throw error;
-    if (!data?.length) throw new Error('No s\'ha pogut expulsar el membre.');
+    if (!data?.length) throw new Error("No s'ha pogut expulsar el membre.");
     await refreshGroups();
   };
 
@@ -270,7 +262,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteGroup = async (groupId: string) => {
     const { data, error } = await supabase.from('groups').delete().eq('id', groupId).select();
     if (error) throw error;
-    if (!data?.length) throw new Error('No s\'ha pogut esborrar el grup.');
+    if (!data?.length) throw new Error("No s'ha pogut esborrar el grup.");
     await refreshGroups();
   };
 

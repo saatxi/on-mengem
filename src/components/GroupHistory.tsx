@@ -26,7 +26,7 @@ const confirmQuestion = (change: GroupChange) => {
   if (change.action === 'update') {
     return {
       message: 'Vols desfer aquest canvi?',
-      details: 'Els camps tornaran al valor d\'abans, encara que algú els hagi tornat a canviar després.',
+      details: "Els camps tornaran al valor d'abans, encara que algú els hagi tornat a canviar després.",
       confirmLabel: 'Desfer',
     };
   }
@@ -47,8 +47,7 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
   const confirm = useConfirm();
 
   const uid = userProfile?.id;
-  const nameOf = (memberId: string) =>
-    memberId === uid ? 'Tu' : members[memberId]?.nickname ?? 'Antic membre';
+  const nameOf = (memberId: string) => (memberId === uid ? 'Tu' : (members[memberId]?.nickname ?? 'Antic membre'));
 
   // Una visita privada esborrada només la pot recuperar l'autor (o qualsevol si ja no hi és)
   const canRestore = (change: GroupChange) => {
@@ -64,7 +63,7 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
     try {
       await restore(change.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'No s\'ha pogut desfer el canvi.');
+      setError(err instanceof Error ? err.message : "No s'ha pogut desfer el canvi.");
     } finally {
       setBusyId(null);
     }
@@ -80,7 +79,11 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
         Edicions i esborrats de restaurants, desitjats i visites dels darrers 90 dies. Qualsevol membre els pot desfer.
       </p>
 
-      {error && <p role="alert" className="mb-3 text-xs font-semibold text-red-600">{error}</p>}
+      {error && (
+        <p role="alert" className="mb-3 text-xs font-semibold text-red-600">
+          {error}
+        </p>
+      )}
 
       {loading ? (
         <div className="py-8 text-center text-xs text-stone-500">Carregant l'historial...</div>
@@ -124,13 +127,16 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
                   <div className="mt-2">
                     {change.restoredAt ? (
                       <span className="text-xs font-medium text-stone-500">
-                        {change.action === 'delete' ? 'Recuperat' : 'Desfet'} per {change.restoredByName ?? 'algú'} · {timeAgo(change.restoredAt)}
+                        {change.action === 'delete' ? 'Recuperat' : 'Desfet'} per {change.restoredByName ?? 'algú'} ·{' '}
+                        {timeAgo(change.restoredAt)}
                       </span>
-                    ) : canRestore(change) && (
-                      <Button size="sm" variant="secondary" disabled={busyId !== null} onClick={() => handleRestore(change)}>
-                        <Undo2 className="w-3.5 h-3.5" />
-                        {change.action === 'delete' ? 'Recuperar' : 'Desfer'}
-                      </Button>
+                    ) : (
+                      canRestore(change) && (
+                        <Button size="sm" variant="secondary" disabled={busyId !== null} onClick={() => handleRestore(change)}>
+                          <Undo2 className="w-3.5 h-3.5" />
+                          {change.action === 'delete' ? 'Recuperar' : 'Desfer'}
+                        </Button>
+                      )
                     )}
                   </div>
                 </div>

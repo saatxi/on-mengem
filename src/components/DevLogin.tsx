@@ -26,8 +26,8 @@ export const DevLogin: React.FC = () => {
     markLoginTourPending();
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password: SEED_PASSWORD });
     if (authError) {
-      console.error('Error iniciant sessió amb l\'usuari de prova:', authError);
-      setError('No s\'ha pogut entrar. Has carregat les dades de prova amb make db-reset?');
+      console.error("Error iniciant sessió amb l'usuari de prova:", authError);
+      setError("No s'ha pogut entrar. Has carregat les dades de prova amb make db-reset?");
       setLoadingEmail(null);
     }
   };
@@ -40,13 +40,7 @@ export const DevLogin: React.FC = () => {
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {SEED_USERS.map((user) => (
-          <Button
-            key={user.email}
-            variant="secondary"
-            size="sm"
-            disabled={loadingEmail !== null}
-            onClick={() => handleLogin(user.email)}
-          >
+          <Button key={user.email} variant="secondary" size="sm" disabled={loadingEmail !== null} onClick={() => handleLogin(user.email)}>
             <span aria-hidden="true">{user.avatar}</span>
             {loadingEmail === user.email ? 'Entrant...' : user.name}
           </Button>

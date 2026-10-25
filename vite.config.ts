@@ -1,8 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import {defineConfig, loadEnv} from 'vite';
-import {VitePWA} from 'vite-plugin-pwa';
-import pkg from './package.json' with {type: 'json'};
+import { defineConfig, loadEnv } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
+import pkg from './package.json' with { type: 'json' };
 
 // Content-Security-Policy només al build: en desenvolupament Vite necessita scripts inline i HMR.
 function contentSecurityPolicy(supabaseUrl: string) {
@@ -26,12 +26,12 @@ function contentSecurityPolicy(supabaseUrl: string) {
         "base-uri 'self'",
         "form-action 'self'",
       ].join('; ');
-      return [{tag: 'meta', attrs: {'http-equiv': 'Content-Security-Policy', content: policy}, injectTo: 'head-prepend' as const}];
+      return [{ tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: policy }, injectTo: 'head-prepend' as const }];
     },
   };
 }
 
-export default defineConfig(({mode}) => {
+export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   return {
     define: {

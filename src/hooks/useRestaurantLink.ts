@@ -6,7 +6,7 @@ import { readRestaurantParam, withoutRestaurantParam } from '../utils/restaurant
 // El login amb Google torna a l'arrel de l'app i perdria el `?r=`: es guarda a la sessió del navegador.
 const STORAGE_KEY = 'on-mengem:pending-restaurant';
 
-const NOT_FOUND_MESSAGE = 'No s\'ha trobat el restaurant de l\'enllaç, o no hi tens accés.';
+const NOT_FOUND_MESSAGE = "No s'ha trobat el restaurant de l'enllaç, o no hi tens accés.";
 
 export function takePendingRestaurantId(): string | null {
   try {
@@ -46,17 +46,13 @@ export function useRestaurantLink(onOpen: (restaurantId: string) => void) {
 
     (async () => {
       // RLS només retorna el restaurant si és a l'espai personal de l'usuari o a un grup on és membre.
-      const { data, error: queryError } = await supabase
-        .from('restaurants')
-        .select('group_id')
-        .eq('id', pendingId)
-        .maybeSingle();
+      const { data, error: queryError } = await supabase.from('restaurants').select('group_id').eq('id', pendingId).maybeSingle();
       if (cancelled) return;
       clearPendingId();
       setPendingId(null);
 
       if (queryError || !data) {
-        if (queryError) console.error('Error obrint l\'enllaç del restaurant:', queryError);
+        if (queryError) console.error("Error obrint l'enllaç del restaurant:", queryError);
         setError(NOT_FOUND_MESSAGE);
         return;
       }

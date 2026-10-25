@@ -42,7 +42,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
       close();
     } catch (e) {
       console.error(e);
-      setError('No s\'ha pogut completar l\'acció. Torna-ho a provar.');
+      setError("No s'ha pogut completar l'acció. Torna-ho a provar.");
     } finally {
       setBusy(false);
     }
@@ -60,8 +60,8 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
       <div className="p-5 space-y-3">
         <p className="text-xs text-stone-500">
           {isMove
-            ? 'Se\'n anirà del teu espai personal i passarà al grup escollit.'
-            : 'Es crearà una còpia a cada grup seleccionat. L\'original es manté.'}
+            ? "Se'n anirà del teu espai personal i passarà al grup escollit."
+            : "Es crearà una còpia a cada grup seleccionat. L'original es manté."}
         </p>
 
         {groups.length === 0 ? (
@@ -99,13 +99,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
 
         {error && <div className="text-xs text-red-600 font-medium">{error}</div>}
 
-        <Button
-          onClick={submit}
-          disabled={busy || selected.length === 0}
-          variant="primary"
-          size="lg"
-          className="w-full"
-        >
+        <Button onClick={submit} disabled={busy || selected.length === 0} variant="primary" size="lg" className="w-full">
           {busy ? 'Processant…' : isMove ? 'Moure' : `Copiar${selected.length > 1 ? ` a ${selected.length} grups` : ''}`}
         </Button>
       </div>
