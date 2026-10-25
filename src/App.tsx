@@ -89,7 +89,6 @@ function MainApp() {
     convertWishlistToRestaurant,
     copyToGroups,
     moveToGroup,
-    markAlertAsRead,
     markAllAlertsAsRead,
   } = useRealtimeData();
 
@@ -258,12 +257,9 @@ function MainApp() {
     <div className="min-h-screen flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
       {/* Top Navbar */}
       <Navbar
-        alerts={alerts}
         onOpenCreateGroup={() => setShowCreateGroup(true)}
         onOpenJoinGroup={() => setShowJoinGroup(true)}
         onOpenProfile={() => setShowProfile(true)}
-        onMarkAlertRead={markAlertAsRead}
-        onMarkAllAlertsRead={markAllAlertsAsRead}
       />
 
       {/* Main Content Area */}
