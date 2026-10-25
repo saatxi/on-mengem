@@ -1,0 +1,5 @@
+# Commits de només format: git blame (i GitHub) se'ls salta.
+# Localment cal un cop: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Format the codebase with Prettier
+41b2b226d1d35bb770e5e38919c4ea821de37307
