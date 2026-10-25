@@ -12,7 +12,7 @@ import { JoinGroupModal } from './components/JoinGroupModal';
 import { ShareToGroupModal } from './components/ShareToGroupModal';
 import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
-import { UpdatePrompt } from './components/UpdatePrompt';
+import { UpdateProvider } from './context/UpdateContext';
 import { Toast } from './components/Toast';
 import { GroupMembers } from './components/GroupMembers';
 import { GroupHistory } from './components/GroupHistory';
@@ -782,13 +782,14 @@ function MainApp() {
 export function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <DialogProvider>
-          <MainApp />
-          {/* Fora de MainApp perquè el Service Worker es registri també a la càrrega i a l'onboarding */}
-          <UpdatePrompt />
-        </DialogProvider>
-      </AuthProvider>
+      {/* A l'arrel perquè el Service Worker es registri també a la càrrega i a l'onboarding */}
+      <UpdateProvider>
+        <AuthProvider>
+          <DialogProvider>
+            <MainApp />
+          </DialogProvider>
+        </AuthProvider>
+      </UpdateProvider>
     </ThemeProvider>
   );
 }

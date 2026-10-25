@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PWAInstallButton } from './PWAInstallButton';
+import { UpdateButton } from './UpdateButton';
 
 interface Props {
   onOpenCreateGroup: () => void;
@@ -147,6 +148,9 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
 
         {/* Right side controls */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          {/* Versió nova disponible */}
+          <UpdateButton />
+
           {/* PWA Install Button */}
           <PWAInstallButton />
 

@@ -111,5 +111,5 @@ Add restaurant editing, Instagram links and fixed cuisine list
 
 ## Peculiaritats conegudes
 
-- El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`. Les versions noves no s'activen soles: `UpdatePrompt` avisa i l'usuari decideix quan recarregar (vegeu `docs/CONFIGURACIO.md`).
+- El Service Worker (PWA) només està actiu al build (`npm run build && npm run preview`), no a `npm run dev`. Les versions noves no s'activen soles: `UpdateProvider` (`src/context/UpdateContext.tsx`) les detecta, `UpdateButton` apareix a la barra superior i l'usuari decideix quan recarregar (vegeu `docs/CONFIGURACIO.md`).
 - El build injecta una `Content-Security-Policy` (meta) a `vite.config.ts`; si afegeixes un domini extern, cal autoritzar-lo allà.

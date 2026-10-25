@@ -204,7 +204,7 @@ Cloudflare redesplega automàticament cada vegada que fas `git push` a `main`. L
 
 ### Com arriben les versions noves a l'app instal·lada
 
-Quan es publica una versió, el Service Worker nou es descarrega però no s'activa sol: l'app mostra l'avís «Hi ha una versió nova» amb el botó **Actualitza**, que l'activa i recarrega la pàgina (`src/components/UpdatePrompt.tsx`, `registerType: 'prompt'` a `vite.config.ts`). Si l'usuari el tanca, la versió nova s'aplica la propera vegada que obri l'app de zero.
+Quan es publica una versió, el Service Worker nou es descarrega però no s'activa sol: a la barra superior apareix el botó **Actualitzar** (al mòbil, una icona amb un punt), que l'activa i recarrega la pàgina (`src/context/UpdateContext.tsx` i `src/components/UpdateButton.tsx`, `registerType: 'prompt'` a `vite.config.ts`). Si l'usuari no el prem, la versió nova s'aplica la propera vegada que obri l'app de zero.
 
 El navegador busca un `sw.js` nou en obrir l'app; a més, l'app ho comprova una vegada al dia, amb l'app oberta o en tornar-hi des de segon pla (una PWA que es reprèn no torna a navegar i, si no, podria quedar-se dies amb la versió vella). `public/_headers` marca `sw.js`, la pàgina i el manifest amb `Cache-Control: no-cache` perquè Cloudflare no en serveixi una còpia antiga.
 
