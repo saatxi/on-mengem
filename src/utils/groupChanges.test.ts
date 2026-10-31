@@ -58,6 +58,19 @@ describe('fieldChanges', () => {
     ]);
   });
 
+  it("un punt mogut al mapa surt com a canvi d'ubicació, sense coordenades", () => {
+    const c = change({ oldData: { lat: 41.98, lng: 2.82 }, newData: { lat: 41.9801, lng: 2.8205 } });
+    expect(fieldChanges(c, nameOf)).toEqual([{ label: 'Ubicació', before: 'Punt anterior', after: 'Punt mogut al mapa' }]);
+  });
+
+  it("amb un canvi d'adreça, les coordenades no fan una fila a part", () => {
+    const c = change({
+      oldData: { address: 'Carrer Gran, 1', lat: 41.98, lng: 2.82 },
+      newData: { address: 'Plaça del Vi, 1', lat: 41.99, lng: 2.83 },
+    });
+    expect(fieldChanges(c, nameOf)).toEqual([{ label: 'Adreça', before: 'Carrer Gran, 1', after: 'Plaça del Vi, 1' }]);
+  });
+
   it('un esborrat no té camps canviats', () => {
     expect(fieldChanges(change({ action: 'delete', oldData: { name: 'Can Pep' } }), nameOf)).toEqual([]);
   });

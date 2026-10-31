@@ -1308,6 +1308,19 @@ select lives_ok(format('select public.restore_group_change(%L)',
 select is((select array[address, lat::text, lng::text] from public.restaurants
             where id = '20000000-0000-0000-0000-000000000071'),
           array['Carrer Gran, 1, Girona', '41.98', '2.82'], 'desfer el canvi d''adreça torna el punt al lloc');
+
+-- Moure un punt que ja hi era, sense canviar l'adreça (0005_location_history.sql)
+select lives_ok($$ update public.restaurants set lat = 41.9801, lng = 2.8205 where id = '20000000-0000-0000-0000-000000000071' $$,
+                'ona mou el punt d''un restaurant del grup al mapa');
+select is((select new_data from public.group_changes
+            where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82}'::jsonb),
+          '{"lat": 41.9801, "lng": 2.8205}'::jsonb, 'moure el punt (sense canviar l''adreça) deixa una entrada a l''historial');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82}'::jsonb)),
+                'ona desfà el moviment del punt');
+select is((select array[lat, lng] from public.restaurants where id = '20000000-0000-0000-0000-000000000071'),
+          array[41.98, 2.82]::double precision[], 'desfer el moviment torna el punt al lloc');
 reset role;
 
 -- ------------------------------------------------------------ Reaccions (G9, propietat d'Uma)

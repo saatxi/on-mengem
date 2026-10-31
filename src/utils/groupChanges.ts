@@ -76,17 +76,26 @@ export const formatFieldValue = (field: string, value: unknown, nameOf: (uid: st
   return text.length > MAX_TEXT_LENGTH ? `${text.slice(0, MAX_TEXT_LENGTH - 1)}…` : text;
 };
 
+/**
+ * Punt del mapa mogut sense canviar l'adreça (les coordenades no diuen res a la gent: només es diu que s'ha mogut).
+ * Amb un canvi d'adreça, l'historial també desa les coordenades, però ja ho explica la fila de l'adreça.
+ */
+const locationChange = ({ oldData }: GroupChange): FieldChange | null =>
+  'lat' in oldData && !('address' in oldData) ? { label: 'Ubicació', before: 'Punt anterior', after: 'Punt mogut al mapa' } : null;
+
 /** Camps d'una edició, abans i després, en l'ordre del formulari. Un esborrat no en té. */
 export const fieldChanges = (change: GroupChange, nameOf: (uid: string) => string): FieldChange[] => {
   if (change.action !== 'update' || !change.newData) return [];
   const labels = FIELD_LABELS[change.itemType];
-  return Object.keys(labels)
+  const fields = Object.keys(labels)
     .filter((field) => field in change.oldData)
     .map((field) => ({
       label: labels[field],
       before: formatFieldValue(field, change.oldData[field], nameOf),
       after: formatFieldValue(field, change.newData?.[field], nameOf),
     }));
+  const location = change.itemType === 'restaurant' ? locationChange(change) : null;
+  return location ? [...fields, location] : fields;
 };
 
 /** Resum de què es recupera en desfer un esborrat («Amb 2 visites», «Visita del 3 d’oct. del 2026 · 4 ★»). */
