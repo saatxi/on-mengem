@@ -51,6 +51,7 @@ export function MainApp() {
     deleteRestaurant,
     toggleFavorite,
     locateRestaurants,
+    locateWishlist,
     saveVisit,
     deleteVisit,
     addWishlistItem,
@@ -228,6 +229,7 @@ export function MainApp() {
               onDelete={handleDeleteWishlist}
               onTogglePlanned={(w) => updateWishlistItem(w.id, { status: w.status === 'planned' ? 'pending' : 'planned' })}
               onMarkVisited={setWishlistToConvert}
+              onLocate={locateWishlist}
             />
           )}
 

@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { Dices, List, Map as MapIcon, Plus, Search, Star, UtensilsCrossed, X } from 'lucide-react';
+import { Dices, Plus, Search, Star, UtensilsCrossed, X } from 'lucide-react';
 import { Restaurant } from '../types';
 import { RESTAURANT_SORTS, type RestaurantSort } from '../utils/restaurantFields';
 import { VISITED_FILTERS, type RestaurantFilters } from '../hooks/useRestaurantFilters';
@@ -10,23 +10,10 @@ import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
 import { RestaurantCard } from './RestaurantCard';
 import { SegmentedControl } from './SegmentedControl';
+import { PLACE_VIEWS, ViewToggle, type PlaceView } from './ViewToggle';
 
 // Leaflet només es descarrega quan s'obre la vista de mapa.
-const RestaurantMap = lazy(() => import('./RestaurantMap').then((m) => ({ default: m.RestaurantMap })));
-
-const RESTAURANT_VIEWS = {
-  list: (
-    <>
-      <List className="w-3.5 h-3.5" /> Llista
-    </>
-  ),
-  map: (
-    <>
-      <MapIcon className="w-3.5 h-3.5" /> Mapa
-    </>
-  ),
-};
-type RestaurantView = keyof typeof RESTAURANT_VIEWS;
+const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.PlacesMap })));
 
 // Botons i selectors petits de la barra de filtres
 const CHIP =
@@ -45,7 +32,7 @@ interface Props {
   onOpenRandom: () => void;
   onToggleFavorite: (restaurant: Restaurant) => void;
   onRegisterVisit: (restaurant: Restaurant) => void;
-  onLocate: React.ComponentProps<typeof RestaurantMap>['onLocate'];
+  onLocate: React.ComponentProps<typeof PlacesMap>['onLocate'];
 }
 
 export const RestaurantsTab: React.FC<Props> = ({
@@ -60,7 +47,7 @@ export const RestaurantsTab: React.FC<Props> = ({
   onRegisterVisit,
   onLocate,
 }) => {
-  const [view, setView] = usePersistentState<RestaurantView>('restaurant-view', 'list', oneOfKeys(RESTAURANT_VIEWS));
+  const [view, setView] = usePersistentState<PlaceView>('restaurant-view', 'list', oneOfKeys(PLACE_VIEWS));
   const { filtered, hasFilters, clear } = filters;
 
   return (
@@ -87,7 +74,7 @@ export const RestaurantsTab: React.FC<Props> = ({
 
         {/* Filtres */}
         <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-stone-100 text-xs">
-          <SegmentedControl label="Vista" options={RESTAURANT_VIEWS} value={view} onChange={setView} />
+          <ViewToggle value={view} onChange={setView} />
           <SegmentedControl label="Estat de visita" options={VISITED_FILTERS} value={filters.visited} onChange={filters.setVisited} />
 
           <button
@@ -173,7 +160,16 @@ export const RestaurantsTab: React.FC<Props> = ({
         </div>
       ) : view === 'map' ? (
         <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 animate-pulse')} />}>
-          <RestaurantMap restaurants={filtered} onOpen={onOpen} onLocate={onLocate} />
+          <PlacesMap
+            places={filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] }))}
+            kind="restaurant"
+            openLabel="Veure detalls →"
+            onOpen={(id) => {
+              const res = filtered.find((r) => r.id === id);
+              if (res) onOpen(res);
+            }}
+            onLocate={onLocate}
+          />
         </Suspense>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">

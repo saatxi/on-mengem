@@ -20,8 +20,15 @@ const REFRESH_DEBOUNCE_MS = 300;
 const coordinateColumns = (coords: Coordinates | null) => ({ lat: coords?.lat ?? null, lng: coords?.lng ?? null });
 
 /** Les coordenades que ha triat el formulari (totes dues o cap). */
-const chosenCoordinates = ({ lat, lng }: Partial<Restaurant>): Coordinates | null =>
+const chosenCoordinates = ({ lat, lng }: { lat?: number; lng?: number }): Coordinates | null =>
   lat !== undefined && lng !== undefined ? { lat, lng } : null;
+
+/**
+ * Columnes de coordenades per a un desat des d'un formulari (porta l'adreça): les que s'hi han triat, o cap si no
+ * hi ha adreça. Els canvis parcials (p. ex. el favorit o l'estat) no toquen la ubicació.
+ */
+const formCoordinates = (data: { address?: string; lat?: number; lng?: number }) =>
+  data.address === undefined ? {} : coordinateColumns(data.address ? chosenCoordinates(data) : null);
 
 /**
  * Dades de l'espai actiu: el grup seleccionat o, si no n'hi ha cap,
@@ -161,7 +168,7 @@ export function useRealtimeData() {
     // El formulari ja ha buscat l'adreça i l'usuari n'ha confirmat el punt (o no s'ha trobat).
     const { error } = await supabase.from('restaurants').insert({
       ...restaurantToRow(data),
-      ...coordinateColumns(data.address ? chosenCoordinates(data) : null),
+      ...formCoordinates(data),
       name: data.name,
       group_id: groupId,
       created_by: uid,
@@ -177,12 +184,7 @@ export function useRealtimeData() {
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return false;
-    // Des del formulari (porta l'adreça) les coordenades són les que s'hi han triat; sense, es treuen del mapa.
-    // Els canvis parcials (p. ex. el favorit) no toquen la ubicació.
-    const row =
-      data.address !== undefined
-        ? { ...restaurantToRow(data), ...coordinateColumns(data.address ? chosenCoordinates(data) : null) }
-        : restaurantToRow(data);
+    const row = { ...restaurantToRow(data), ...formCoordinates(data) };
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
     const { data: rows, error } = await supabase.from('restaurants').update(row).eq('id', resId).select('id');
     if (error || !rows?.length) {
@@ -205,19 +207,24 @@ export function useRealtimeData() {
   };
 
   /**
-   * Ubica des del mapa els restaurants amb adreça però sense coordenades, d'un en un (Nominatim, 1 petició/s).
-   * Retorna quants no s'han pogut ubicar. `signal` l'atura (p. ex. en sortir del mapa).
+   * Ubica des del mapa els restaurants o desitjats amb adreça però sense coordenades, d'un en un (Nominatim,
+   * 1 petició/s). Retorna quants no s'han pogut ubicar. `signal` l'atura (p. ex. en sortir del mapa).
    */
-  const locateRestaurants = async (toLocate: Restaurant[], onProgress: (done: number) => void, signal?: AbortSignal) => {
+  const locatePlaces = async (
+    table: 'restaurants' | 'wishlist',
+    toLocate: { id: string; address?: string }[],
+    onProgress: (done: number) => void,
+    signal?: AbortSignal,
+  ) => {
     if (!uid) return 0;
     let notFound = 0;
-    for (const [i, res] of toLocate.entries()) {
-      const coords = res.address ? await geocodeAddress(res.address, signal) : null;
+    for (const [i, place] of toLocate.entries()) {
+      const coords = place.address ? await geocodeAddress(place.address, signal) : null;
       if (signal?.aborted) break;
       if (coords) {
-        const { error } = await supabase.from('restaurants').update(coordinateColumns(coords)).eq('id', res.id);
+        const { error } = await supabase.from(table).update(coordinateColumns(coords)).eq('id', place.id);
         if (error) {
-          fail('locateRestaurants', error);
+          fail('locatePlaces', error);
           break;
         }
       } else {
@@ -225,9 +232,13 @@ export function useRealtimeData() {
       }
       onProgress(i + 1);
     }
-    await fetchRestaurants();
+    await (table === 'restaurants' ? fetchRestaurants() : fetchWishlist());
     return notFound;
   };
+
+  type LocateArgs = [toLocate: { id: string; address?: string }[], onProgress: (done: number) => void, signal?: AbortSignal];
+  const locateRestaurants = (...args: LocateArgs) => locatePlaces('restaurants', ...args);
+  const locateWishlist = (...args: LocateArgs) => locatePlaces('wishlist', ...args);
 
   // Visites
   const saveVisit = async (
@@ -269,6 +280,7 @@ export function useRealtimeData() {
     if (!uid || !userProfile) return false;
     const { error } = await supabase.from('wishlist').insert({
       ...wishlistToRow({ ...data, status: data.status || 'pending' }),
+      ...formCoordinates(data),
       restaurant_name: data.restaurantName,
       group_id: groupId,
       user_id: uid,
@@ -285,7 +297,8 @@ export function useRealtimeData() {
   const updateWishlistItem = async (wishlistId: string, data: Partial<WishlistItem>) => {
     if (!uid) return false;
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
-    const { data: rows, error } = await supabase.from('wishlist').update(wishlistToRow(data)).eq('id', wishlistId).select('id');
+    const row = { ...wishlistToRow(data), ...formCoordinates(data) };
+    const { data: rows, error } = await supabase.from('wishlist').update(row).eq('id', wishlistId).select('id');
     if (error || !rows?.length) {
       fail('updateWishlistItem', error ?? 'Cap fila actualitzada (RLS?)');
       return false;
@@ -329,7 +342,9 @@ export function useRealtimeData() {
         return;
       }
       await Promise.all([fetchRestaurants(), fetchWishlist()]);
-      // Els desitjats no tenen coordenades: el restaurant nou s'ubica un cop creat.
+      // La RPC passa les coordenades del desitjat al restaurant; si no en tenia (p. ex. és d'abans de la migració
+      // 0006), el restaurant nou s'ubica un cop creat.
+      if (wishlistItem.lat !== undefined) return;
       const coords = wishlistItem.address ? await geocodeAddress(wishlistItem.address) : null;
       if (coords) {
         const { error: locateError } = await supabase.from('restaurants').update(coordinateColumns(coords)).eq('id', restaurantId);
@@ -428,6 +443,7 @@ export function useRealtimeData() {
     deleteRestaurant,
     toggleFavorite,
     locateRestaurants,
+    locateWishlist,
     saveVisit,
     deleteVisit,
     addWishlistItem,

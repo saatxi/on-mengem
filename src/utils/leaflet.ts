@@ -8,12 +8,24 @@ export const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 export const MAX_ZOOM = 19;
 
-/** Punt d'un restaurant: rodona amb el degradat de marca (anell ambre si és favorit). */
-export const markerIcon = ({ favorite = false, large = false }: { favorite?: boolean; large?: boolean } = {}) => {
+interface MarkerOptions {
+  favorite?: boolean;
+  /** Un desitjat: violeta en lloc del degradat de marca. */
+  wish?: boolean;
+  large?: boolean;
+}
+
+/** Punt d'un restaurant (degradat de marca, anell ambre si és favorit) o d'un desitjat (violeta). */
+export const markerIcon = ({ favorite = false, wish = false, large = false }: MarkerOptions = {}) => {
   const size = large ? 24 : 16;
   return L.divIcon({
     className: '',
-    html: `<span class="${cn('block rounded-full bg-brand shadow-md', large ? 'size-6 ring-4' : 'size-4 ring-2', favorite ? 'ring-amber-400' : 'ring-white')}"></span>`,
+    html: `<span class="${cn(
+      'block rounded-full shadow-md',
+      wish ? 'bg-violet-600' : 'bg-brand',
+      large ? 'size-6 ring-4' : 'size-4 ring-2',
+      favorite ? 'ring-amber-400' : 'ring-white',
+    )}"></span>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -(size / 2 + 2)],

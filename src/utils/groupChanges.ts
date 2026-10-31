@@ -94,7 +94,7 @@ export const fieldChanges = (change: GroupChange, nameOf: (uid: string) => strin
       before: formatFieldValue(field, change.oldData[field], nameOf),
       after: formatFieldValue(field, change.newData?.[field], nameOf),
     }));
-  const location = change.itemType === 'restaurant' ? locationChange(change) : null;
+  const location = change.itemType === 'visit' ? null : locationChange(change);
   return location ? [...fields, location] : fields;
 };
 

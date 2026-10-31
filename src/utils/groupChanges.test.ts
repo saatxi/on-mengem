@@ -61,6 +61,9 @@ describe('fieldChanges', () => {
   it("un punt mogut al mapa surt com a canvi d'ubicació, sense coordenades", () => {
     const c = change({ oldData: { lat: 41.98, lng: 2.82 }, newData: { lat: 41.9801, lng: 2.8205 } });
     expect(fieldChanges(c, nameOf)).toEqual([{ label: 'Ubicació', before: 'Punt anterior', after: 'Punt mogut al mapa' }]);
+    expect(fieldChanges({ ...c, itemType: 'wishlist' }, nameOf)).toEqual([
+      { label: 'Ubicació', before: 'Punt anterior', after: 'Punt mogut al mapa' },
+    ]);
   });
 
   it("amb un canvi d'adreça, les coordenades no fan una fila a part", () => {

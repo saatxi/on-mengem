@@ -289,13 +289,13 @@ L'inici de sessió fa servir el flux **PKCE** (`src/supabase/client.ts`): Google
 
 ## Mapa (OpenStreetMap)
 
-La vista de mapa dels restaurants fa servir [Leaflet](https://leafletjs.com) amb les tessel·les d'OpenStreetMap, i [Nominatim](https://nominatim.org) per calcular les coordenades de l'adreça. No cal cap clau ni registre, però cal respectar les polítiques d'ús de la OpenStreetMap Foundation ([tessel·les](https://operations.osmfoundation.org/policies/tiles/) i [Nominatim](https://operations.osmfoundation.org/policies/nominatim/)):
+La vista de mapa dels restaurants i dels desitjats (`src/components/PlacesMap.tsx`) fa servir [Leaflet](https://leafletjs.com) amb les tessel·les d'OpenStreetMap, i [Nominatim](https://nominatim.org) per calcular les coordenades de l'adreça. No cal cap clau ni registre, però cal respectar les polítiques d'ús de la OpenStreetMap Foundation ([tessel·les](https://operations.osmfoundation.org/policies/tiles/) i [Nominatim](https://operations.osmfoundation.org/policies/nominatim/)):
 
 - Es mostra l'atribució «© OpenStreetMap» al mapa.
-- Nominatim només es consulta quan l'usuari prem «Buscar» al costat de l'adreça, desa un restaurant amb una adreça que encara no s'ha buscat, converteix un desitjat o prem «Ubicar-los» al mapa, com a màxim una petició per segon (`src/utils/geocode.ts`). Res d'autocompletat ni de consultes mentre s'escriu. El formulari mostra fins a 5 resultats i un mapa petit (`src/components/LocationPicker.tsx`) on es pot arrossegar el punt; en desar, es guarda el punt triat.
-- Són serveis de voluntaris sense garanties: si no responen, el restaurant es desa igualment sense ubicació i es pot ubicar més tard des del mapa. Si l'ús creix molt, cal passar a un proveïdor amb clau (p. ex. MapTiler), canviant la URL de les tessel·les a `src/utils/leaflet.ts`, la del geocodificador a `src/utils/geocode.ts` i la CSP.
+- Nominatim només es consulta quan l'usuari prem «Buscar» al costat de l'adreça, desa un restaurant o un desitjat amb una adreça que encara no s'ha buscat, converteix un desitjat sense coordenades o prem «Ubicar-los» al mapa, com a màxim una petició per segon (`src/utils/geocode.ts`). Res d'autocompletat ni de consultes mentre s'escriu. El formulari mostra fins a 5 resultats i un mapa petit (`src/components/LocationPicker.tsx`) on es pot arrossegar el punt; en desar, es guarda el punt triat.
+- Són serveis de voluntaris sense garanties: si no responen, el restaurant o el desitjat es desa igualment sense ubicació i es pot ubicar més tard des del mapa. Si l'ús creix molt, cal passar a un proveïdor amb clau (p. ex. MapTiler), canviant la URL de les tessel·les a `src/utils/leaflet.ts`, la del geocodificador a `src/utils/geocode.ts` i la CSP.
 
-Les coordenades es guarden a les columnes `lat` i `lng` de `restaurants` (originalment, migració `0016_restaurant_coordinates.sql`). Els restaurants que ja existien abans no tenen coordenades: surten al mapa un cop algú prem «Ubicar-los» o els torna a desar.
+Les coordenades es guarden a les columnes `lat` i `lng` de `restaurants` (originalment, migració `0016_restaurant_coordinates.sql`) i de `wishlist` (`0006_wishlist_coordinates.sql`). En convertir un desitjat, el restaurant n'hereta les coordenades. Els restaurants i desitjats que ja existien abans no tenen coordenades: surten al mapa un cop algú prem «Ubicar-los» o els torna a desar.
 
 ## Nota sobre el pla gratuït
 

@@ -2,52 +2,77 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Loader2, MapPin } from 'lucide-react';
-import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { ATTRIBUTION, MAX_ZOOM, TILE_URL, markerIcon } from '../utils/leaflet';
 import { CARD } from '../utils/ui';
 import { Button } from './Button';
 
+/** Un restaurant o un desitjat, tal com el mostra el mapa. */
+export interface MapPlace {
+  id: string;
+  name: string;
+  /** Cuina, preu…: la segona línia del popup. */
+  details: string[];
+  address?: string;
+  lat?: number;
+  lng?: number;
+  favorite?: boolean;
+}
+
+type PlaceKind = 'restaurant' | 'wish';
+
+// Textos i colors de cada tipus de lloc
+const KINDS: Record<PlaceKind, { one: string; many: string; mapLabel: string; icon: string }> = {
+  restaurant: { one: 'restaurant', many: 'restaurants', mapLabel: 'Mapa dels restaurants', icon: 'text-accent' },
+  wish: { one: 'desitjat', many: 'desitjats', mapLabel: 'Mapa dels desitjats', icon: 'text-violet-700' },
+};
+
 interface Props {
-  restaurants: Restaurant[]; // ja filtrats: el mapa mostra el mateix que la llista
-  onOpen: (restaurant: Restaurant) => void;
-  onLocate: (toLocate: Restaurant[], onProgress: (done: number) => void, signal: AbortSignal) => Promise<number>;
+  places: MapPlace[]; // ja filtrats: el mapa mostra el mateix que la llista
+  kind: PlaceKind;
+  /** Text de l'enllaç del popup («Veure detalls →»). */
+  openLabel: string;
+  onOpen: (id: string) => void;
+  onLocate: (toLocate: MapPlace[], onProgress: (done: number) => void, signal: AbortSignal) => Promise<number>;
 }
 
 const DEFAULT_CENTER: L.LatLngTuple = [41.3874, 2.1686]; // Barcelona, si encara no n'hi ha cap d'ubicat
 const DEFAULT_ZOOM = 12;
-/** En ajustar el mapa als punts, no s'acosta més que això (amb un sol restaurant quedaria massa a prop). */
+/** En ajustar el mapa als punts, no s'acosta més que això (amb un sol lloc quedaria massa a prop). */
 const MAX_FIT_ZOOM = 16;
 
-const hasCoordinates = (res: Restaurant): res is Restaurant & { lat: number; lng: number } =>
-  res.lat !== undefined && res.lng !== undefined;
+const hasCoordinates = (place: MapPlace): place is MapPlace & { lat: number; lng: number } =>
+  place.lat !== undefined && place.lng !== undefined;
 
 // Contingut del popup amb DOM i textContent: el nom i la cuina els escriu la gent i no poden anar com a HTML.
-const popupContent = (res: Restaurant, onOpen: (restaurant: Restaurant) => void) => {
+const popupContent = (place: MapPlace, openLabel: string, onOpen: (id: string) => void) => {
   const button = document.createElement('button');
   button.type = 'button';
   button.className = 'block text-left';
   const name = document.createElement('span');
   name.className = 'block text-sm font-bold text-stone-900';
-  name.textContent = res.name;
+  name.textContent = place.name;
   const details = document.createElement('span');
   details.className = 'block text-xs text-stone-500';
-  details.textContent = [res.cuisine, res.priceRange, 'Veure detalls →'].filter(Boolean).join(' · ');
+  details.textContent = [...place.details, openLabel].filter(Boolean).join(' · ');
   button.append(name, details);
-  button.addEventListener('click', () => onOpen(res));
+  button.addEventListener('click', () => onOpen(place.id));
   return button;
 };
 
-export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }) => {
+// Mapa dels restaurants o dels desitjats de l'espai, amb el botó per ubicar els que tenen adreça però no punt.
+export const PlacesMap: React.FC<Props> = ({ places, kind, openLabel, onOpen, onLocate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
   const onOpenRef = useRef(onOpen);
   onOpenRef.current = onOpen;
+  const { one, many, mapLabel, icon } = KINDS[kind];
+  const count = (n: number) => (n === 1 ? `1 ${one}` : `${n} ${many}`);
 
-  const located = useMemo(() => restaurants.filter(hasCoordinates), [restaurants]);
-  const toLocate = restaurants.filter((r) => r.address && !hasCoordinates(r));
-  const withoutAddress = restaurants.filter((r) => !r.address).length;
+  const located = useMemo(() => places.filter(hasCoordinates), [places]);
+  const toLocate = places.filter((p) => p.address && !hasCoordinates(p));
+  const withoutAddress = places.filter((p) => !p.address).length;
 
   // El mapa es crea un cop i es destrueix en sortir de la vista.
   useEffect(() => {
@@ -67,20 +92,24 @@ export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }
     const markers = markersRef.current;
     if (!markers) return;
     markers.clearLayers();
-    for (const res of located) {
-      L.marker([res.lat, res.lng], { icon: markerIcon({ favorite: res.favorite }), title: res.name, alt: res.name })
-        .bindPopup(() => popupContent(res, (r) => onOpenRef.current(r)))
+    for (const place of located) {
+      L.marker([place.lat, place.lng], {
+        icon: markerIcon({ favorite: place.favorite, wish: kind === 'wish' }),
+        title: place.name,
+        alt: place.name,
+      })
+        .bindPopup(() => popupContent(place, openLabel, (id) => onOpenRef.current(id)))
         .addTo(markers);
     }
-  }, [located]);
+  }, [located, kind, openLabel]);
 
   // Només es reenquadra quan canvien els punts (filtres, ubicacions noves), no en cada refresc de dades:
   // `located` és un objecte nou a cada refresc, boundsKey només canvia si canvien els punts.
-  const boundsKey = located.map((r) => `${r.id}:${r.lat}:${r.lng}`).join('|');
+  const boundsKey = located.map((p) => `${p.id}:${p.lat}:${p.lng}`).join('|');
   useEffect(() => {
     const map = mapRef.current;
     if (!map || located.length === 0) return;
-    map.fitBounds(L.latLngBounds(located.map((r) => [r.lat, r.lng])), { padding: [32, 32], maxZoom: MAX_FIT_ZOOM });
+    map.fitBounds(L.latLngBounds(located.map((p) => [p.lat, p.lng])), { padding: [32, 32], maxZoom: MAX_FIT_ZOOM });
   }, [boundsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -106,29 +135,27 @@ export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }
         <div className={cn(CARD, 'px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm')} aria-live="polite">
           {progress ? (
             <span className="flex items-center gap-2 font-medium text-stone-700">
-              <Loader2 className="w-4 h-4 animate-spin text-accent" />
-              Ubicant restaurants… {progress.done}/{progress.total}
+              <Loader2 className={cn('w-4 h-4 animate-spin', icon)} />
+              Ubicant {many}… {progress.done}/{progress.total}
             </span>
           ) : (
             toLocate.length > 0 && (
               <>
                 <span className="font-medium text-stone-700">
-                  {toLocate.length === 1 ? '1 restaurant encara no és al mapa' : `${toLocate.length} restaurants encara no són al mapa`}
+                  {count(toLocate.length)} encara no {toLocate.length === 1 ? 'és' : 'són'} al mapa
                 </span>
                 <Button onClick={locate} variant="secondary" size="sm">
-                  <MapPin className="w-3.5 h-3.5 text-accent" /> Ubicar-los
+                  <MapPin className={cn('w-3.5 h-3.5', icon)} /> Ubicar-los
                 </Button>
               </>
             )
           )}
           {notFound > 0 && !progress && (
-            <span className="text-stone-500">
-              No s'ha trobat l'adreça de {notFound === 1 ? '1 restaurant' : `${notFound} restaurants`}: revisa-la i torna-ho a provar.
-            </span>
+            <span className="text-stone-500">No s'ha trobat l'adreça de {count(notFound)}: revisa-la i torna-ho a provar.</span>
           )}
           {withoutAddress > 0 && (
             <span className="text-stone-500 sm:ml-auto">
-              {withoutAddress === 1 ? '1 restaurant no té adreça' : `${withoutAddress} restaurants no tenen adreça`}
+              {count(withoutAddress)} no {withoutAddress === 1 ? 'té' : 'tenen'} adreça
             </span>
           )}
         </div>
@@ -136,7 +163,7 @@ export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }
       <div
         ref={containerRef}
         className="restaurant-map relative z-0 h-[60vh] min-h-80 rounded-3xl overflow-hidden shadow-card ring-1 ring-stone-200"
-        aria-label="Mapa dels restaurants"
+        aria-label={mapLabel}
       />
     </div>
   );

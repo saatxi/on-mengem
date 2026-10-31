@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BookmarkPlus, Dices, Plus, Search, Sparkles, X } from 'lucide-react';
 import { WishlistItem } from '../types';
 import { matchesQuery } from '../utils/restaurantFields';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { cn } from '../utils/cn';
-import { EMPTY_STATE, FIELD } from '../utils/ui';
+import { CARD, EMPTY_STATE, FIELD } from '../utils/ui';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
 import { SegmentedControl } from './SegmentedControl';
+import { PLACE_VIEWS, ViewToggle, type PlaceView } from './ViewToggle';
 import { WishlistCard } from './WishlistCard';
+
+// Leaflet només es descarrega quan s'obre la vista de mapa.
+const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.PlacesMap })));
 
 // «Tots» vol dir tots els que queden per provar. Convertir un desitjat l'esborra (migració 0002); «Provats» només
 // apareix si en queden de convertits abans, que no s'han pogut associar al seu restaurant.
@@ -17,7 +21,7 @@ type WishlistFilter = keyof typeof WISHLIST_FILTERS;
 
 type CardProps = React.ComponentProps<typeof WishlistCard>;
 
-// Temps que la targeta triada amb «Sorprèn-me» queda destacada
+// Temps que la targeta triada amb «Sorprèn-me» o des del mapa queda destacada
 const HIGHLIGHT_MS = 4000;
 
 interface Props {
@@ -32,12 +36,14 @@ interface Props {
   onDelete: CardProps['onDelete'];
   onTogglePlanned: CardProps['onTogglePlanned'];
   onMarkVisited: CardProps['onMarkVisited'];
+  onLocate: React.ComponentProps<typeof PlacesMap>['onLocate'];
 }
 
-export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, onAdd, ...cardHandlers }) => {
-  // La cerca no es recorda; el filtre d'estat, sí
+export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, onAdd, onLocate, ...cardHandlers }) => {
+  // La cerca no es recorda; el filtre d'estat i la vista, sí
   const [query, setQuery] = useState('');
   const [savedFilter, setFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOfKeys(WISHLIST_FILTERS));
+  const [view, setView] = usePersistentState<PlaceView>('wishlist-view', 'list', oneOfKeys(PLACE_VIEWS));
 
   const triedCount = wishlist.filter((w) => w.status === 'visited').length;
   // Sense provats, el filtre «Provats» no es mostra (i, si era el recordat, es torna a «Tots»)
@@ -55,22 +61,28 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
   const allTried = filter === 'all' && query.trim() === '' && filtered.length === 0 && triedCount > 0;
   const hasFilters = query.trim() !== '' || filter !== 'all';
 
+  // Targeta destacada a la llista: la triada amb «Sorprèn-me» o la que s'obre des del mapa
+  const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const showInList = (id: string) => {
+    setView('list');
+    setHighlightedId(id);
+  };
+
   // «Sorprèn-me»: tria a l'atzar un dels desitjats filtrats que encara no s'han provat i el destaca a la llista
-  const [pickedId, setPickedId] = useState<string | null>(null);
   const pickable = filtered.filter((w) => w.status !== 'visited');
   const pickRandom = () => {
     // En tornar a tirar no surt el mateix (si n'hi ha d'altres)
-    const candidates = pickable.length > 1 ? pickable.filter((w) => w.id !== pickedId) : pickable;
+    const candidates = pickable.length > 1 ? pickable.filter((w) => w.id !== highlightedId) : pickable;
     if (candidates.length === 0) return;
-    setPickedId(candidates[Math.floor(Math.random() * candidates.length)].id);
+    showInList(candidates[Math.floor(Math.random() * candidates.length)].id);
   };
 
   useEffect(() => {
-    if (!pickedId) return;
-    document.getElementById(`wishlist-${pickedId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    const timer = setTimeout(() => setPickedId(null), HIGHLIGHT_MS);
+    if (!highlightedId) return;
+    document.getElementById(`wishlist-${highlightedId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const timer = setTimeout(() => setHighlightedId(null), HIGHLIGHT_MS);
     return () => clearTimeout(timer);
-  }, [pickedId]);
+  }, [highlightedId]);
   const clearFilters = () => {
     setQuery('');
     setFilter('all');
@@ -112,7 +124,8 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
               className={cn(FIELD, 'pl-11')}
             />
           </div>
-          <div className="flex items-center gap-2 self-start max-w-full">
+          <div className="flex flex-wrap items-center gap-2 self-start max-w-full">
+            <ViewToggle value={view} onChange={setView} tone="page" />
             <SegmentedControl
               label="Estat del desitjat"
               options={filterOptions}
@@ -173,10 +186,20 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
             </Button>
           )}
         </div>
+      ) : view === 'map' ? (
+        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 animate-pulse')} />}>
+          <PlacesMap
+            places={filtered.map((w) => ({ ...w, name: w.restaurantName, details: [w.cuisine ?? '', w.priceRange ?? ''] }))}
+            kind="wish"
+            openLabel="Veure a la llista →"
+            onOpen={showInList}
+            onLocate={onLocate}
+          />
+        </Suspense>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger">
           {filtered.map((item) => (
-            <WishlistCard key={item.id} item={item} highlighted={item.id === pickedId} {...cardHandlers} />
+            <WishlistCard key={item.id} item={item} highlighted={item.id === highlightedId} {...cardHandlers} />
           ))}
         </div>
       )}

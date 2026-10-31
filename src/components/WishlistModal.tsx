@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { BookmarkPlus, Link2, UserCheck, MessageSquare, MapPin } from 'lucide-react';
+import { BookmarkPlus, Link2, UserCheck, MessageSquare } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
+import { AddressField } from './AddressField';
 import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { WishlistItem } from '../types';
+import { useAddressLocation } from '../hooks/useAddressLocation';
 import {
   CUISINES,
   INSTAGRAM_INPUT_MESSAGE,
@@ -33,7 +35,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
   const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, item?.cuisine));
   const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, item?.priceRange));
   const [recommendedBy, setRecommendedBy] = useState(item?.recommendedBy ?? '');
-  const [address, setAddress] = useState(item?.address ?? '');
+  const location = useAddressLocation({ address: item?.address, lat: item?.lat, lng: item?.lng });
   const [notes, setNotes] = useState(item?.notes ?? '');
   const [link, setLink] = useState(item?.link ?? '');
   const [instagram, setInstagram] = useState(item?.instagram ? `@${item.instagram}` : '');
@@ -47,12 +49,14 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
     setIsSubmitting(true);
     try {
+      if (!(await location.readyToSave())) return;
+
       const ok = await onSave({
         restaurantName: restaurantName.trim().slice(0, 100),
         cuisine,
         priceRange,
         recommendedBy: recommendedBy.trim().slice(0, 80),
-        address: address.trim().slice(0, 200),
+        ...location.values,
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
         instagram: toInstagramHandle(instagram),
@@ -130,20 +134,7 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
           />
         </div>
 
-        <div>
-          <label className={LABEL}>
-            <MapPin className="w-3.5 h-3.5 text-stone-500" />
-            Adreça (opcional)
-          </label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Ex. Carrer de Provença 88, Barcelona"
-            maxLength={200}
-            className={FIELD}
-          />
-        </div>
+        <AddressField id="wishlist-address" location={location} tone="wish" placeholder="Ex. Carrer de Provença 88, Barcelona" />
 
         <div>
           <label className={LABEL}>

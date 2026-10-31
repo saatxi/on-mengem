@@ -7,13 +7,15 @@ import { ATTRIBUTION, MAX_ZOOM, TILE_URL, markerIcon } from '../utils/leaflet';
 interface Props {
   value: Coordinates;
   onChange: (coords: Coordinates) => void;
+  /** Punt violeta (desitjat) en lloc del de restaurant. */
+  wish?: boolean;
 }
 
 /** Prou a prop per distingir un carrer d'un altre. */
 const ZOOM = 17;
 
 // Mapa petit del formulari amb el punt del restaurant: s'arrossega o es toca el mapa per corregir-lo.
-export const LocationPicker: React.FC<Props> = ({ value, onChange }) => {
+export const LocationPicker: React.FC<Props> = ({ value, onChange, wish = false }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
@@ -32,7 +34,7 @@ export const LocationPicker: React.FC<Props> = ({ value, onChange }) => {
     });
     L.tileLayer(TILE_URL, { maxZoom: MAX_ZOOM, attribution: ATTRIBUTION }).addTo(map);
     const marker = L.marker([value.lat, value.lng], {
-      icon: markerIcon({ large: true }),
+      icon: markerIcon({ wish, large: true }),
       draggable: true,
       title: 'Ubicació del restaurant',
       alt: 'Ubicació del restaurant',
