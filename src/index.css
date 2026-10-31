@@ -24,6 +24,8 @@
   --animate-scale-out: scale-out 150ms ease-in forwards;
   --animate-slide-down: slide-down 200ms ease-in forwards;
   --animate-toast-timer: toast-timer linear forwards;
+  --animate-pop: pop 350ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-burst: burst 550ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   --animate-rise: rise 450ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   --animate-drift-1: drift-1 14s ease-in-out infinite alternate;
   --animate-drift-2: drift-2 18s ease-in-out infinite alternate;
@@ -67,6 +69,21 @@
   @keyframes toast-timer {
     to {
       transform: scaleX(0);
+    }
+  }
+  /* Estrella que es marca com a favorita, amb les espurnes de FavoriteBurst */
+  @keyframes pop {
+    40% {
+      transform: scale(1.35);
+    }
+  }
+  @keyframes burst {
+    from {
+      transform: rotate(var(--burst-angle)) translateY(-0.5rem) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: rotate(var(--burst-angle)) translateY(-1.25rem) scale(0.3);
     }
   }
   @keyframes rise {
@@ -194,6 +211,44 @@
   /* Dins de @supports perquè Lightning CSS no reescrigui light-dark() (com a :root) */
   @supports (color: light-dark(#000, #fff)) {
     background-color: light-dark(oklch(95% 0.045 var(--cuisine-hue, 40)), oklch(30% 0.06 var(--cuisine-hue, 40)));
+  }
+}
+
+/*
+ * Halo que segueix el cursor per sobre d'una targeta (--spot-x i --spot-y, vegeu trackSpotlight), del to --spot-hue.
+ * Només amb ratolí; va per sota del contingut gràcies a isolation.
+ */
+@utility spotlight {
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(
+      18rem circle at var(--spot-x, 50%) var(--spot-y, 0%),
+      oklch(70% 0.16 var(--spot-hue, 40) / 0.13),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 300ms;
+
+    @supports (color: light-dark(#000, #fff)) {
+      background: radial-gradient(
+        18rem circle at var(--spot-x, 50%) var(--spot-y, 0%),
+        light-dark(oklch(70% 0.16 var(--spot-hue, 40) / 0.13), oklch(70% 0.16 var(--spot-hue, 40) / 0.2)),
+        transparent 70%
+      );
+    }
+  }
+
+  @media (hover: hover) {
+    &:hover::before {
+      opacity: 1;
+    }
   }
 }
 

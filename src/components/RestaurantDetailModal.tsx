@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   X,
   Star,
@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Modal, ModalCloseButton } from './Modal';
+import { FavoriteBurst } from './FavoriteBurst';
 import { Button } from './Button';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
@@ -71,6 +72,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   const members = useGroupMembers(activeGroup ?? null);
   const confirm = useConfirm();
   const showAlert = useAlert();
+  // Augmenta cada cop que l'usuari marca el favorit, per tornar a disparar les espurnes
+  const [burstKey, setBurstKey] = useState(0);
 
   if (!restaurant) return null;
 
@@ -276,14 +279,23 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => onToggleFavorite(restaurant)}
-            className={`py-3 px-3 rounded-full text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.96] transition-[background-color,transform] ${
+            onClick={() => {
+              if (!restaurant.favorite) setBurstKey((key) => key + 1);
+              onToggleFavorite(restaurant);
+            }}
+            className={`relative py-3 px-3 rounded-full text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.96] transition-[background-color,transform] ${
               restaurant.favorite
                 ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-500/40'
                 : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >
-            <Star className={`w-4 h-4 ${restaurant.favorite ? 'fill-amber-500 text-amber-500' : ''}`} />
+            <span className="relative">
+              <Star
+                key={`star-${burstKey}`}
+                className={`w-4 h-4 ${restaurant.favorite ? 'fill-amber-500 text-amber-500' : ''} ${restaurant.favorite && burstKey > 0 ? 'animate-pop' : ''}`}
+              />
+              {burstKey > 0 && <FavoriteBurst key={`burst-${burstKey}`} />}
+            </span>
             <span>{restaurant.favorite ? 'Als favorits' : 'Afegir a favorits'}</span>
           </button>
         </div>

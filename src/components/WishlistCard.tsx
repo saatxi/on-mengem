@@ -7,6 +7,7 @@ import { ReactionBar } from './ReactionBar';
 import { WishlistItem } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
+import { trackSpotlight } from '../utils/spotlight';
 import { directionsUrl, instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
 
 interface Props {
@@ -42,9 +43,12 @@ export const WishlistCard: React.FC<Props> = ({
   return (
     <article
       id={`wishlist-${item.id}`}
+      onPointerMove={trackSpotlight}
+      // Halo violeta, el color dels desitjats
+      style={{ '--spot-hue': 293 } as React.CSSProperties}
       className={cn(
         CARD,
-        'flex flex-col gap-3 p-5 scroll-mt-24 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+        'relative spotlight flex flex-col gap-3 p-5 scroll-mt-24 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
         highlighted && 'ring-2 ring-violet-600 shadow-card-hover',
       )}
     >

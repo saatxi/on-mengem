@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Check, Globe, MapPin, Plus, Star } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
+import { FavoriteBurst } from './FavoriteBurst';
 import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
-import { instagramUrl, isInstagramHandle, isVisited, mapsUrl, safeHttpUrl, visitAverage } from '../utils/restaurantFields';
+import { trackSpotlight } from '../utils/spotlight';
+import { cuisineStyle, instagramUrl, isInstagramHandle, isVisited, mapsUrl, safeHttpUrl, visitAverage } from '../utils/restaurantFields';
 
 interface Props {
   res: Restaurant;
@@ -22,12 +24,16 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
   const shownRating = visitAverage(res) ?? res.rating;
   const link = safeHttpUrl(res.link);
   const visitCount = res.visits.length;
+  // Augmenta cada cop que l'usuari marca el favorit, per tornar a disparar les espurnes
+  const [burstKey, setBurstKey] = useState(0);
 
   return (
     <article
+      onPointerMove={trackSpotlight}
+      style={{ '--spot-hue': cuisineStyle(res.cuisine).hue } as React.CSSProperties}
       className={cn(
         CARD,
-        'group relative flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+        'group relative spotlight flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
       )}
     >
       <div className="flex items-start gap-3">
@@ -48,7 +54,10 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
         </div>
 
         <button
-          onClick={() => onToggleFavorite(res)}
+          onClick={() => {
+            if (!res.favorite) setBurstKey((key) => key + 1);
+            onToggleFavorite(res);
+          }}
           aria-pressed={!!res.favorite}
           aria-label={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
           title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
@@ -59,7 +68,11 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
             'active:scale-[0.9] transition-[background-color,color,transform]',
           )}
         >
-          <Star className={cn('w-5 h-5', res.favorite && 'fill-amber-400')} />
+          <Star
+            key={`star-${burstKey}`}
+            className={cn('w-5 h-5', res.favorite && 'fill-amber-400', res.favorite && burstKey > 0 && 'animate-pop')}
+          />
+          {burstKey > 0 && <FavoriteBurst key={`burst-${burstKey}`} />}
         </button>
       </div>
 
