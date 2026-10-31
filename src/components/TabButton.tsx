@@ -9,13 +9,14 @@ interface Props {
   onClick: () => void;
 }
 
-// Pestanya de la barra de navegació d'escriptori (al mòbil hi ha el BottomNav)
+// Pestanya de la barra de navegació d'escriptori (al mòbil hi ha el BottomNav); va dins d'un TabBar
 export const TabButton: React.FC<Props> = ({ icon: Icon, label, active, onClick }) => (
   <button
     onClick={onClick}
+    data-active={active}
     className={cn(
-      'flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-[background-color,color,box-shadow] whitespace-nowrap',
-      active ? 'bg-surface text-accent shadow-card' : 'text-stone-600 hover:text-stone-900',
+      'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap',
+      active ? 'text-accent' : 'text-stone-600 hover:text-stone-900',
     )}
   >
     <Icon className="w-4 h-4" />
