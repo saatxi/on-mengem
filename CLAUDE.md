@@ -4,7 +4,7 @@ PWA en català per guardar restaurants i llistes de desitjos, amb espai personal
 
 ## Stack
 
-React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), `lucide-react`, `clsx` + `tailwind-merge`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
+React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), Leaflet (mapes), `lucide-react`, `clsx` + `tailwind-merge`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
 
 ## Ordres
 
@@ -46,7 +46,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
 - Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#f4511e`, `accent-soft` per a fons suaus, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; degradat de marca amb `bg-brand` (accent → `accent-2` rosa); el violeta és el color dels desitjats i l'ambre, el de les estrelles i favorits. Classes condicionals amb `cn()` (`src/utils/cn.ts`).
 - Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants), `SegmentedControl` i les classes `FIELD`, `LABEL`, `CARD` i `EMPTY_STATE` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
-- Imports relatius (l'àlies `@/` existeix però no s'usa).
+- Imports relatius (no hi ha àlies de camí).
 - El format el decideix Prettier (`.prettierrc.json`: cometes simples, punt i coma, 140 columnes; sagnat de `.editorconfig`). Passa `npm run format` abans de fer commit. No formata Markdown, SQL ni `supabase/` (`.prettierignore`): allà imita l'estil dels fitxers veïns.
 
 ## Regles de domini i seguretat
@@ -60,8 +60,6 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Si canvia la configuració o l'arrencada, actualitza `README.md` i `docs/CONFIGURACIO.md`.
 
 ## Estil de commits
-
-**Aquestes instruccions s'han de seguir SEMPRE, en cada commit i en cada sessió.**
 
 Derivat de l'historial del repositori:
 
