@@ -43,6 +43,8 @@ export interface Restaurant {
   address?: string;
   lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap
   lng?: number;
+  city?: string; // població i zona (districte o barri) de l'adreça, segons Nominatim
+  district?: string;
   rating?: number; // 0 - 5
   notes?: string;
   link?: string; // web o xarxes socials, http(s)
@@ -71,6 +73,8 @@ export interface WishlistItem {
   address?: string;
   lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap
   lng?: number;
+  city?: string; // població i zona (districte o barri) de l'adreça, segons Nominatim
+  district?: string;
   link?: string;
   instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal

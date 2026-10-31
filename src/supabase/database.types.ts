@@ -203,14 +203,14 @@ isOneToOne: false
                   ]
                 },"restaurants": {
                   Row: {
-                    "address": string | null,"created_at": string,"created_by": string | null,"created_by_name": string | null,"cuisine": string | null,"favorite": boolean,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"name": string,"notes": string | null,"price_range": string | null,"rating": number | null,"recommended_by": string | null,"updated_at": string,"wish_fulfilled_at": string | null
+                    "address": string | null,"city": string | null,"created_at": string,"created_by": string | null,"created_by_name": string | null,"cuisine": string | null,"district": string | null,"favorite": boolean,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"name": string,"notes": string | null,"price_range": string | null,"rating": number | null,"recommended_by": string | null,"updated_at": string,"wish_fulfilled_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name": string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
+                    "address"?: string | null,"city"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"district"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name": string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
                   }
                   Update: {
-                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name"?: string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
+                    "address"?: string | null,"city"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"district"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name"?: string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -243,14 +243,14 @@ isOneToOne: false
                   ]
                 },"wishlist": {
                   Row: {
-                    "address": string | null,"created_at": string,"cuisine": string | null,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"notes": string | null,"price_range": string | null,"recommended_by": string | null,"restaurant_name": string,"status": string,"updated_at": string,"user_id": string | null,"user_name": string | null
+                    "address": string | null,"city": string | null,"created_at": string,"cuisine": string | null,"district": string | null,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"notes": string | null,"price_range": string | null,"recommended_by": string | null,"restaurant_name": string,"status": string,"updated_at": string,"user_id": string | null,"user_name": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"created_at"?: string,"cuisine"?: string | null,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"notes"?: string | null,"price_range"?: string | null,"recommended_by"?: string | null,"restaurant_name": string,"status"?: string,"updated_at"?: string,"user_id"?: string | null,"user_name"?: string | null
+                    "address"?: string | null,"city"?: string | null,"created_at"?: string,"cuisine"?: string | null,"district"?: string | null,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"notes"?: string | null,"price_range"?: string | null,"recommended_by"?: string | null,"restaurant_name": string,"status"?: string,"updated_at"?: string,"user_id"?: string | null,"user_name"?: string | null
                   }
                   Update: {
-                    "address"?: string | null,"created_at"?: string,"cuisine"?: string | null,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"notes"?: string | null,"price_range"?: string | null,"recommended_by"?: string | null,"restaurant_name"?: string,"status"?: string,"updated_at"?: string,"user_id"?: string | null,"user_name"?: string | null
+                    "address"?: string | null,"city"?: string | null,"created_at"?: string,"cuisine"?: string | null,"district"?: string | null,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"notes"?: string | null,"price_range"?: string | null,"recommended_by"?: string | null,"restaurant_name"?: string,"status"?: string,"updated_at"?: string,"user_id"?: string | null,"user_name"?: string | null
                   }
                   Relationships: [
                     {

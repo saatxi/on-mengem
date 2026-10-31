@@ -260,6 +260,34 @@ update public.wishlist w
   ) as c (id, lat, lng)
  where w.id = c.id;
 
+-- Població i zona dels ubicats (0007_place_area.sql), com les donaria Nominatim. Els que tenen punt però no zona
+-- serveixen per provar «Completar zones».
+update public.restaurants r
+   set city = case when r.address like '%, Girona' then 'Girona' else 'Barcelona' end, district = c.district
+  from (values
+    ('5eed0002-0000-0000-0000-000000000001'::uuid, 'Ciutat Vella'),
+    ('5eed0002-0000-0000-0000-000000000002', 'Gràcia'),
+    ('5eed0002-0000-0000-0000-000000000003', 'Eixample'),
+    ('5eed0002-0000-0000-0000-000000000004', 'Eixample'),
+    ('5eed0002-0000-0000-0000-000000000005', 'Sant Martí'),
+    ('5eed0002-0000-0000-0000-000000000006', 'Ciutat Vella'),
+    ('5eed0002-0000-0000-0000-000000000008', 'Sants-Montjuïc'),
+    ('5eed0002-0000-0000-0000-000000000009', 'Sants-Montjuïc'),
+    ('5eed0002-0000-0000-0000-000000000013', 'Barri Vell'),
+    ('5eed0002-0000-0000-0000-000000000016', 'Eixample')
+  ) as c (id, district)
+ where r.id = c.id;
+
+update public.wishlist w
+   set city = case when w.address like '%, Girona' then 'Girona' else 'Barcelona' end, district = c.district
+  from (values
+    ('5eed0003-0000-0000-0000-000000000001'::uuid, 'Eixample'),
+    ('5eed0003-0000-0000-0000-000000000003', 'Eixample'),
+    ('5eed0003-0000-0000-0000-000000000004', 'Eixample'),
+    ('5eed0003-0000-0000-0000-000000000007', 'Barri Vell')
+  ) as c (id, district)
+ where w.id = c.id;
+
 -- ---------------------------------------------------------------- Visites
 
 -- created_by_name no té trigger: s'agafa del perfil. shared = false és una visita privada (només al grup).

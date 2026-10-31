@@ -1300,7 +1300,7 @@ select lives_ok($$
    where id = '20000000-0000-0000-0000-000000000071'
 $$, 'ona canvia l''adreça d''un restaurant del grup');
 select is((select old_data from public.group_changes where item_id = '20000000-0000-0000-0000-000000000071'),
-          '{"address": "Carrer Gran, 1, Girona", "lat": 41.98, "lng": 2.82}'::jsonb,
+          '{"address": "Carrer Gran, 1, Girona", "lat": 41.98, "lng": 2.82, "city": null, "district": null}'::jsonb,
           'canviar l''adreça desa també les coordenades anteriors');
 select lives_ok(format('select public.restore_group_change(%L)',
                        (select id from public.group_changes where item_id = '20000000-0000-0000-0000-000000000071')),
@@ -1313,11 +1313,11 @@ select is((select array[address, lat::text, lng::text] from public.restaurants
 select lives_ok($$ update public.restaurants set lat = 41.9801, lng = 2.8205 where id = '20000000-0000-0000-0000-000000000071' $$,
                 'ona mou el punt d''un restaurant del grup al mapa');
 select is((select new_data from public.group_changes
-            where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82}'::jsonb),
-          '{"lat": 41.9801, "lng": 2.8205}'::jsonb, 'moure el punt (sense canviar l''adreça) deixa una entrada a l''historial');
+            where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82, "city": null, "district": null}'::jsonb),
+          '{"lat": 41.9801, "lng": 2.8205, "city": null, "district": null}'::jsonb, 'moure el punt (sense canviar l''adreça) deixa una entrada a l''historial');
 select lives_ok(format('select public.restore_group_change(%L)',
                        (select id from public.group_changes
-                         where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82}'::jsonb)),
+                         where item_id = '20000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.98, "lng": 2.82, "city": null, "district": null}'::jsonb)),
                 'ona desfà el moviment del punt');
 select is((select array[lat, lng] from public.restaurants where id = '20000000-0000-0000-0000-000000000071'),
           array[41.98, 2.82]::double precision[], 'desfer el moviment torna el punt al lloc');
@@ -1351,11 +1351,11 @@ select is((select array[lat, lng] from public.wishlist
 select lives_ok($$ update public.wishlist set lat = 41.9701, lng = 2.8105 where id = '30000000-0000-0000-0000-000000000071' $$,
                 'ona mou el punt d''un desitjat del grup al mapa');
 select is((select new_data from public.group_changes
-            where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81}'::jsonb),
-          '{"lat": 41.9701, "lng": 2.8105}'::jsonb, 'moure el punt d''un desitjat deixa una entrada a l''historial');
+            where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81, "city": null, "district": null}'::jsonb),
+          '{"lat": 41.9701, "lng": 2.8105, "city": null, "district": null}'::jsonb, 'moure el punt d''un desitjat deixa una entrada a l''historial');
 select lives_ok(format('select public.restore_group_change(%L)',
                        (select id from public.group_changes
-                         where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81}'::jsonb)),
+                         where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81, "city": null, "district": null}'::jsonb)),
                 'ona desfà el moviment del punt del desitjat');
 select is((select array[lat, lng] from public.wishlist where id = '30000000-0000-0000-0000-000000000071'),
           array[41.97, 2.81]::double precision[], 'desfer el moviment torna el punt del desitjat al lloc');
@@ -1365,6 +1365,55 @@ select lives_ok($$ select public.convert_wishlist_to_restaurant('30000000-0000-0
 select is((select array[lat, lng] from public.restaurants
             where group_id = '10000000-0000-0000-0000-000000000007' and name = 'Ona desitjat a convertir'),
           array[41.96, 2.80]::double precision[], 'convertir un desitjat passa les seves coordenades al restaurant');
+reset role;
+
+-- Població i zona (0007_place_area.sql), també a G7
+insert into public.restaurants (id, group_id, name, address, lat, lng, city, district, created_by) values
+  ('20000000-0000-0000-0000-000000000073', null, 'Ona Gràcia', 'Carrer de Verdi, 10, Barcelona', 41.403, 2.157, 'Barcelona',
+   'Gràcia', '00000000-0000-0000-0000-0000000000c7');
+insert into public.wishlist (id, group_id, restaurant_name, address, lat, lng, city, district, user_id) values
+  ('30000000-0000-0000-0000-000000000073', '10000000-0000-0000-0000-000000000007', 'Ona Barri Vell', 'Rambla de la Llibertat, 2, Girona',
+   41.984, 2.824, 'Girona', 'Barri Vell', '00000000-0000-0000-0000-0000000000c7');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c7","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c7', true);
+set local role authenticated;
+
+select throws_ok($$ update public.restaurants set city = repeat('x', 81) where id = '20000000-0000-0000-0000-000000000073' $$,
+                 '23514', null, 'la població té com a màxim 80 caràcters');
+
+select is((select public.copy_to_groups('restaurant', '20000000-0000-0000-0000-000000000073',
+                                        array['10000000-0000-0000-0000-000000000007'::uuid])), 1,
+          'ona copia al grup un restaurant amb població i zona');
+select is((select array[city, district] from public.restaurants
+            where group_id = '10000000-0000-0000-0000-000000000007' and name = 'Ona Gràcia'),
+          array['Barcelona', 'Gràcia'], 'copy_to_groups conserva la població i la zona');
+
+select lives_ok($$ select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000073', current_date, null, '', '{}') $$,
+                'ona converteix un desitjat amb població i zona');
+select is((select array[city, district] from public.restaurants
+            where group_id = '10000000-0000-0000-0000-000000000007' and name = 'Ona Barri Vell'),
+          array['Girona', 'Barri Vell'], 'convertir un desitjat passa la població i la zona al restaurant');
+
+select lives_ok($$ update public.restaurants set city = 'Lleida' where id = '20000000-0000-0000-0000-000000000072' $$,
+                'ona completa la zona d''un restaurant ja ubicat');
+select is((select count(*)::int from public.group_changes where item_id = '20000000-0000-0000-0000-000000000072'), 0,
+          'completar només la zona no deixa cap entrada a l''historial');
+
+select lives_ok($$
+  update public.restaurants set lat = 41.985, lng = 2.825, city = 'Girona', district = 'Barri Vell'
+   where id = '20000000-0000-0000-0000-000000000071'
+$$, 'ona mou el punt d''un restaurant a una altra zona');
+select is((select old_data from public.group_changes
+            where item_id = '20000000-0000-0000-0000-000000000071' and new_data ->> 'district' = 'Barri Vell'),
+          '{"lat": 41.98, "lng": 2.82, "city": null, "district": null}'::jsonb,
+          'moure el punt desa també la població i la zona anteriors');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '20000000-0000-0000-0000-000000000071' and new_data ->> 'district' = 'Barri Vell')),
+                'ona desfà el moviment');
+select is((select array[lat::text, lng::text, city, district] from public.restaurants where id = '20000000-0000-0000-0000-000000000071'),
+          array['41.98', '2.82', null, null], 'desfer el moviment torna també la població i la zona');
 reset role;
 
 -- ------------------------------------------------------------ Reaccions (G9, propietat d'Uma)

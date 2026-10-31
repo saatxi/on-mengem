@@ -11,6 +11,8 @@ const restaurantRow = (overrides: Partial<Tables<'restaurants'>> = {}): Tables<'
   address: null,
   lat: null,
   lng: null,
+  city: null,
+  district: null,
   rating: null,
   notes: null,
   link: null,
@@ -87,6 +89,8 @@ describe('toWishlistItem', () => {
       address: 'Carrer Gran, 1',
       lat: 41.98,
       lng: 2.82,
+      city: 'Girona',
+      district: null,
       notes: null,
       link: null,
       instagram: null,
@@ -96,8 +100,9 @@ describe('toWishlistItem', () => {
       created_at: '2026-01-01T10:00:00Z',
       updated_at: '2026-01-01T10:00:00Z',
     });
-    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', recommendedBy: 'Maria', status: 'planned', groupId: 'g1', lat: 41.98, lng: 2.82 });
+    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', recommendedBy: 'Maria', status: 'planned', groupId: 'g1', lat: 41.98, lng: 2.82, city: 'Girona' });
     expect(item.priceRange).toBeUndefined();
+    expect(item.district).toBeUndefined();
   });
 });
 
