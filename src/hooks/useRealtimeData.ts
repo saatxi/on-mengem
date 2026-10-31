@@ -19,6 +19,10 @@ const REFRESH_DEBOUNCE_MS = 300;
 /** Columnes de coordenades d'una adreça; sense adreça o sense resultat, el restaurant queda fora del mapa. */
 const coordinateColumns = (coords: Coordinates | null) => ({ lat: coords?.lat ?? null, lng: coords?.lng ?? null });
 
+/** Les coordenades que ha triat el formulari (totes dues o cap). */
+const chosenCoordinates = ({ lat, lng }: Partial<Restaurant>): Coordinates | null =>
+  lat !== undefined && lng !== undefined ? { lat, lng } : null;
+
 /**
  * Dades de l'espai actiu: el grup seleccionat o, si no n'hi ha cap,
  * l'espai personal de l'usuari (group_id = NULL).
@@ -154,10 +158,10 @@ export function useRealtimeData() {
 
   const addRestaurant = async (data: NewRestaurant) => {
     if (!uid || !userProfile) return false;
-    const coords = data.address ? await geocodeAddress(data.address) : null;
+    // El formulari ja ha buscat l'adreça i l'usuari n'ha confirmat el punt (o no s'ha trobat).
     const { error } = await supabase.from('restaurants').insert({
       ...restaurantToRow(data),
-      ...coordinateColumns(coords),
+      ...coordinateColumns(data.address ? chosenCoordinates(data) : null),
       name: data.name,
       group_id: groupId,
       created_by: uid,
@@ -173,12 +177,12 @@ export function useRealtimeData() {
 
   const updateRestaurant = async (resId: string, data: Partial<Restaurant>) => {
     if (!uid) return false;
-    // Es tornen a calcular les coordenades si l'adreça canvia o si encara no en tenia.
-    const current = restaurants.find((r) => r.id === resId);
-    const relocate = data.address !== undefined && (data.address !== (current?.address ?? '') || current?.lat === undefined);
-    const row = relocate
-      ? { ...restaurantToRow(data), ...coordinateColumns(data.address ? await geocodeAddress(data.address) : null) }
-      : restaurantToRow(data);
+    // Des del formulari (porta l'adreça) les coordenades són les que s'hi han triat; sense, es treuen del mapa.
+    // Els canvis parcials (p. ex. el favorit) no toquen la ubicació.
+    const row =
+      data.address !== undefined
+        ? { ...restaurantToRow(data), ...coordinateColumns(data.address ? chosenCoordinates(data) : null) }
+        : restaurantToRow(data);
     // select(): sense files retornades l'update no ha tocat res (p. ex. RLS el filtra) i no és un èxit.
     const { data: rows, error } = await supabase.from('restaurants').update(row).eq('id', resId).select('id');
     if (error || !rows?.length) {

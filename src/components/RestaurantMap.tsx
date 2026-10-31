@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import { Loader2, MapPin } from 'lucide-react';
 import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
+import { ATTRIBUTION, MAX_ZOOM, TILE_URL, markerIcon } from '../utils/leaflet';
 import { CARD } from '../utils/ui';
 import { Button } from './Button';
 
@@ -13,26 +14,13 @@ interface Props {
   onLocate: (toLocate: Restaurant[], onProgress: (done: number) => void, signal: AbortSignal) => Promise<number>;
 }
 
-// Tessel·les d'OpenStreetMap: cal citar-ne la font (https://operations.osmfoundation.org/policies/tiles/).
-const TILE_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-const ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const DEFAULT_CENTER: L.LatLngTuple = [41.3874, 2.1686]; // Barcelona, si encara no n'hi ha cap d'ubicat
 const DEFAULT_ZOOM = 12;
-const MAX_ZOOM = 19;
 /** En ajustar el mapa als punts, no s'acosta més que això (amb un sol restaurant quedaria massa a prop). */
 const MAX_FIT_ZOOM = 16;
 
 const hasCoordinates = (res: Restaurant): res is Restaurant & { lat: number; lng: number } =>
   res.lat !== undefined && res.lng !== undefined;
-
-const markerIcon = (favorite?: boolean) =>
-  L.divIcon({
-    className: '',
-    html: `<span class="${cn('block size-4 rounded-full bg-brand ring-2 shadow-md', favorite ? 'ring-amber-400' : 'ring-white')}"></span>`,
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
-  });
 
 // Contingut del popup amb DOM i textContent: el nom i la cuina els escriu la gent i no poden anar com a HTML.
 const popupContent = (res: Restaurant, onOpen: (restaurant: Restaurant) => void) => {
@@ -80,7 +68,7 @@ export const RestaurantMap: React.FC<Props> = ({ restaurants, onOpen, onLocate }
     if (!markers) return;
     markers.clearLayers();
     for (const res of located) {
-      L.marker([res.lat, res.lng], { icon: markerIcon(res.favorite), title: res.name, alt: res.name })
+      L.marker([res.lat, res.lng], { icon: markerIcon({ favorite: res.favorite }), title: res.name, alt: res.name })
         .bindPopup(() => popupContent(res, (r) => onOpenRef.current(r)))
         .addTo(markers);
     }

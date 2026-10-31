@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Star, Utensils, MapPin, FileText, Link2, AlertTriangle } from 'lucide-react';
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Star, Utensils, MapPin, FileText, Link2, AlertTriangle, Search, Loader2 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Restaurant } from '../types';
+import { cn } from '../utils/cn';
+import { searchAddress, type AddressMatch, type Coordinates } from '../utils/geocode';
 import {
   CUISINES,
   INSTAGRAM_INPUT_MESSAGE,
@@ -14,6 +16,15 @@ import {
   toInstagramHandle,
 } from '../utils/restaurantFields';
 import { FIELD, LABEL } from '../utils/ui';
+
+// Leaflet només es descarrega si el formulari arriba a mostrar el mapa.
+const LocationPicker = lazy(() => import('./LocationPicker').then((m) => ({ default: m.LocationPicker })));
+
+/** Resultat de la darrera cerca d'una adreça; si l'adreça canvia, ja no hi compta. */
+interface AddressLookup {
+  address: string;
+  result: 'found' | 'notFound' | 'failed';
+}
 
 interface Props {
   isOpen: boolean;
@@ -40,9 +51,47 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   const [instagram, setInstagram] = useState(restaurant?.instagram ? `@${restaurant.instagram}` : '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Ubicació: el punt que es desarà, per a l'adreça de `lookup`. En editar, la que ja tenia es dona per bona.
+  const initialLocation =
+    restaurant?.lat !== undefined && restaurant?.lng !== undefined ? { lat: restaurant.lat, lng: restaurant.lng } : null;
+  const [location, setLocation] = useState<Coordinates | null>(initialLocation);
+  const [lookup, setLookup] = useState<AddressLookup | null>(
+    initialLocation && restaurant?.address ? { address: restaurant.address.trim(), result: 'found' } : null,
+  );
+  const [matches, setMatches] = useState<AddressMatch[]>([]);
+  const [searching, setSearching] = useState(false);
+  // La cerca l'ha llançat el botó de desar: cal que l'usuari miri el punt i torni a desar.
+  const [reviewBeforeSave, setReviewBeforeSave] = useState(false);
+  const searchRef = useRef<AbortController | null>(null);
+  useEffect(() => () => searchRef.current?.abort(), []);
+
   if (!isOpen) return null;
 
   const isDuplicate = !isEditing && name.trim() !== '' && existingNames.some((n) => normalizeText(n) === normalizeText(name));
+
+  const trimmedAddress = address.trim();
+  const lookupResult = lookup?.address === trimmedAddress ? lookup.result : null;
+  const located = lookupResult === 'found' ? location : null;
+  const selectedMatch = located ? matches.findIndex((m) => m.lat === located.lat && m.lng === located.lng) : -1;
+
+  /** Busca l'adreça i en proposa el primer resultat. Retorna null si una altra cerca l'ha substituïda. */
+  const searchLocation = async (fromSubmit: boolean): Promise<AddressLookup['result'] | null> => {
+    searchRef.current?.abort();
+    const controller = new AbortController();
+    searchRef.current = controller;
+    const query = trimmedAddress;
+    setSearching(true);
+    const found = await searchAddress(query, controller.signal);
+    if (controller.signal.aborted) return null;
+    setSearching(false);
+
+    const result = found === null ? 'failed' : found.length > 0 ? 'found' : 'notFound';
+    setMatches(found ?? []);
+    setLocation(found?.[0] ? { lat: found[0].lat, lng: found[0].lng } : null);
+    setLookup({ address: query, result });
+    setReviewBeforeSave(fromSubmit && result === 'found');
+    return result;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,11 +99,20 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
     setIsSubmitting(true);
     try {
+      // Una adreça sense comprovar es busca abans de desar, perquè l'usuari vegi on queda o que no s'ha trobat.
+      // Si el servei no respon, es desa igualment: es podrà ubicar més tard des del mapa.
+      if (trimmedAddress && lookupResult === null) {
+        const result = await searchLocation(true);
+        if (result !== 'failed') return;
+      }
+
       const ok = await onSave({
         name: name.trim().slice(0, 100),
         cuisine,
         priceRange,
-        address: address.trim().slice(0, 200),
+        address: trimmedAddress.slice(0, 200),
+        lat: located?.lat,
+        lng: located?.lng,
         rating: rating ?? undefined,
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
@@ -128,18 +186,80 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Adreça */}
         <div>
-          <label className={LABEL}>
+          <label htmlFor="restaurant-address" className={LABEL}>
             <MapPin className="w-3.5 h-3.5 text-stone-500" />
             Adreça (opcional)
           </label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            placeholder="Ex. Carrer de Provença, 120, Barcelona"
-            maxLength={200}
-            className={FIELD}
-          />
+          <div className="flex gap-2">
+            <input
+              id="restaurant-address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Ex. Carrer de Provença, 120, Barcelona"
+              maxLength={200}
+              className={cn(FIELD, 'min-w-0')}
+            />
+            <Button
+              variant="secondary"
+              onClick={() => void searchLocation(false)}
+              disabled={!trimmedAddress || searching}
+              aria-label="Buscar l'adreça al mapa"
+              className="shrink-0"
+            >
+              {searching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4 text-accent" />}
+              <span className="hidden sm:inline">Buscar</span>
+            </Button>
+          </div>
+
+          <div aria-live="polite">
+            {lookupResult === 'notFound' && (
+              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-amber-800">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-px text-amber-600" />
+                No s'ha trobat aquesta adreça. Revisa-la o afegeix-hi el número i la població; també pots desar sense ubicar-lo al mapa.
+              </p>
+            )}
+            {lookupResult === 'failed' && (
+              <p className="mt-1.5 text-xs text-stone-500">
+                Ara no s'ha pogut consultar el mapa. Pots desar igualment i ubicar-lo més tard des de la vista de mapa.
+              </p>
+            )}
+            {located && reviewBeforeSave && (
+              <p className="mt-1.5 text-xs font-semibold text-accent">Comprova que el punt és al lloc correcte i torna a desar.</p>
+            )}
+          </div>
+
+          {located && matches.length > 1 && (
+            <div className="mt-2">
+              <p className="text-xs text-stone-500 mb-1">Hi ha més d'un resultat: tria el bo.</p>
+              <ul className="space-y-1">
+                {matches.map((m, i) => (
+                  <li key={i}>
+                    <button
+                      type="button"
+                      onClick={() => setLocation({ lat: m.lat, lng: m.lng })}
+                      aria-pressed={i === selectedMatch}
+                      className={cn(
+                        'w-full text-left px-3 py-2 rounded-2xl text-xs transition-colors',
+                        i === selectedMatch ? 'bg-accent-soft text-orange-900 font-semibold' : 'text-stone-600 hover:bg-stone-100',
+                      )}
+                    >
+                      <span className="line-clamp-2">{m.label || `${m.lat.toFixed(5)}, ${m.lng.toFixed(5)}`}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {located && (
+            <div className="mt-2 space-y-1.5">
+              <Suspense fallback={<div className="h-48 rounded-2xl bg-stone-100 animate-pulse" />}>
+                <LocationPicker value={located} onChange={setLocation} />
+              </Suspense>
+              <p className="text-xs text-stone-500">Si el punt no és al lloc exacte, arrossega'l o toca el mapa on hauria d'anar.</p>
+            </div>
+          )}
         </div>
 
         <div>
