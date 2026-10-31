@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Navigation, Pencil, Trash2 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
@@ -7,7 +7,7 @@ import { ReactionBar } from './ReactionBar';
 import { WishlistItem } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
-import { instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
+import { directionsUrl, instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/restaurantFields';
 
 interface Props {
   item: WishlistItem;
@@ -92,16 +92,28 @@ export const WishlistCard: React.FC<Props> = ({
       </div>
 
       {item.address && (
-        <a
-          href={mapsUrl(item.restaurantName, item.address)}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="Obrir al mapa"
-          className="flex items-center gap-1.5 min-w-0 self-start max-w-full text-sm text-stone-500 hover:text-accent transition-colors"
-        >
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">{item.address}</span>
-        </a>
+        <div className="flex items-center gap-1 min-w-0 -my-1">
+          <a
+            href={mapsUrl(item.restaurantName, item.address)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Obrir al mapa"
+            className="flex items-center gap-1.5 min-w-0 text-sm text-stone-500 hover:text-accent transition-colors"
+          >
+            <MapPin className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">{item.address}</span>
+          </a>
+          <a
+            href={directionsUrl(item.restaurantName, item.address, item)}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Com arribar-hi"
+            title="Com arribar-hi"
+            className="shrink-0 p-1.5 rounded-full text-stone-500 hover:text-violet-700 hover:bg-stone-100 transition-colors"
+          >
+            <Navigation className="w-3.5 h-3.5" />
+          </a>
+        </div>
       )}
 
       {item.recommendedBy && (
