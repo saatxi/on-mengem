@@ -1330,6 +1330,14 @@ insert into public.restaurant_visits (id, restaurant_id, group_id, created_by) v
 insert into public.wishlist (id, group_id, restaurant_name, user_id) values
   ('30000000-0000-0000-0000-000000000090', '10000000-0000-0000-0000-000000000009', 'Desitjat G9', '00000000-0000-0000-0000-0000000000ab');
 
+-- Alertes amb l'ítem al qual es refereixen (0004), per reaccionar-hi des del feed
+select is((select wishlist_id from public.alerts where group_id = '10000000-0000-0000-0000-000000000009' and type = 'wishlist_added'),
+          '30000000-0000-0000-0000-000000000090'::uuid, 'l''alerta d''un desitjat nou guarda el desitjat');
+select is((select row(restaurant_id, visit_id)::text from public.alerts
+            where group_id = '10000000-0000-0000-0000-000000000009' and type = 'restaurant_reviewed'),
+          row('20000000-0000-0000-0000-000000000090'::uuid, '40000000-0000-0000-0000-000000000090'::uuid)::text,
+          'l''alerta d''una visita nova guarda el restaurant i la visita');
+
 -- ---- Com a Vic (membre de G9)
 select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ab","role":"authenticated"}', true);
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ab', true);

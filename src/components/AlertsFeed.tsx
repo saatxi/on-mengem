@@ -1,16 +1,18 @@
 import React, { useMemo } from 'react';
 import { Bell, UtensilsCrossed, Sparkles, Users, Star, UserMinus, Crown, ChevronRight } from 'lucide-react';
-import { Alert, Restaurant } from '../types';
+import { Alert, ReactionTarget, Restaurant, WishlistItem } from '../types';
 import { dayBucket, timeAgo } from '../utils/time';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
 import { SegmentedControl } from './SegmentedControl';
+import { ReactionBar } from './ReactionBar';
 
 interface Props {
   alerts: Alert[];
-  /** Restaurants de l'espai actiu: només s'obren els avisos d'un restaurant que encara existeix. */
+  /** Ítems de l'espai actiu: només s'obren (o tenen reaccions) els avisos d'un ítem que encara existeix. */
   restaurants: Restaurant[];
+  wishlist: WishlistItem[];
   onSelectRestaurant: (restaurantId: string) => void;
   markAllAlertsAsRead: () => void;
 }
@@ -36,10 +38,22 @@ const ALERT_CONFIG: Record<Alert['type'], AlertConfig> = {
 
 const configFor = (alert: Alert) => ALERT_CONFIG[alert.type] ?? ALERT_CONFIG.restaurant_added;
 
-export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, onSelectRestaurant, markAllAlertsAsRead }) => {
+export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, wishlist, onSelectRestaurant, markAllAlertsAsRead }) => {
   const [filter, setFilter] = usePersistentState<AlertFilter>('filter-alerts', 'all', oneOfKeys(ALERT_FILTERS));
 
   const restaurantIds = useMemo(() => new Set(restaurants.map((r) => r.id)), [restaurants]);
+  const visitIds = useMemo(() => new Set(restaurants.flatMap((r) => r.visits.map((v) => v.id))), [restaurants]);
+  const wishlistIds = useMemo(() => new Set(wishlist.map((w) => w.id)), [wishlist]);
+
+  // Ítem de l'avís al qual es pot reaccionar: el restaurant, el desitjat o la visita, si encara existeix
+  const reactionTargetFor = (alert: Alert): ReactionTarget | undefined => {
+    if (alert.type === 'restaurant_added' && alert.restaurantId && restaurantIds.has(alert.restaurantId))
+      return { type: 'restaurant', id: alert.restaurantId };
+    if (alert.type === 'wishlist_added' && alert.wishlistId && wishlistIds.has(alert.wishlistId))
+      return { type: 'wishlist', id: alert.wishlistId };
+    if (alert.type === 'restaurant_reviewed' && alert.visitId && visitIds.has(alert.visitId)) return { type: 'visit', id: alert.visitId };
+    return undefined;
+  };
 
   // Avisos filtrats agrupats per blocs temporals; ja arriben ordenats del més recent al més antic
   const sections = useMemo(() => {
@@ -91,7 +105,14 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, onSelectResta
                   {section.alerts.map((alert) => {
                     const { restaurantId } = alert;
                     const canOpen = restaurantId !== undefined && restaurantIds.has(restaurantId);
-                    return <AlertRow key={alert.id} alert={alert} onOpen={canOpen ? () => onSelectRestaurant(restaurantId) : undefined} />;
+                    return (
+                      <AlertRow
+                        key={alert.id}
+                        alert={alert}
+                        onOpen={canOpen ? () => onSelectRestaurant(restaurantId) : undefined}
+                        reactionTarget={reactionTargetFor(alert)}
+                      />
+                    );
                   })}
                 </div>
               </section>
@@ -107,9 +128,11 @@ interface RowProps {
   alert: Alert;
   /** Si s'indica, l'avís es pot tocar per obrir el restaurant. */
   onOpen?: () => void;
+  /** Si s'indica, sota l'avís hi ha les reaccions de l'ítem (fora de la zona que obre el restaurant). */
+  reactionTarget?: ReactionTarget;
 }
 
-const AlertRow: React.FC<RowProps> = ({ alert, onOpen }) => {
+const AlertRow: React.FC<RowProps> = ({ alert, onOpen, reactionTarget }) => {
   const config = configFor(alert);
   const Icon = config.icon;
   const content = (
@@ -127,12 +150,18 @@ const AlertRow: React.FC<RowProps> = ({ alert, onOpen }) => {
       {onOpen && <ChevronRight className="size-4 text-stone-400 self-center flex-shrink-0" />}
     </>
   );
-  const className = 'w-full p-4 rounded-2xl bg-stone-50 flex items-start gap-3 text-left hover:bg-accent-soft/50 transition-colors';
-  return onOpen ? (
-    <button type="button" onClick={onOpen} className={className}>
-      {content}
-    </button>
-  ) : (
-    <div className={className}>{content}</div>
+  const className = 'w-full p-4 rounded-2xl flex items-start gap-3 text-left';
+  return (
+    <div className="rounded-2xl bg-stone-50">
+      {onOpen ? (
+        <button type="button" onClick={onOpen} className={cn(className, 'hover:bg-accent-soft/50 transition-colors')}>
+          {content}
+        </button>
+      ) : (
+        <div className={className}>{content}</div>
+      )}
+      {/* Alineat amb el text: padding de la fila (1rem) + icona (2.25rem) + separació (0.75rem) */}
+      {reactionTarget && <ReactionBar target={reactionTarget} className="-mt-2 pb-3 pl-16 pr-4" />}
+    </div>
   );
 };

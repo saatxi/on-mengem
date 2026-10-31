@@ -249,6 +249,7 @@ export function MainApp() {
             <AlertsFeed
               alerts={alerts}
               restaurants={restaurants}
+              wishlist={visibleWishlist}
               onSelectRestaurant={setSelectedRestaurantId}
               markAllAlertsAsRead={markAllAlertsAsRead}
             />

@@ -118,6 +118,8 @@ export const toAlert = (r: Tables<'alerts'>): Alert => ({
   title: r.title,
   message: r.message,
   restaurantId: orUndef(r.restaurant_id),
+  wishlistId: orUndef(r.wishlist_id),
+  visitId: orUndef(r.visit_id),
   readBy: r.read_by ?? [],
   createdAt: r.created_at,
 });

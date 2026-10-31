@@ -87,6 +87,9 @@ export interface Alert {
   title: string;
   message: string;
   restaurantId?: string;
+  /** Desitjat o visita de l'alerta (des de la migració 0004; les anteriors no en tenen). */
+  wishlistId?: string;
+  visitId?: string;
   readBy?: string[];
   createdAt?: string;
 }

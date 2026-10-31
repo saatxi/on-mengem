@@ -425,23 +425,23 @@ delete from public.alerts
 create temporary table seed_alerts on commit drop as
 select r.group_id, r.created_by as user_id, 'restaurant_added' as type, 'Nou restaurant afegit!' as title,
        r.created_by_name || ' ha afegit "' || r.name || '" a la col·lecció del grup.' as message,
-       r.id as restaurant_id, r.created_at
+       r.id as restaurant_id, null::uuid as wishlist_id, null::uuid as visit_id, r.created_at
   from public.restaurants r
  where r.group_id in ('5eed0001-0000-0000-0000-000000000001', '5eed0001-0000-0000-0000-000000000002')
 union all
 select w.group_id, w.user_id, 'wishlist_added', 'Nou desitjat proposat!',
-       w.user_name || ' vol anar a provar "' || w.restaurant_name || '".', null, w.created_at
+       w.user_name || ' vol anar a provar "' || w.restaurant_name || '".', null, w.id, null, w.created_at
   from public.wishlist w
  where w.group_id in ('5eed0001-0000-0000-0000-000000000001', '5eed0001-0000-0000-0000-000000000002')
 union all
 select v.group_id, v.created_by, 'restaurant_reviewed', 'Nova visita registrada!',
-       v.created_by_name || ' ha registrat una visita a "' || r.name || '".', v.restaurant_id, v.created_at
+       v.created_by_name || ' ha registrat una visita a "' || r.name || '".', v.restaurant_id, null, v.id, v.created_at
   from public.restaurant_visits v
   join public.restaurants r on r.id = v.restaurant_id
  where v.group_id in ('5eed0001-0000-0000-0000-000000000001', '5eed0001-0000-0000-0000-000000000002')
 union all
 select m.group_id, m.user_id, 'group_joined', 'Nou membre al grup!',
-       p.nickname || ' s''ha unit al grup "' || g.name || '".', null, m.joined_at
+       p.nickname || ' s''ha unit al grup "' || g.name || '".', null, null, null, m.joined_at
   from public.group_members m
   join public.groups g on g.id = m.group_id
   join public.profiles p on p.id = m.user_id
@@ -449,8 +449,8 @@ select m.group_id, m.user_id, 'group_joined', 'Nou membre al grup!',
    and m.user_id <> g.owner_id;
 
 -- notify_group_item purga les alertes de més de 90 dies: no se'n creen de més antigues.
-insert into public.alerts (group_id, user_id, type, title, message, restaurant_id, read_by, created_at)
-select a.group_id, a.user_id, a.type, a.title, a.message, a.restaurant_id,
+insert into public.alerts (group_id, user_id, type, title, message, restaurant_id, wishlist_id, visit_id, read_by, created_at)
+select a.group_id, a.user_id, a.type, a.title, a.message, a.restaurant_id, a.wishlist_id, a.visit_id,
        case when a.created_at < now() - interval '7 days'
             then (select array_agg(m.user_id) from public.group_members m where m.group_id = a.group_id)
             else array[a.user_id] end,

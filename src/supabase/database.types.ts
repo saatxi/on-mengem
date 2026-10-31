@@ -25,14 +25,14 @@ export type Database = {
           Tables: {
             "alerts": {
                   Row: {
-                    "created_at": string,"group_id": string,"id": string,"message": string,"read_by": (string)[],"restaurant_id": string | null,"title": string,"type": string,"user_id": string | null
+                    "created_at": string,"group_id": string,"id": string,"message": string,"read_by": (string)[],"restaurant_id": string | null,"title": string,"type": string,"user_id": string | null,"visit_id": string | null,"wishlist_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"group_id": string,"id"?: string,"message": string,"read_by"?: (string)[],"restaurant_id"?: string | null,"title": string,"type": string,"user_id"?: string | null
+                    "created_at"?: string,"group_id": string,"id"?: string,"message": string,"read_by"?: (string)[],"restaurant_id"?: string | null,"title": string,"type": string,"user_id"?: string | null,"visit_id"?: string | null,"wishlist_id"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"group_id"?: string,"id"?: string,"message"?: string,"read_by"?: (string)[],"restaurant_id"?: string | null,"title"?: string,"type"?: string,"user_id"?: string | null
+                    "created_at"?: string,"group_id"?: string,"id"?: string,"message"?: string,"read_by"?: (string)[],"restaurant_id"?: string | null,"title"?: string,"type"?: string,"user_id"?: string | null,"visit_id"?: string | null,"wishlist_id"?: string | null
                   }
                   Relationships: [
                     {
