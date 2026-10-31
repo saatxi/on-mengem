@@ -20,11 +20,12 @@ const ICON_TONES = {
   wish: 'bg-violet-600 shadow-violet-600/30',
 };
 
-// Emojis decoratius al voltant de la icona: posició i retard, perquè no surin alhora
+// Emojis decoratius al voltant de la icona: posició i retard. Els retards negatius fan que cadascun comenci en un punt
+// diferent de l'oscil·lació, perquè no surin alhora ni amb la icona des del primer fotograma.
 const FLOATING_EMOJIS = [
-  { emoji: '🍕', className: '-left-9 top-1', delay: '0ms' },
-  { emoji: '🍣', className: '-right-10 top-5', delay: '600ms' },
-  { emoji: '🌮', className: '-left-5 -bottom-4', delay: '1200ms' },
+  { emoji: '🍕', className: '-left-9 top-1', delay: '-800ms' },
+  { emoji: '🍣', className: '-right-10 top-5', delay: '-1900ms' },
+  { emoji: '🌮', className: '-left-5 -bottom-4', delay: '-2700ms' },
 ];
 
 // Estat buit d'una llista (sense resultats o encara sense elements)
@@ -43,6 +44,7 @@ export const EmptyState: React.FC<Props> = ({ title, icon: Icon, tone = 'brand',
           </span>
         ))}
         <div
+          style={{ animationDelay: '-200ms' }}
           className={cn(
             'w-16 h-16 rounded-3xl text-white shadow-lg flex items-center justify-center -rotate-6 animate-float',
             ICON_TONES[tone],
@@ -53,7 +55,7 @@ export const EmptyState: React.FC<Props> = ({ title, icon: Icon, tone = 'brand',
       </div>
     )}
     <h3 className="text-lg font-extrabold tracking-tight text-stone-900">{title}</h3>
-    {children && <p className="text-sm text-stone-500 max-w-sm mx-auto">{children}</p>}
+    {children && <div className="text-sm text-stone-500 max-w-sm mx-auto">{children}</div>}
     {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
   </div>
 );

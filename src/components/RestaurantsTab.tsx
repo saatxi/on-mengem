@@ -160,7 +160,7 @@ export const RestaurantsTab: React.FC<Props> = ({
               : 'Encara no hi ha restaurants al grup. Sigues el primer a afegir-ne un!'}
         </EmptyState>
       ) : view === 'map' ? (
-        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 shimmer')} />}>
+        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 bg-stone-100 shimmer')} />}>
           <PlacesMap
             places={filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] }))}
             kind="restaurant"

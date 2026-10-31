@@ -100,7 +100,7 @@ export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder 
 
       {located && (
         <div className="mt-2 space-y-1.5">
-          <Suspense fallback={<div className="h-48 rounded-2xl shimmer" />}>
+          <Suspense fallback={<div className="h-48 rounded-2xl bg-stone-100 shimmer" />}>
             <LocationPicker value={located} onChange={setLocation} wish={tone === 'wish'} />
           </Suspense>
           <p className="text-xs text-stone-500">

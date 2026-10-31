@@ -201,7 +201,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
           }
         />
       ) : view === 'map' ? (
-        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 shimmer')} />}>
+        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 bg-stone-100 shimmer')} />}>
           <PlacesMap
             places={filtered.map((w) => ({ ...w, name: w.restaurantName, details: [w.cuisine ?? '', w.priceRange ?? ''] }))}
             kind="wish"
