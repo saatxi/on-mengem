@@ -21,6 +21,8 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlist }) => {
   // Novetats del mes en curs
   const addedThisMonth = restaurants.filter((r) => isInCurrentMonth(r.createdAt)).length;
   const visitedThisMonth = restaurants.filter((r) => r.visits.some((v) => isInCurrentMonth(v.visitedOn))).length;
+  // Els desitjats provats ja compten com a restaurants
+  const pendingWishes = wishlist.filter((w) => w.status !== 'visited').length;
   const wishedThisMonth = wishlist.filter((w) => isInCurrentMonth(w.createdAt)).length;
 
   return (
@@ -42,7 +44,7 @@ export const StatTiles: React.FC<Props> = ({ restaurants, wishlist }) => {
       <StatTile label="Nota mitjana" value={avgRating} decimals={1} icon={Star} iconClassName="bg-amber-100 text-amber-500" />
       <StatTile
         label="Desitjats"
-        value={wishlist.length}
+        value={pendingWishes}
         trend={wishedThisMonth}
         icon={Heart}
         iconClassName="bg-violet-100 text-violet-700"

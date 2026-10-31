@@ -10,6 +10,7 @@ import { CardSkeletons } from './CardSkeletons';
 import { SegmentedControl } from './SegmentedControl';
 import { WishlistCard } from './WishlistCard';
 
+// «Tots» vol dir tots els que queden per provar: els provats ja són a la llista de restaurants i queden com a arxiu
 const WISHLIST_FILTERS = { all: 'Tots', pending: 'Pendents', planned: 'Planificats', visited: 'Provats' } as const;
 type WishlistFilter = keyof typeof WISHLIST_FILTERS;
 
@@ -37,11 +38,16 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
   const [query, setQuery] = useState('');
   const [filter, setFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOfKeys(WISHLIST_FILTERS));
 
+  const triedCount = wishlist.filter((w) => w.status === 'visited').length;
+  const filterOptions = { ...WISHLIST_FILTERS, visited: triedCount > 0 ? `Provats · ${triedCount}` : WISHLIST_FILTERS.visited };
+
   const filtered = wishlist.filter(
     (w) =>
-      (filter === 'all' || (w.status ?? 'pending') === filter) &&
+      (filter === 'all' ? w.status !== 'visited' : (w.status ?? 'pending') === filter) &&
       matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
   );
+  // Tots els desitjats ja s'han provat: no és un problema de filtres
+  const allTried = filter === 'all' && query.trim() === '' && filtered.length === 0 && triedCount > 0;
   const hasFilters = query.trim() !== '' || filter !== 'all';
 
   // «Sorprèn-me»: tria a l'atzar un dels desitjats filtrats que encara no s'han provat i el destaca a la llista
@@ -104,7 +110,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
           <div className="flex items-center gap-2 self-start max-w-full">
             <SegmentedControl
               label="Estat del desitjat"
-              options={WISHLIST_FILTERS}
+              options={filterOptions}
               value={filter}
               onChange={setFilter}
               tone="page"
@@ -137,6 +143,21 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
           <Button onClick={onAdd} variant="wish">
             <Plus className="w-4 h-4" /> Afegir el primer desitjat
           </Button>
+        </div>
+      ) : allTried ? (
+        <div className={cn(EMPTY_STATE, 'py-12')}>
+          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Ja els heu provat tots!</h3>
+          <p className="text-sm text-stone-500 max-w-sm mx-auto">
+            Els provats són a la llista de restaurants. Afegiu-ne un de nou quan us en recomanin un.
+          </p>
+          <div className="flex flex-wrap justify-center gap-2">
+            <Button onClick={onAdd} variant="wish">
+              <Plus className="w-4 h-4" /> Proposar desitjat
+            </Button>
+            <Button onClick={() => setFilter('visited')} variant="secondary">
+              Veure els provats
+            </Button>
+          </div>
         </div>
       ) : filtered.length === 0 ? (
         <div className={cn(EMPTY_STATE, 'py-12')}>
