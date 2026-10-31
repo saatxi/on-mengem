@@ -241,7 +241,14 @@ export function MainApp() {
           />
         )}
 
-        {effectiveTab === 'alerts' && <AlertsFeed alerts={alerts} markAllAlertsAsRead={markAllAlertsAsRead} />}
+        {effectiveTab === 'alerts' && (
+          <AlertsFeed
+            alerts={alerts}
+            restaurants={restaurants}
+            onSelectRestaurant={setSelectedRestaurantId}
+            markAllAlertsAsRead={markAllAlertsAsRead}
+          />
+        )}
       </main>
 
       {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}

@@ -23,3 +23,22 @@ export const isInCurrentMonth = (dateStr: string | undefined, now = new Date()):
   const date = parseLocalDate(dateStr);
   return date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
 };
+
+/**
+ * Bloc temporal d'una data per agrupar llistes cronològiques: «Avui», «Ahir», «Aquesta setmana» (de dilluns ençà)
+ * o el mes («Octubre», amb l'any si no és l'actual). Dies naturals en hora local.
+ */
+export const dayBucket = (dateStr: string, now = new Date()): string => {
+  const date = parseLocalDate(dateStr);
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const today = startOfDay(now);
+  // Math.round perquè els canvis d'horari fan dies de 23 o 25 hores
+  const daysAgo = Math.round((today.getTime() - startOfDay(date).getTime()) / 86_400_000);
+  if (daysAgo <= 0) return 'Avui';
+  if (daysAgo === 1) return 'Ahir';
+  const daysSinceMonday = (today.getDay() + 6) % 7;
+  if (daysAgo <= daysSinceMonday) return 'Aquesta setmana';
+  const month = date.toLocaleDateString('ca', { month: 'long' });
+  const label = month.charAt(0).toUpperCase() + month.slice(1);
+  return date.getFullYear() === now.getFullYear() ? label : `${label} ${date.getFullYear()}`;
+};
