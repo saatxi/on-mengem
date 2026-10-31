@@ -3,6 +3,8 @@ import { Utensils, ChevronDown, Plus, UserPlus, Check, Home } from 'lucide-react
 import { useAuth } from '../context/AuthContext';
 import { PWAInstallButton } from './PWAInstallButton';
 import { UpdateButton } from './UpdateButton';
+import { usePresence } from '../hooks/usePresence';
+import { cn } from '../utils/cn';
 
 interface Props {
   onOpenCreateGroup: () => void;
@@ -14,6 +16,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
   const { userProfile, activeGroup, userGroups, setActiveGroupId, authUser } = useAuth();
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const menusRef = useRef<HTMLDivElement>(null);
+  const groupMenu = usePresence(showGroupMenu);
 
   // El desplegable es tanca en clicar fora o amb Escape
   useEffect(() => {
@@ -56,8 +59,14 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
               <ChevronDown className="w-3.5 h-3.5 flex-shrink-0 text-stone-500" />
             </button>
 
-            {showGroupMenu && (
-              <div className="absolute left-0 mt-2 w-72 rounded-3xl bg-surface shadow-2xl ring-1 ring-stone-900/5 p-2 z-50 text-sm origin-top-left animate-scale-in">
+            {groupMenu.mounted && (
+              <div
+                onAnimationEnd={groupMenu.onAnimationEnd}
+                className={cn(
+                  'absolute left-0 mt-2 w-72 rounded-3xl bg-surface shadow-2xl ring-1 ring-stone-900/5 p-2 z-50 text-sm origin-top-left',
+                  groupMenu.closing ? 'animate-scale-out pointer-events-none' : 'animate-scale-in',
+                )}
+              >
                 <button
                   onClick={() => {
                     setActiveGroupId(null);

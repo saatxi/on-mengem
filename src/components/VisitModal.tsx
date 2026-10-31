@@ -87,7 +87,6 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         subtitle={restaurant.name}
         icon={CalendarCheck}
         iconClassName="bg-emerald-100 text-emerald-600"
-        onClose={onClose}
       />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5">

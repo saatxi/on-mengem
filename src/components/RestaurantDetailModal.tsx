@@ -20,7 +20,7 @@ import {
   Navigation,
 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
-import { Modal } from './Modal';
+import { Modal, ModalCloseButton } from './Modal';
 import { Button } from './Button';
 import { useAlert, useConfirm } from './ConfirmDialog';
 import { Restaurant, Visit } from '../types';
@@ -135,13 +135,12 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           >
             <Pencil className="w-5 h-5" />
           </button>
-          <button
-            onClick={onClose}
+          <ModalCloseButton
             aria-label="Tanca"
             className="p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition"
           >
             <X className="w-5 h-5" />
-          </button>
+          </ModalCloseButton>
         </div>
       </div>
 

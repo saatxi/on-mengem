@@ -45,7 +45,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Modal label="Crear un grup" onClose={handleClose}>
-      <ModalHeader title="Crear un grup" icon={Users} onClose={handleClose} />
+      <ModalHeader title="Crear un grup" icon={Users} />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>

@@ -76,7 +76,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
   return (
     <Modal label={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} onClose={onClose} size="lg">
-      <ModalHeader title={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} icon={Utensils} onClose={onClose} />
+      <ModalHeader title={isEditing ? 'Editar restaurant' : 'Afegir restaurant'} icon={Utensils} />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         {/* Nom */}

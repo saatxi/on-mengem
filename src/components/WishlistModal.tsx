@@ -77,7 +77,6 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         title={isEditing ? 'Editar desitjat' : 'Proposar desitjat'}
         icon={BookmarkPlus}
         iconClassName="bg-violet-100 text-violet-700"
-        onClose={onClose}
       />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">

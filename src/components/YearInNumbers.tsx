@@ -41,12 +41,7 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
 
   return (
     <Modal label={`El ${year} en xifres`} onClose={onClose} size="lg">
-      <ModalHeader
-        title={`El ${year} en xifres`}
-        subtitle={spaceName ? `Grup «${spaceName}»` : 'El teu espai'}
-        icon={CalendarHeart}
-        onClose={onClose}
-      />
+      <ModalHeader title={`El ${year} en xifres`} subtitle={spaceName ? `Grup «${spaceName}»` : 'El teu espai'} icon={CalendarHeart} />
 
       <div className="p-5 sm:p-6 space-y-4">
         {years.length > 1 && (

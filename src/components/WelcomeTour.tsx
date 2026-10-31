@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, BookmarkPlus, CalendarCheck, Check, Dices, Plus, Sparkles, Star, Users, Utensils, X } from 'lucide-react';
-import { Modal } from './Modal';
+import { Modal, ModalCloseButton } from './Modal';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
 import { useAuth } from '../context/AuthContext';
@@ -229,22 +229,16 @@ export const WelcomeTour: React.FC<Props> = ({ onClose }) => {
             {index + 1} de {slides.length}
           </span>
           {isLast ? (
-            <button
-              type="button"
-              onClick={onClose}
+            <ModalCloseButton
               aria-label="Tanca"
               className="p-2 -mr-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
             >
               <X className="size-5" />
-            </button>
+            </ModalCloseButton>
           ) : (
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 -mr-2 rounded-full text-sm font-semibold text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
-            >
+            <ModalCloseButton className="px-3 py-1.5 -mr-2 rounded-full text-sm font-semibold text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors">
               Saltar
-            </button>
+            </ModalCloseButton>
           )}
         </div>
 

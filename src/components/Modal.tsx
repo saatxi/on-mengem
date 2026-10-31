@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { X, type LucideIcon } from 'lucide-react';
 import { cn } from '../utils/cn';
 
@@ -30,9 +30,16 @@ const openModals: symbol[] = [];
 // Quan es tanca d'una altra manera, es treu la seva entrada amb history.back(), i aquest popstate s'ha d'ignorar.
 let ignoreNextPopState = false;
 
+// Tancament amb animació de sortida, per als botons de dins del diàleg (vegeu ModalCloseButton)
+const ModalCloseContext = createContext<() => void>(() => {});
+
 // Al mòbil és un full que puja des de baix; a partir de `sm`, un diàleg centrat.
+// Escape, el fons, el botó enrere i ModalCloseButton el tanquen amb una animació i després criden onClose;
+// si el pare el desmunta directament (p. ex. en desar un formulari), es tanca sense animació.
 export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', className, fullScreenOnMobile = false }) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const [closing, setClosing] = useState(false);
+  const startClosing = () => setClosing(true);
   // onClose sol ser una funció nova a cada render: es guarda en una ref perquè l'efecte només s'executi en muntar.
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -49,7 +56,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isTop()) return;
-      if (e.key === 'Escape') onCloseRef.current();
+      if (e.key === 'Escape') setClosing(true);
       if (e.key === 'Tab') trapFocus(e);
     };
 
@@ -79,7 +86,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
       }
       if (!isTop()) return;
       closedByBack = true;
-      onCloseRef.current();
+      setClosing(true);
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -109,9 +116,12 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
         pressedOnBackdropRef.current = e.target === e.currentTarget;
       }}
       onClick={(e) => {
-        if (pressedOnBackdropRef.current && e.target === e.currentTarget) onClose();
+        if (pressedOnBackdropRef.current && e.target === e.currentTarget) startClosing();
       }}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/40 backdrop-blur-sm sm:p-4 animate-fade-in"
+      className={cn(
+        'fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-stone-950/40 backdrop-blur-sm sm:p-4',
+        closing ? 'animate-fade-out pointer-events-none' : 'animate-fade-in',
+      )}
     >
       <div
         ref={panelRef}
@@ -119,12 +129,18 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
         aria-modal="true"
         aria-label={label}
         tabIndex={-1}
+        onAnimationEnd={(e) => {
+          if (closing && e.target === e.currentTarget) onCloseRef.current();
+        }}
         className={cn(
           'relative w-full flex flex-col overflow-y-auto overscroll-contain bg-surface shadow-2xl outline-hidden',
           fullScreenOnMobile
-            ? 'h-dvh max-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] animate-fade-in sm:h-auto'
-            : 'max-h-[calc(100dvh-1.5rem)] rounded-t-3xl pb-[env(safe-area-inset-bottom)] animate-slide-up',
-          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:pb-0 sm:ring-1 sm:ring-stone-900/5 sm:animate-scale-in',
+            ? 'h-dvh max-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:h-auto'
+            : 'max-h-[calc(100dvh-1.5rem)] rounded-t-3xl pb-[env(safe-area-inset-bottom)]',
+          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:pb-0 sm:ring-1 sm:ring-stone-900/5',
+          closing
+            ? cn(fullScreenOnMobile ? 'animate-fade-out' : 'animate-slide-down', 'sm:animate-scale-out')
+            : cn(fullScreenOnMobile ? 'animate-fade-in' : 'animate-slide-up', 'sm:animate-scale-in'),
           SIZES[size],
           className,
         )}
@@ -132,10 +148,16 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
         {!fullScreenOnMobile && (
           <div aria-hidden="true" className="sm:hidden mx-auto mt-2 -mb-1 h-1.5 w-10 shrink-0 rounded-full bg-stone-300" />
         )}
-        {children}
+        <ModalCloseContext.Provider value={startClosing}>{children}</ModalCloseContext.Provider>
       </div>
     </div>
   );
+};
+
+// Botó de dins d'un Modal que el tanca amb l'animació de sortida
+export const ModalCloseButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = (props) => {
+  const close = useContext(ModalCloseContext);
+  return <button type="button" onClick={close} {...props} />;
 };
 
 interface HeaderProps {
@@ -144,11 +166,10 @@ interface HeaderProps {
   icon?: LucideIcon;
   /** Colors del requadre de la icona (per defecte, els de l'accent). */
   iconClassName?: string;
-  onClose: () => void;
 }
 
 // Capçalera comuna dels diàlegs: es queda fixa a dalt quan el contingut es desplaça
-export const ModalHeader: React.FC<HeaderProps> = ({ title, subtitle, icon: Icon, iconClassName, onClose }) => (
+export const ModalHeader: React.FC<HeaderProps> = ({ title, subtitle, icon: Icon, iconClassName }) => (
   <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-surface/90 backdrop-blur-md border-b border-stone-100">
     <div className="flex items-center gap-3 min-w-0">
       {Icon && (
@@ -161,13 +182,11 @@ export const ModalHeader: React.FC<HeaderProps> = ({ title, subtitle, icon: Icon
         {subtitle && <p className="text-sm text-stone-500 truncate">{subtitle}</p>}
       </div>
     </div>
-    <button
-      type="button"
-      onClick={onClose}
+    <ModalCloseButton
       aria-label="Tanca"
       className="p-2 -mr-2 rounded-full bg-stone-100 text-stone-500 hover:text-stone-900 hover:bg-stone-200 active:scale-[0.96] transition-[background-color,color,transform]"
     >
       <X className="size-5" />
-    </button>
+    </ModalCloseButton>
   </div>
 );

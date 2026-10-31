@@ -80,7 +80,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
 
   return (
     <Modal label="El teu perfil" onClose={onClose}>
-      <ModalHeader title="El teu perfil" icon={UserRound} onClose={onClose} />
+      <ModalHeader title="El teu perfil" icon={UserRound} />
 
       <div className="p-5 sm:p-6 space-y-6">
         {/* Compte de Google */}

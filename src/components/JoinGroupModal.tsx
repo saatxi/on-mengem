@@ -44,7 +44,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   return (
     <Modal label="Unir-se a un grup" onClose={onClose}>
-      <ModalHeader title="Unir-se a un grup" icon={UserPlus} onClose={onClose} />
+      <ModalHeader title="Unir-se a un grup" icon={UserPlus} />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>

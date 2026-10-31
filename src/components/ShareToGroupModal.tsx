@@ -50,12 +50,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
 
   return (
     <Modal label={isMove ? 'Moure a un grup' : 'Copiar a un grup'} onClose={close} size="sm">
-      <ModalHeader
-        title={isMove ? 'Moure a un grup' : 'Copiar a un grup'}
-        subtitle={itemName}
-        icon={isMove ? ArrowRightLeft : Copy}
-        onClose={close}
-      />
+      <ModalHeader title={isMove ? 'Moure a un grup' : 'Copiar a un grup'} subtitle={itemName} icon={isMove ? ArrowRightLeft : Copy} />
 
       <div className="p-5 space-y-3">
         <p className="text-xs text-stone-500">
