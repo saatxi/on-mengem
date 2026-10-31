@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Restaurant } from '../types';
 import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type RestaurantSort } from '../utils/restaurantFields';
+import { ALL_AREAS, cityAreas, matchesArea, validAreaFilter } from '../utils/areas';
 import { isBoolean, isString, oneOfKeys, usePersistentState } from './usePersistentState';
 
 export const VISITED_FILTERS = { all: 'Tots', visited: 'Visitats', not_visited: 'Per anar' } as const;
@@ -25,6 +26,11 @@ export function useRestaurantFilters(restaurants: Restaurant[]) {
   );
   const cuisine = cuisines.includes(selectedCuisine) ? selectedCuisine : ALL_CUISINES;
 
+  // Zones d'aquest espai; com amb la cuina, la desada pot ser d'un altre espai i llavors no filtra
+  const [selectedArea, setArea] = usePersistentState('filter-area', ALL_AREAS, isString);
+  const areas = cityAreas(restaurants);
+  const area = validAreaFilter(selectedArea, areas);
+
   const filtered = sortRestaurants(
     restaurants.filter((r) => {
       if (!matchesQuery(query, [r.name, r.cuisine, r.address, r.notes])) return false;
@@ -32,17 +38,19 @@ export function useRestaurantFilters(restaurants: Restaurant[]) {
       if (visited === 'visited' && !isVisited(r)) return false;
       if (visited === 'not_visited' && isVisited(r)) return false;
       if (cuisine !== ALL_CUISINES && r.cuisine !== cuisine) return false;
+      if (!matchesArea(r, area)) return false;
       return true;
     }),
     sort,
   );
 
-  const hasFilters = query.trim() !== '' || favorite || visited !== 'all' || cuisine !== ALL_CUISINES;
+  const hasFilters = query.trim() !== '' || favorite || visited !== 'all' || cuisine !== ALL_CUISINES || area !== ALL_AREAS;
   const clear = () => {
     setQuery('');
     setFavorite(false);
     setVisited('all');
     setCuisine(ALL_CUISINES);
+    setArea(ALL_AREAS);
   };
 
   return {
@@ -56,6 +64,9 @@ export function useRestaurantFilters(restaurants: Restaurant[]) {
     cuisine,
     setCuisine,
     allCuisines: ALL_CUISINES,
+    areas,
+    area,
+    setArea,
     sort,
     setSort,
     filtered,

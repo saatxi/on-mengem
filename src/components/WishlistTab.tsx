@@ -2,9 +2,11 @@ import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { BookmarkPlus, Dices, Plus, Search, Sparkles, X } from 'lucide-react';
 import { WishlistItem } from '../types';
 import { matchesQuery } from '../utils/restaurantFields';
-import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
+import { isString, oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
+import { ALL_AREAS, cityAreas, matchesArea, validAreaFilter } from '../utils/areas';
 import { cn } from '../utils/cn';
 import { CARD, EMPTY_STATE, FIELD } from '../utils/ui';
+import { AreaSelect } from './AreaSelect';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
 import { SegmentedControl } from './SegmentedControl';
@@ -52,14 +54,20 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
   const filterOptions: Partial<Record<WishlistFilter, string>> =
     triedCount > 0 ? { ...WISHLIST_FILTERS, visited: `Provats · ${triedCount}` } : activeFilters;
 
+  // Zones d'aquest espai; la desada pot ser d'un altre espai i llavors no filtra
+  const [savedArea, setArea] = usePersistentState('filter-wishlist-area', ALL_AREAS, isString);
+  const areas = cityAreas(wishlist);
+  const area = validAreaFilter(savedArea, areas);
+
   const filtered = wishlist.filter(
     (w) =>
       (filter === 'all' ? w.status !== 'visited' : (w.status ?? 'pending') === filter) &&
+      matchesArea(w, area) &&
       matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
   );
   // Tots els desitjats ja s'han provat: no és un problema de filtres
-  const allTried = filter === 'all' && query.trim() === '' && filtered.length === 0 && triedCount > 0;
-  const hasFilters = query.trim() !== '' || filter !== 'all';
+  const allTried = filter === 'all' && query.trim() === '' && area === ALL_AREAS && filtered.length === 0 && triedCount > 0;
+  const hasFilters = query.trim() !== '' || filter !== 'all' || area !== ALL_AREAS;
 
   // Targeta destacada a la llista: la triada amb «Sorprèn-me» o la que s'obre des del mapa
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
@@ -86,6 +94,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
   const clearFilters = () => {
     setQuery('');
     setFilter('all');
+    setArea(ALL_AREAS);
   };
 
   return (
@@ -134,6 +143,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
               tone="page"
               className="min-w-0"
             />
+            <AreaSelect areas={areas} value={area} onChange={setArea} className="focus:ring-violet-600" />
             <button
               onClick={pickRandom}
               disabled={pickable.length === 0}

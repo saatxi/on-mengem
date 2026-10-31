@@ -101,6 +101,19 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
             detail={summary.mostRepeated && `${summary.mostRepeated.visits} cops`}
             className="bg-stone-100"
           />
+          {summary.topArea && (
+            <Fact
+              label="Zona preferida"
+              value={summary.topArea.area}
+              detail={[
+                plural(summary.topArea.visits, 'visita', 'visites'),
+                summary.cities > 1 ? `${summary.cities} poblacions diferents` : null,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              className="col-span-2 bg-sky-50"
+            />
+          )}
         </div>
 
         {summary.wishesFulfilled > 0 && (

@@ -1,6 +1,7 @@
 // Estadístiques de la pestanya «Resum» i de l'«Any en xifres». Funcions pures: `now` es pot injectar als tests.
 // Les visites sense data (visitedOn buit) compten als totals, però no als càlculs per data.
 import type { Restaurant, Visit, WishlistItem } from '../types';
+import { areaLabel } from './areas';
 import { PRICE_RANGES, shownRating, visitAverage } from './restaurantFields';
 import { parseLocalDate } from './time';
 
@@ -147,6 +148,36 @@ export const cuisineRows = (restaurants: Restaurant[]): CuisineRow[] => {
   return Array.from(byCuisine.values(), ({ row, ratings }) => ({ ...row, rating: average(ratings) }));
 };
 
+export interface AreaRow {
+  /** «Gràcia · Barcelona», o només la població si no se'n sap la zona. */
+  area: string;
+  visits: number;
+  total: number;
+  /** Nota mitjana dels restaurants valorats d'aquesta zona. */
+  rating: number | null;
+}
+
+/**
+ * Visites, restaurants i nota mitjana per zona, de la més visitada a la que menys (a igualtat, la que té més
+ * restaurants). Els restaurants sense població ni zona no hi surten.
+ */
+export const areaRows = (restaurants: Restaurant[]): AreaRow[] => {
+  const byArea = new Map<string, { row: AreaRow; ratings: number[] }>();
+  for (const r of restaurants) {
+    const area = areaLabel(r);
+    if (!area) continue;
+    const entry = byArea.get(area) ?? { row: { area, visits: 0, total: 0, rating: null }, ratings: [] };
+    entry.row.total += 1;
+    entry.row.visits += r.visits.length;
+    const rating = shownRating(r);
+    if (rating != null && rating > 0) entry.ratings.push(rating);
+    byArea.set(area, entry);
+  }
+  return Array.from(byArea.values(), ({ row, ratings }) => ({ ...row, rating: average(ratings) })).sort(
+    (a, b) => b.visits - a.visits || b.total - a.total || a.area.localeCompare(b.area, 'ca'),
+  );
+};
+
 /** Amb 'year', només els restaurants visitats aquest any i, de cadascun, només les visites d'aquest any. */
 export const filterByPeriod = (restaurants: Restaurant[], period: StatsPeriod, now = new Date()): Restaurant[] => {
   if (period === 'all') return restaurants;
@@ -168,6 +199,10 @@ export interface YearSummary {
   /** Restaurants visitats per primer cop aquest any. */
   newRestaurants: number;
   topCuisine: { cuisine: string; visits: number } | null;
+  /** Zona amb més visites («Gràcia · Barcelona»), entre els restaurants que en tenen. */
+  topArea: { area: string; visits: number } | null;
+  /** Poblacions diferents dels restaurants visitats (dels que se'n sap). */
+  cities: number;
   mostRepeated: { name: string; visits: number } | null;
   bestRated: { name: string; rating: number } | null;
   /** Mes (0-11) amb més visites. */
@@ -197,10 +232,15 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
   ).length;
 
   const cuisineVisits = new Map<string, number>();
+  const areaVisits = new Map<string, number>();
+  const cities = new Set<string>();
   const monthVisits = new Map<number, number>();
   for (const { restaurant, visits } of visited) {
     const cuisine = restaurant.cuisine?.trim() || 'Altres';
     cuisineVisits.set(cuisine, (cuisineVisits.get(cuisine) ?? 0) + visits.length);
+    const area = areaLabel(restaurant);
+    if (area) areaVisits.set(area, (areaVisits.get(area) ?? 0) + visits.length);
+    if (restaurant.city) cities.add(restaurant.city);
     for (const v of visits) {
       const month = parseLocalDate(v.visitedOn!).getMonth();
       monthVisits.set(month, (monthVisits.get(month) ?? 0) + 1);
@@ -216,6 +256,7 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
 
   const sortedCuisines = Array.from(cuisineVisits).sort((a, b) => a[0].localeCompare(b[0], 'ca'));
   const topCuisine = maxEntry(sortedCuisines);
+  const topArea = maxEntry(Array.from(areaVisits).sort((a, b) => a[0].localeCompare(b[0], 'ca')));
   const busiestMonth = maxEntry(Array.from(monthVisits).sort((a, b) => a[0] - b[0]));
   const repeated = maxEntry(visited.map(({ restaurant, visits }) => [restaurant.name, visits.length] as [string, number]));
   const best = maxEntry(
@@ -231,6 +272,8 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
     restaurants: visited.length,
     newRestaurants,
     topCuisine: topCuisine && { cuisine: topCuisine[0], visits: topCuisine[1] },
+    topArea: topArea && { area: topArea[0], visits: topArea[1] },
+    cities: cities.size,
     mostRepeated: repeated && repeated[1] >= 2 ? { name: repeated[0], visits: repeated[1] } : null,
     bestRated: best && { name: best[0], rating: best[1] },
     busiestMonth: busiestMonth && { month: busiestMonth[0], visits: busiestMonth[1] },
@@ -251,6 +294,8 @@ export const yearSummaryText = (summary: YearSummary, spaceName?: string): strin
     `${plural(summary.visits, 'visita', 'visites')} a ${plural(summary.restaurants, 'restaurant', 'restaurants')} (${summary.newRestaurants} de nous)`,
   );
   if (summary.topCuisine) lines.push(`Cuina preferida: ${summary.topCuisine.cuisine}`);
+  if (summary.topArea) lines.push(`Zona preferida: ${summary.topArea.area}`);
+  if (summary.cities > 1) lines.push(`${summary.cities} poblacions diferents`);
   if (summary.mostRepeated) lines.push(`Més repetit: ${summary.mostRepeated.name} (${summary.mostRepeated.visits} cops)`);
   if (summary.bestRated) lines.push(`Millor nota: ${summary.bestRated.name} (${summary.bestRated.rating.toFixed(1)} ★)`);
   if (summary.busiestMonth) lines.push(`Mes més actiu: ${monthName(summary.busiestMonth.month)}`);

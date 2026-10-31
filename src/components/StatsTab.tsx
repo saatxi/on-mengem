@@ -4,6 +4,7 @@ import { Restaurant, WishlistItem } from '../types';
 import { filterByPeriod, yearsWithVisits, type StatsPeriod } from '../utils/stats';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { ActivityChart } from './ActivityChart';
+import { AreaStatsCard } from './AreaStatsCard';
 import { CuisineStatsChart } from './CuisineStatsChart';
 import { PriceStatsCard } from './PriceStatsCard';
 import { RankingsCard } from './RankingsCard';
@@ -56,6 +57,7 @@ export const StatsTab: React.FC<Props> = ({ restaurants, wishlist, groupName, on
       <RankingsCard restaurants={periodRestaurants} allRestaurants={restaurants} onSelect={onSelectRestaurant} />
       <CuisineStatsChart restaurants={periodRestaurants} groupName={groupName} collectionSize={restaurants.length} />
       <PriceStatsCard restaurants={periodRestaurants} />
+      <AreaStatsCard restaurants={periodRestaurants} />
 
       {showYearInNumbers && (
         <YearInNumbers

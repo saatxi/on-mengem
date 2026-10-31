@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Restaurant, Visit, WishlistItem } from '../types';
 import {
+  areaRows,
   cuisineRows,
   daysSinceLastVisit,
   filterByPeriod,
@@ -154,6 +155,23 @@ describe('cuisineRows', () => {
   });
 });
 
+describe('areaRows', () => {
+  it('agrupa per zona, de la més visitada a la que menys, i deixa fora els que no en tenen', () => {
+    const rows = areaRows([
+      restaurant('A', { city: 'Barcelona', district: 'Gràcia', visits: [visit('2026-01-01', 4)] }),
+      restaurant('B', { city: 'Barcelona', district: 'Gràcia', rating: 3 }),
+      restaurant('C', { city: 'Vic', visits: [visit('2026-01-01'), visit('2026-02-01')] }),
+      restaurant('D', { city: 'Barcelona', district: 'Eixample' }),
+      restaurant('E'),
+    ]);
+    expect(rows).toEqual([
+      { area: 'Vic', visits: 2, total: 1, rating: null },
+      { area: 'Gràcia · Barcelona', visits: 1, total: 2, rating: 3.5 },
+      { area: 'Eixample · Barcelona', visits: 0, total: 1, rating: null },
+    ]);
+  });
+});
+
 describe('filterByPeriod', () => {
   const list = [
     restaurant('Aquest any', { visits: [visit('2026-03-01'), visit('2025-05-01')] }),
@@ -174,8 +192,13 @@ describe('filterByPeriod', () => {
 
 describe('yearSummary', () => {
   const list = [
-    restaurant('Trattoria', { cuisine: 'Italiana', visits: [visit('2026-03-01', 4), visit('2026-03-20', 5), visit('2025-01-01', 2)] }),
-    restaurant('Sushi', { cuisine: 'Japonesa', visits: [visit('2026-07-01', 3)] }),
+    restaurant('Trattoria', {
+      cuisine: 'Italiana',
+      city: 'Barcelona',
+      district: 'Gràcia',
+      visits: [visit('2026-03-01', 4), visit('2026-03-20', 5), visit('2025-01-01', 2)],
+    }),
+    restaurant('Sushi', { cuisine: 'Japonesa', city: 'Girona', visits: [visit('2026-07-01', 3)] }),
     restaurant('Vell', { cuisine: 'Catalana', visits: [visit('2024-06-01', 5)] }),
     restaurant('Desitjat complert', { wishFulfilledAt: '2026-02-10T19:00:00Z' }),
     restaurant('Desitjat antic', { wishFulfilledAt: '2025-12-31T23:30:00Z' }), // 1 de gener a Madrid
@@ -192,6 +215,8 @@ describe('yearSummary', () => {
       restaurants: 2,
       newRestaurants: 1,
       topCuisine: { cuisine: 'Italiana', visits: 2 },
+      topArea: { area: 'Gràcia · Barcelona', visits: 2 },
+      cities: 2,
       mostRepeated: { name: 'Trattoria', visits: 2 },
       bestRated: { name: 'Trattoria', rating: 4.5 },
       busiestMonth: { month: 2, visits: 2 },
@@ -206,6 +231,8 @@ describe('yearSummary', () => {
       restaurants: 0,
       newRestaurants: 0,
       topCuisine: null,
+      topArea: null,
+      cities: 0,
       mostRepeated: null,
       bestRated: null,
       busiestMonth: null,
@@ -223,6 +250,8 @@ describe('yearSummary', () => {
       'El 2026 de «Amics» en xifres 🍽️',
       '3 visites a 2 restaurants (1 de nous)',
       'Cuina preferida: Italiana',
+      'Zona preferida: Gràcia · Barcelona',
+      '2 poblacions diferents',
       'Més repetit: Trattoria (2 cops)',
       'Millor nota: Trattoria (4.5 ★)',
       `Mes més actiu: ${new Date(2000, 2, 1).toLocaleDateString('ca', { month: 'long' })}`,

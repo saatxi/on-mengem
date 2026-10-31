@@ -16,10 +16,13 @@ export interface MapPlace {
   address?: string;
   lat?: number;
   lng?: number;
+  city?: string;
   favorite?: boolean;
 }
 
 type PlaceKind = 'restaurant' | 'wish';
+/** Ubicar els que no tenen punt, o completar la zona dels que ja en tenen. */
+type Task = 'locate' | 'area';
 
 // Textos i colors de cada tipus de lloc
 const KINDS: Record<PlaceKind, { one: string; many: string; mapLabel: string; icon: string }> = {
@@ -72,6 +75,8 @@ export const PlacesMap: React.FC<Props> = ({ places, kind, openLabel, onOpen, on
 
   const located = useMemo(() => places.filter(hasCoordinates), [places]);
   const toLocate = places.filter((p) => p.address && !hasCoordinates(p));
+  // Ubicats abans que es desés la zona (migració 0007): se'ls completa a partir del punt, sense moure'l
+  const withoutArea = located.filter((p) => !p.city);
   const withoutAddress = places.filter((p) => !p.address).length;
 
   // El mapa es crea un cop i es destrueix en sortir de la vista.
@@ -112,46 +117,60 @@ export const PlacesMap: React.FC<Props> = ({ places, kind, openLabel, onOpen, on
     map.fitBounds(L.latLngBounds(located.map((p) => [p.lat, p.lng])), { padding: [32, 32], maxZoom: MAX_FIT_ZOOM });
   }, [boundsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
-  const [notFound, setNotFound] = useState(0);
+  // Què s'està fent: ubicar els que no tenen punt o completar la zona dels que ja en tenen
+  const [progress, setProgress] = useState<{ task: Task; done: number; total: number } | null>(null);
+  const [missed, setMissed] = useState<{ task: Task; count: number } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   useEffect(() => () => abortRef.current?.abort(), []);
 
-  const locate = async () => {
+  const run = async (task: Task, pending: MapPlace[]) => {
     const controller = new AbortController();
     abortRef.current = controller;
-    const pending = toLocate;
-    setNotFound(0);
-    setProgress({ done: 0, total: pending.length });
-    const missed = await onLocate(pending, (done) => setProgress({ done, total: pending.length }), controller.signal);
+    setMissed(null);
+    setProgress({ task, done: 0, total: pending.length });
+    const notDone = await onLocate(pending, (done) => setProgress({ task, done, total: pending.length }), controller.signal);
     if (controller.signal.aborted) return;
     setProgress(null);
-    setNotFound(missed);
+    setMissed(notDone > 0 ? { task, count: notDone } : null);
   };
 
   return (
     <div className="space-y-3">
-      {(toLocate.length > 0 || progress || notFound > 0 || withoutAddress > 0) && (
+      {(toLocate.length > 0 || withoutArea.length > 0 || progress || missed || withoutAddress > 0) && (
         <div className={cn(CARD, 'px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm')} aria-live="polite">
           {progress ? (
             <span className="flex items-center gap-2 font-medium text-stone-700">
               <Loader2 className={cn('w-4 h-4 animate-spin', icon)} />
-              Ubicant {many}… {progress.done}/{progress.total}
+              {progress.task === 'locate' ? `Ubicant ${many}…` : 'Completant zones…'} {progress.done}/{progress.total}
             </span>
           ) : (
-            toLocate.length > 0 && (
-              <>
-                <span className="font-medium text-stone-700">
-                  {count(toLocate.length)} encara no {toLocate.length === 1 ? 'és' : 'són'} al mapa
+            <>
+              {toLocate.length > 0 && (
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="font-medium text-stone-700">
+                    {count(toLocate.length)} encara no {toLocate.length === 1 ? 'és' : 'són'} al mapa
+                  </span>
+                  <Button onClick={() => run('locate', toLocate)} variant="secondary" size="sm">
+                    <MapPin className={cn('w-3.5 h-3.5', icon)} /> Ubicar-los
+                  </Button>
                 </span>
-                <Button onClick={locate} variant="secondary" size="sm">
-                  <MapPin className={cn('w-3.5 h-3.5', icon)} /> Ubicar-los
-                </Button>
-              </>
-            )
+              )}
+              {withoutArea.length > 0 && (
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <span className="font-medium text-stone-700">{count(withoutArea.length)} sense zona</span>
+                  <Button onClick={() => run('area', withoutArea)} variant="secondary" size="sm">
+                    <MapPin className={cn('w-3.5 h-3.5', icon)} /> Completar zones
+                  </Button>
+                </span>
+              )}
+            </>
           )}
-          {notFound > 0 && !progress && (
-            <span className="text-stone-500">No s'ha trobat l'adreça de {count(notFound)}: revisa-la i torna-ho a provar.</span>
+          {missed && !progress && (
+            <span className="text-stone-500">
+              {missed.task === 'locate'
+                ? `No s'ha trobat l'adreça de ${count(missed.count)}: revisa-la i torna-ho a provar.`
+                : `No s'ha trobat la zona de ${count(missed.count)}.`}
+            </span>
           )}
           {withoutAddress > 0 && (
             <span className="text-stone-500 sm:ml-auto">

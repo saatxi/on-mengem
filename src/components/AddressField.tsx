@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { AlertTriangle, Loader2, MapPin, Search } from 'lucide-react';
 import { Button } from './Button';
 import type { AddressLocation } from '../hooks/useAddressLocation';
+import { areaLabel } from '../utils/areas';
 import { cn } from '../utils/cn';
 import { FIELD, LABEL } from '../utils/ui';
 
@@ -23,7 +24,9 @@ interface Props {
 
 // Camp d'adreça amb botó de cerca, resultats per triar i un mapa petit per ajustar-ne el punt (useAddressLocation).
 export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder }) => {
-  const { address, setAddress, search, searching, lookupResult, matches, located, setLocation, reviewBeforeSave } = location;
+  const { address, setAddress, search, searching, lookupResult, matches, choose, located, setLocation, reviewBeforeSave, values } =
+    location;
+  const area = areaLabel(values);
   const colors = TONES[tone];
   const selectedMatch = located ? matches.findIndex((m) => m.lat === located.lat && m.lng === located.lng) : -1;
 
@@ -80,7 +83,7 @@ export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder 
               <li key={i}>
                 <button
                   type="button"
-                  onClick={() => setLocation({ lat: m.lat, lng: m.lng })}
+                  onClick={() => choose(m)}
                   aria-pressed={i === selectedMatch}
                   className={cn(
                     'w-full text-left px-3 py-2 rounded-2xl text-xs transition-colors',
@@ -100,7 +103,14 @@ export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder 
           <Suspense fallback={<div className="h-48 rounded-2xl bg-stone-100 animate-pulse" />}>
             <LocationPicker value={located} onChange={setLocation} wish={tone === 'wish'} />
           </Suspense>
-          <p className="text-xs text-stone-500">Si el punt no és al lloc exacte, arrossega'l o toca el mapa on hauria d'anar.</p>
+          <p className="text-xs text-stone-500">
+            {area && (
+              <>
+                Zona: <strong className="font-semibold text-stone-700">{area}</strong>.{' '}
+              </>
+            )}
+            Si el punt no és al lloc exacte, arrossega'l o toca el mapa on hauria d'anar.
+          </p>
         </div>
       )}
     </div>

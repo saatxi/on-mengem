@@ -5,7 +5,8 @@ import { RESTAURANT_SORTS, type RestaurantSort } from '../utils/restaurantFields
 import { VISITED_FILTERS, type RestaurantFilters } from '../hooks/useRestaurantFilters';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { cn } from '../utils/cn';
-import { CARD, EMPTY_STATE, FIELD } from '../utils/ui';
+import { CARD, CHIP_SELECT, EMPTY_STATE, FIELD } from '../utils/ui';
+import { AreaSelect } from './AreaSelect';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
 import { RestaurantCard } from './RestaurantCard';
@@ -19,8 +20,6 @@ const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.Pla
 const CHIP =
   'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
 const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
-const CHIP_SELECT =
-  'px-3.5 py-2 rounded-full bg-surface ring-1 ring-stone-200 text-xs text-stone-700 font-medium focus:ring-2 focus:ring-accent outline-hidden';
 
 interface Props {
   restaurants: Restaurant[];
@@ -96,6 +95,8 @@ export const RestaurantsTab: React.FC<Props> = ({
               ))}
             </select>
           )}
+
+          <AreaSelect areas={filters.areas} value={filters.area} onChange={filters.setArea} />
 
           <button
             onClick={onOpenRandom}
