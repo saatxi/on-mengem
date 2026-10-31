@@ -75,64 +75,68 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
           const info = members[uid];
           const name = info?.nickname ?? (isGroupOwner ? group.ownerName : null) ?? `Membre ${index + 1}`;
           return (
-            <div key={uid} className="py-3 flex items-center justify-between gap-2 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-accent-soft flex items-center justify-center text-lg">
-                  {info?.avatar ?? (isCurrent ? userProfile?.avatar : null) ?? '👤'}
-                </div>
-                <div className="text-sm font-bold text-stone-900 flex items-center gap-2">
-                  <span>{isCurrent ? `${name} (Tu)` : name}</span>
-                  {isGroupOwner && (
-                    <span className="text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">Creador</span>
-                  )}
-                </div>
+            <div key={uid} className="py-3 flex items-center gap-3">
+              <div className="w-10 h-10 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-lg">
+                {info?.avatar ?? (isCurrent ? userProfile?.avatar : null) ?? '👤'}
               </div>
 
-              <div className="flex gap-1.5">
-                {isOwner && !isCurrent && (
-                  <>
+              {/* Al mòbil els botons van sota el nom, perquè un nom llarg no els faci desbordar */}
+              <div className="min-w-0 flex-1 flex flex-col gap-1.5 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+                <div className="min-w-0 text-sm font-bold text-stone-900 flex items-center gap-2">
+                  <span className="truncate">{isCurrent ? `${name} (Tu)` : name}</span>
+                  {isGroupOwner && (
+                    <span className="shrink-0 text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">
+                      Creador
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex gap-1.5 shrink-0 empty:hidden">
+                  {isOwner && !isCurrent && (
+                    <>
+                      <button
+                        disabled={busy}
+                        className={linkBtn}
+                        onClick={() =>
+                          run(
+                            {
+                              message: `Vols cedir el grup "${group.name}" a ${name}?`,
+                              details: 'Deixaràs de ser-ne el creador.',
+                              confirmLabel: 'Cedir grup',
+                            },
+                            () => transferOwnership(group.id, uid),
+                          )
+                        }
+                      >
+                        Cedir grup
+                      </button>
+                      <button
+                        disabled={busy}
+                        className={cn(linkBtn, 'text-red-600')}
+                        onClick={() =>
+                          run({ message: `Vols expulsar ${name} del grup?`, confirmLabel: 'Expulsar', destructive: true }, () =>
+                            removeMember(group.id, uid),
+                          )
+                        }
+                      >
+                        Expulsar
+                      </button>
+                    </>
+                  )}
+                  {isCurrent && !isOwner && (
                     <button
                       disabled={busy}
-                      className={linkBtn}
+                      className={cn(linkBtn, 'text-red-600')}
                       onClick={() =>
-                        run(
-                          {
-                            message: `Vols cedir el grup "${group.name}" a ${name}?`,
-                            details: 'Deixaràs de ser-ne el creador.',
-                            confirmLabel: 'Cedir grup',
-                          },
-                          () => transferOwnership(group.id, uid),
+                        run({ message: `Vols sortir del grup "${group.name}"?`, confirmLabel: 'Sortir', destructive: true }, () =>
+                          leaveGroup(group.id),
                         )
                       }
                     >
-                      Cedir grup
+                      Sortir del grup
                     </button>
-                    <button
-                      disabled={busy}
-                      className={`${linkBtn} text-red-600`}
-                      onClick={() =>
-                        run({ message: `Vols expulsar ${name} del grup?`, confirmLabel: 'Expulsar', destructive: true }, () =>
-                          removeMember(group.id, uid),
-                        )
-                      }
-                    >
-                      Expulsar
-                    </button>
-                  </>
-                )}
-                {isCurrent && !isOwner && (
-                  <button
-                    disabled={busy}
-                    className={`${linkBtn} text-red-600`}
-                    onClick={() =>
-                      run({ message: `Vols sortir del grup "${group.name}"?`, confirmLabel: 'Sortir', destructive: true }, () =>
-                        leaveGroup(group.id),
-                      )
-                    }
-                  >
-                    Sortir del grup
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -159,7 +163,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
           </button>
           <button
             disabled={busy}
-            className={`${linkBtn} text-red-600`}
+            className={cn(linkBtn, 'text-red-600')}
             onClick={() =>
               run(
                 {
