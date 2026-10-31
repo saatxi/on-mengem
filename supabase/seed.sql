@@ -107,6 +107,10 @@ select r.id, r.group_id, r.name, r.cuisine, r.price_range, r.address, r.rating, 
     ('5eed0002-0000-0000-0000-000000000006', '5eed0001-0000-0000-0000-000000000001', 'Masala Raval', 'Índia', '10-20 €',
      'Carrer de l''Hospital, 64, Barcelona', null, 'Thali vegetarià molt complet. Picant de veritat si ho demanes.',
      null, null, false, '5eed0000-0000-0000-0000-000000000003', interval '40 days'),
+    -- Era un desitjat (vegeu l'update d'origen més avall)
+    ('5eed0002-0000-0000-0000-000000000024', '5eed0001-0000-0000-0000-000000000001', 'Dim Sum Palace', 'Asiàtica', '20-30 €',
+     'Carrer de Girona, 40, Barcelona', null, '(Desitjat original: Els dumplings de gamba, imprescindibles.)',
+     null, null, false, '5eed0000-0000-0000-0000-000000000003', interval '50 days'),
     ('5eed0002-0000-0000-0000-000000000007', '5eed0001-0000-0000-0000-000000000001', 'Txoko Eixample', 'Basca', '20-30 €',
      'Carrer d''Aribau, 115, Barcelona', null, 'Pintxos a la barra; el de truita de bacallà guanya.',
      null, 'txokoeixample', false, '5eed0000-0000-0000-0000-000000000004', interval '18 days'),
@@ -184,6 +188,11 @@ update public.restaurants r
   ) as c (id, lat, lng)
  where r.id = c.id;
 
+-- Restaurant convertit des d'un desitjat (convert_wishlist_to_restaurant): en guarda l'origen.
+update public.restaurants
+   set wish_fulfilled_at = created_at, recommended_by = 'El Jordi'
+ where id = '5eed0002-0000-0000-0000-000000000024';
+
 -- ---------------------------------------------------------------- Desitjats
 
 insert into public.wishlist (id, group_id, restaurant_name, cuisine, price_range, address, recommended_by, notes,
@@ -204,9 +213,6 @@ select w.id, w.group_id, w.name, w.cuisine, w.price_range, w.address, w.recommen
     ('5eed0003-0000-0000-0000-000000000004', '5eed0001-0000-0000-0000-000000000001', 'Sidreria Gure Etxea', 'Basca', '40-50 €',
      'Carrer del Rosselló, 210, Barcelona', 'El cunyat de la Marta', 'Menú de sidreria amb txuleta.',
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000001', interval '2 days'),
-    ('5eed0003-0000-0000-0000-000000000005', '5eed0001-0000-0000-0000-000000000001', 'Dim Sum Palace', 'Asiàtica', '20-30 €',
-     'Carrer de Girona, 40, Barcelona', null, null,
-     null, null, 'visited', '5eed0000-0000-0000-0000-000000000003', interval '50 days'),
     -- Família
     ('5eed0003-0000-0000-0000-000000000006', '5eed0001-0000-0000-0000-000000000002', 'Mas Les Oliveres', 'Catalana', '40-50 €',
      'Camí de Sant Martí, s/n, Peratallada', 'La tieta Rosa', 'Per a l''aniversari dels avis. Tenen menú de grup.',
@@ -228,6 +234,7 @@ select w.id, w.group_id, w.name, w.cuisine, w.price_range, w.address, w.recommen
     ('5eed0003-0000-0000-0000-000000000011', null, 'Bar Celoneta Sport', 'Bar', '10-20 €',
      'Carrer de la Maquinista, 8, Barcelona', 'Un amic del futbol', null,
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000002', interval '33 days'),
+    -- Provat d'abans de la migració 0002 que no s'ha pogut associar a cap restaurant (es queda a «Provats»)
     ('5eed0003-0000-0000-0000-000000000012', null, 'Smokehouse Poblenou', 'Graella', '20-30 €',
      'Rambla del Poblenou, 120, Barcelona', null, 'Costelles a la barbacoa estil Texas.',
      'https://example.com/smokehouse', null, 'visited', '5eed0000-0000-0000-0000-000000000002', interval '58 days'),
@@ -312,7 +319,10 @@ select v.id, v.restaurant_id, r.group_id, current_date - v.days_ago, v.rating, v
     ('5eed0004-0000-0000-0000-000000000025', '5eed0002-0000-0000-0000-000000000021', 62, 4.0,
      null, true, '5eed0000-0000-0000-0000-000000000003'),
     ('5eed0004-0000-0000-0000-000000000026', '5eed0002-0000-0000-0000-000000000022', 13, 5.0,
-     'Cap-i-pota per esmorzar. Llegendari.', true, '5eed0000-0000-0000-0000-000000000003')
+     'Cap-i-pota per esmorzar. Llegendari.', true, '5eed0000-0000-0000-0000-000000000003'),
+    -- Dim Sum Palace: la visita de la conversió
+    ('5eed0004-0000-0000-0000-000000000027', '5eed0002-0000-0000-0000-000000000024', 50, 4.0,
+     'Per fi! Valia la pena.', true, '5eed0000-0000-0000-0000-000000000003')
   ) as v (id, restaurant_id, days_ago, rating, notes, shared, created_by)
   join public.restaurants r on r.id = v.restaurant_id
   join public.profiles p on p.id = v.created_by;
@@ -341,7 +351,8 @@ select ('5eed0004-0000-0000-0000-0000000000' || lpad(a.visit::text, 2, '0'))::uu
     (17, 5), (17, 2),
     (18, 1), (19, 1), (20, 1), (21, 1), (22, 1),
     (23, 2), (24, 2),
-    (25, 3), (26, 3)
+    (25, 3), (26, 3),
+    (27, 3), (27, 4)
   ) as a (visit, member);
 
 -- ---------------------------------------------------------------- Historial de canvis

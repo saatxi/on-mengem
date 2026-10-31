@@ -159,14 +159,14 @@ isOneToOne: false
                   ]
                 },"restaurants": {
                   Row: {
-                    "address": string | null,"created_at": string,"created_by": string | null,"created_by_name": string | null,"cuisine": string | null,"favorite": boolean,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"name": string,"notes": string | null,"price_range": string | null,"rating": number | null,"updated_at": string
+                    "address": string | null,"created_at": string,"created_by": string | null,"created_by_name": string | null,"cuisine": string | null,"favorite": boolean,"group_id": string | null,"id": string,"instagram": string | null,"lat": number | null,"link": string | null,"lng": number | null,"name": string,"notes": string | null,"price_range": string | null,"rating": number | null,"recommended_by": string | null,"updated_at": string,"wish_fulfilled_at": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name": string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"updated_at"?: string
+                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name": string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
                   }
                   Update: {
-                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name"?: string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"updated_at"?: string
+                    "address"?: string | null,"created_at"?: string,"created_by"?: string | null,"created_by_name"?: string | null,"cuisine"?: string | null,"favorite"?: boolean,"group_id"?: string | null,"id"?: string,"instagram"?: string | null,"lat"?: number | null,"link"?: string | null,"lng"?: number | null,"name"?: string,"notes"?: string | null,"price_range"?: string | null,"rating"?: number | null,"recommended_by"?: string | null,"updated_at"?: string,"wish_fulfilled_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -280,6 +280,9 @@ isOneToOne: false
       } },
 "history_fields":
 { Args: { "p_item_type": string }; Returns: (string)[]
+                           },
+"is_converting_wishlist":
+{ Args: { "p_wishlist_id": string }; Returns: boolean
                            },
 "is_deleting_user":
 { Args: { "p_user_id": string }; Returns: boolean
