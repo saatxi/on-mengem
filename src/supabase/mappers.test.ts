@@ -84,7 +84,9 @@ describe('toWishlistItem', () => {
       cuisine: 'Japonesa',
       price_range: null,
       recommended_by: 'Maria',
-      address: null,
+      address: 'Carrer Gran, 1',
+      lat: 41.98,
+      lng: 2.82,
       notes: null,
       link: null,
       instagram: null,
@@ -94,7 +96,7 @@ describe('toWishlistItem', () => {
       created_at: '2026-01-01T10:00:00Z',
       updated_at: '2026-01-01T10:00:00Z',
     });
-    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', recommendedBy: 'Maria', status: 'planned', groupId: 'g1' });
+    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', recommendedBy: 'Maria', status: 'planned', groupId: 'g1', lat: 41.98, lng: 2.82 });
     expect(item.priceRange).toBeUndefined();
   });
 });

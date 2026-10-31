@@ -248,6 +248,18 @@ select w.id, w.group_id, w.name, w.cuisine, w.price_range, w.address, w.recommen
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000005', interval '8 days')
   ) as w (id, group_id, name, cuisine, price_range, address, recommended_by, notes, link, instagram, status, user_id, age);
 
+-- Coordenades aproximades (0006_wishlist_coordinates.sql). Els que no en tenen serveixen per provar «Ubicar-los».
+update public.wishlist w
+   set lat = c.lat, lng = c.lng
+  from (values
+    ('5eed0003-0000-0000-0000-000000000001'::uuid, 41.3885::double precision, 2.1555::double precision),
+    ('5eed0003-0000-0000-0000-000000000003', 41.3960, 2.1640),
+    ('5eed0003-0000-0000-0000-000000000004', 41.3930, 2.1600),
+    ('5eed0003-0000-0000-0000-000000000007', 41.9845, 2.8240),
+    ('5eed0003-0000-0000-0000-000000000009', 41.3915, 2.1700)
+  ) as c (id, lat, lng)
+ where w.id = c.id;
+
 -- ---------------------------------------------------------------- Visites
 
 -- created_by_name no té trigger: s'agafa del perfil. shared = false és una visita privada (només al grup).

@@ -69,6 +69,8 @@ export interface WishlistItem {
   recommendedBy?: string;
   notes?: string;
   address?: string;
+  lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap
+  lng?: number;
   link?: string;
   instagram?: string; // nom d'usuari sense @
   groupId: string | null; // null = espai personal

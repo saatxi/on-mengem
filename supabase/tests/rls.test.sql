@@ -1323,6 +1323,50 @@ select is((select array[lat, lng] from public.restaurants where id = '20000000-0
           array[41.98, 2.82]::double precision[], 'desfer el moviment torna el punt al lloc');
 reset role;
 
+-- Coordenades dels desitjats (0006_wishlist_coordinates.sql), també a G7
+insert into public.wishlist (id, group_id, restaurant_name, address, lat, lng, user_id) values
+  ('30000000-0000-0000-0000-000000000070', null, 'Ona desitjat personal', 'Carrer de Verdi, 30, Barcelona', 41.41, 2.16,
+   '00000000-0000-0000-0000-0000000000c7'),
+  ('30000000-0000-0000-0000-000000000071', '10000000-0000-0000-0000-000000000007', 'Ona desitjat grup', 'Carrer Nou, 5, Girona',
+   41.97, 2.81, '00000000-0000-0000-0000-0000000000c7'),
+  ('30000000-0000-0000-0000-000000000072', '10000000-0000-0000-0000-000000000007', 'Ona desitjat a convertir', 'Rambla, 3, Girona',
+   41.96, 2.80, '00000000-0000-0000-0000-0000000000c7');
+
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000c7","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000c7', true);
+set local role authenticated;
+
+select throws_ok($$ update public.wishlist set lat = 91, lng = 2 where id = '30000000-0000-0000-0000-000000000070' $$,
+                 '23514', null, 'la latitud d''un desitjat ha d''estar entre -90 i 90');
+select throws_ok($$ update public.wishlist set lat = null where id = '30000000-0000-0000-0000-000000000070' $$,
+                 '23514', null, 'un desitjat no pot tenir una coordenada sense l''altra');
+
+select is((select public.copy_to_groups('wishlist', '30000000-0000-0000-0000-000000000070',
+                                        array['10000000-0000-0000-0000-000000000007'::uuid])), 1,
+          'ona copia el desitjat personal al grup');
+select is((select array[lat, lng] from public.wishlist
+            where group_id = '10000000-0000-0000-0000-000000000007' and restaurant_name = 'Ona desitjat personal'),
+          array[41.41, 2.16]::double precision[], 'copy_to_groups conserva les coordenades del desitjat');
+
+select lives_ok($$ update public.wishlist set lat = 41.9701, lng = 2.8105 where id = '30000000-0000-0000-0000-000000000071' $$,
+                'ona mou el punt d''un desitjat del grup al mapa');
+select is((select new_data from public.group_changes
+            where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81}'::jsonb),
+          '{"lat": 41.9701, "lng": 2.8105}'::jsonb, 'moure el punt d''un desitjat deixa una entrada a l''historial');
+select lives_ok(format('select public.restore_group_change(%L)',
+                       (select id from public.group_changes
+                         where item_id = '30000000-0000-0000-0000-000000000071' and old_data = '{"lat": 41.97, "lng": 2.81}'::jsonb)),
+                'ona desfà el moviment del punt del desitjat');
+select is((select array[lat, lng] from public.wishlist where id = '30000000-0000-0000-0000-000000000071'),
+          array[41.97, 2.81]::double precision[], 'desfer el moviment torna el punt del desitjat al lloc');
+
+select lives_ok($$ select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000072', current_date, null, '', '{}') $$,
+                'ona converteix en restaurant un desitjat ubicat');
+select is((select array[lat, lng] from public.restaurants
+            where group_id = '10000000-0000-0000-0000-000000000007' and name = 'Ona desitjat a convertir'),
+          array[41.96, 2.80]::double precision[], 'convertir un desitjat passa les seves coordenades al restaurant');
+reset role;
+
 -- ------------------------------------------------------------ Reaccions (G9, propietat d'Uma)
 -- Uma és l'owner de G9, Vic n'és membre i Xavi no hi és.
 insert into auth.users (id, email, raw_user_meta_data) values
