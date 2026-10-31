@@ -79,9 +79,15 @@ export const isInstagramHandle = (value?: string): value is string => !!value &&
 
 export const instagramUrl = (handle: string) => `https://www.instagram.com/${handle}/`;
 
-// Cerca a Google Maps pel nom i, si n'hi ha, l'adreça
+// Cerca a Google Maps pel nom i, si n'hi ha, l'adreça (obre la fitxa del negoci si el troba)
 export const mapsUrl = (name: string, address?: string) =>
   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([name, address].filter(Boolean).join(', '))}`;
+
+/** Indicacions de Google Maps fins al punt del lloc si està ubicat o, si no, fins al nom i l'adreça. */
+export const directionsUrl = (name: string, address?: string, { lat, lng }: { lat?: number; lng?: number } = {}) => {
+  const destination = lat !== undefined && lng !== undefined ? `${lat},${lng}` : [name, address].filter(Boolean).join(', ');
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
+};
 
 // Data d'avui (AAAA-MM-DD) en hora local; toISOString() la donaria en UTC i entre les 00:00 i les 02:00 seria ahir
 export const localToday = () => {

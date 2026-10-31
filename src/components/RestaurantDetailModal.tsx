@@ -17,6 +17,7 @@ import {
   ClipboardList,
   Dices,
   Lightbulb,
+  Navigation,
 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
@@ -32,6 +33,7 @@ import {
   lastVisit,
   safeHttpUrl,
   mapsUrl,
+  directionsUrl,
 } from '../utils/restaurantFields';
 import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
@@ -169,20 +171,31 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         {/* Adreça, links i telèfon */}
         <div className="space-y-2">
           {restaurant.address && (
-            <div className="flex items-center justify-between p-3.5 rounded-2xl bg-stone-50">
-              <div className="flex items-center gap-2.5 text-stone-700">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 p-3.5 rounded-2xl bg-stone-50">
+              <div className="flex items-center gap-2.5 text-stone-700 min-w-0">
                 <MapPin className="w-4 h-4 text-accent flex-shrink-0" />
                 <span className="text-sm font-medium">{restaurant.address}</span>
               </div>
-              <a
-                href={mapsUrl(restaurant.name, restaurant.address)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover flex-shrink-0"
-              >
-                <span>Mapa</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
+              <div className="flex items-center gap-4 flex-shrink-0 ml-auto">
+                <a
+                  href={directionsUrl(restaurant.name, restaurant.address, restaurant)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>Com arribar-hi</span>
+                </a>
+                <a
+                  href={mapsUrl(restaurant.name, restaurant.address)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-hover"
+                >
+                  <span>Mapa</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           )}
 

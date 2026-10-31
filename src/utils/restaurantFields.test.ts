@@ -4,6 +4,7 @@ import {
   canEditVisit,
   CUISINES,
   cuisineStyle,
+  directionsUrl,
   INSTAGRAM_INPUT_PATTERN,
   isInstagramHandle,
   localToday,
@@ -208,5 +209,19 @@ describe('optionOrEmpty', () => {
 
   it.each([undefined, '', 'Marciana'])('«%s» -> buit', (value) => {
     expect(optionOrEmpty(['Bar', 'Fleca'], value)).toBe('');
+  });
+});
+
+describe('directionsUrl', () => {
+  const destination = (url: string) => new URL(url).searchParams.get('destination');
+
+  it('porta al punt quan el lloc està ubicat', () => {
+    const url = directionsUrl('Can Pep', 'Carrer Gran, 1', { lat: 41.98, lng: 2.82 });
+    expect(url.startsWith('https://www.google.com/maps/dir/?api=1&')).toBe(true);
+    expect(destination(url)).toBe('41.98,2.82');
+  });
+
+  it("sense coordenades, porta al nom i l'adreça", () => {
+    expect(destination(directionsUrl('Can Pep', 'Carrer Gran, 1'))).toBe('Can Pep, Carrer Gran, 1');
   });
 });
