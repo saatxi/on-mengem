@@ -3,6 +3,7 @@ import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, Ma
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
+import { ReactionBar } from './ReactionBar';
 import { WishlistItem } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
@@ -113,6 +114,8 @@ export const WishlistCard: React.FC<Props> = ({
       )}
 
       {item.notes && <p className="text-sm text-stone-600 leading-relaxed">{item.notes}</p>}
+
+      <ReactionBar target={{ type: 'wishlist', id: item.id }} />
 
       <div className="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
         <span className="text-xs text-stone-500 truncate">

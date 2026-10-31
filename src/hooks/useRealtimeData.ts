@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabase/client';
-import { toRestaurant, toWishlistItem, toAlert, restaurantToRow, wishlistToRow } from '../supabase/mappers';
+import { toRestaurant, toWishlistItem, toAlert, toReaction, restaurantToRow, wishlistToRow } from '../supabase/mappers';
 import { quotaErrorMessage } from '../supabase/errors';
 import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
 import { geocodeAddress, type Coordinates } from '../utils/geocode';
-import { Restaurant, WishlistItem, Alert } from '../types';
+import { Restaurant, WishlistItem, Alert, Reaction, ReactionEmoji, ReactionTarget } from '../types';
 
 function logError(action: string, error: unknown) {
   console.error(`[Supabase] ${action}:`, error);
@@ -32,6 +32,7 @@ export function useRealtimeData() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [wishlist, setWishlist] = useState<WishlistItem[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [reactions, setReactions] = useState<Reaction[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -85,12 +86,25 @@ export function useRealtimeData() {
     setAlerts((data ?? []).map(toAlert));
   }, [uid, groupId, scope]);
 
+  // Reaccions: només n'hi ha als grups
+  const fetchReactions = useCallback(async () => {
+    if (!uid || !groupId) {
+      setReactions([]);
+      return;
+    }
+    const { data, error } = await supabase.from('reactions').select('*').eq('group_id', groupId);
+    if (scopeRef.current !== scope) return;
+    if (error) return fail('reactions', error);
+    setReactions((data ?? []).map(toReaction));
+  }, [uid, groupId, scope]);
+
   // Càrrega inicial i Realtime: els avisos del canal de l'espai actiu refresquen la llista que ha canviat.
   useEffect(() => {
     if (!uid) {
       setRestaurants([]);
       setWishlist([]);
       setAlerts([]);
+      setReactions([]);
       setLoading(false);
       return;
     }
@@ -100,7 +114,8 @@ export function useRealtimeData() {
     setRestaurants([]);
     setWishlist([]);
     setAlerts([]);
-    Promise.all([fetchRestaurants(), fetchWishlist(), fetchAlerts()]).then(() => {
+    setReactions([]);
+    Promise.all([fetchRestaurants(), fetchWishlist(), fetchAlerts(), fetchReactions()]).then(() => {
       if (!cancelled) setLoading(false);
     });
 
@@ -120,6 +135,7 @@ export function useRealtimeData() {
       restaurant_visits: refreshRestaurants,
       wishlist: debounced(fetchWishlist),
       alerts: debounced(fetchAlerts),
+      reactions: debounced(fetchReactions),
     };
     const unsubscribe = subscribeToChanges(groupId ? `group:${groupId}` : `user:${uid}`, (notice) => {
       if (notice === 'resync') new Set(Object.values(refreshers)).forEach((refresh) => refresh());
@@ -131,7 +147,7 @@ export function useRealtimeData() {
       cancels.forEach((cancel) => cancel());
       unsubscribe();
     };
-  }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts]);
+  }, [uid, groupId, fetchRestaurants, fetchWishlist, fetchAlerts, fetchReactions]);
 
   // CRUD Restaurants
   type NewRestaurant = Omit<Restaurant, 'id' | 'groupId' | 'createdBy' | 'createdByName' | 'visits' | 'createdAt' | 'updatedAt'>;
@@ -350,6 +366,31 @@ export function useRealtimeData() {
     await Promise.all([fetchRestaurants(), fetchWishlist()]);
   };
 
+  // Reaccions: posar-la o treure-la es veu de seguida i l'avís de Realtime ho confirma amb un refresc
+  const toggleReaction = async (target: ReactionTarget, emoji: ReactionEmoji) => {
+    if (!uid || !groupId) return;
+    const mine = reactions.find((r) => r.userId === uid && r.emoji === emoji && r.target.type === target.type && r.target.id === target.id);
+    if (mine) {
+      setReactions((prev) => prev.filter((r) => r.id !== mine.id));
+      const { error } = await supabase.from('reactions').delete().eq('id', mine.id);
+      if (error) {
+        fail('toggleReaction', error);
+        await fetchReactions();
+      }
+      return;
+    }
+    const pending: Reaction = { id: `pending-${target.type}-${target.id}-${emoji}`, userId: uid, emoji, target };
+    setReactions((prev) => [...prev, pending]);
+    const { error } = await supabase.from('reactions').insert({
+      restaurant_id: target.type === 'restaurant' ? target.id : null,
+      wishlist_id: target.type === 'wishlist' ? target.id : null,
+      visit_id: target.type === 'visit' ? target.id : null,
+      emoji,
+    });
+    if (error) fail('toggleReaction', error);
+    await fetchReactions();
+  };
+
   // Alertes
   const markAlertAsRead = async (alertId: string) => {
     if (!uid) return;
@@ -374,6 +415,7 @@ export function useRealtimeData() {
     restaurants,
     wishlist,
     alerts,
+    reactions,
     loading,
     error,
     clearError,
@@ -392,5 +434,6 @@ export function useRealtimeData() {
     moveToGroup,
     markAlertAsRead,
     markAllAlertsAsRead,
+    toggleReaction,
   };
 }

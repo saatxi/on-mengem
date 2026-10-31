@@ -36,6 +36,7 @@ import {
 import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
+import { ReactionBar } from './ReactionBar';
 
 interface Props {
   restaurant: Restaurant | null;
@@ -222,6 +223,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           )}
         </div>
 
+        <ReactionBar target={{ type: 'restaurant', id: restaurant.id }} />
+
         {/* Origen: convertit des d'un desitjat */}
         {(restaurant.wishFulfilledAt || restaurant.recommendedBy) && (
           <p className="flex items-start gap-1.5 text-sm text-violet-900 bg-violet-50 px-3 py-2 rounded-2xl">
@@ -396,6 +399,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
                       )}
                     </div>
                     {v.notes && <p className="text-xs text-stone-600 leading-relaxed">{v.notes}</p>}
+                    <ReactionBar target={{ type: 'visit', id: v.id }} className="pt-1" />
                     <div className="text-xs text-stone-500 flex flex-wrap gap-x-3 gap-y-0.5">
                       {v.createdByName && (
                         <span>

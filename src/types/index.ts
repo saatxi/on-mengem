@@ -91,6 +91,23 @@ export interface Alert {
   createdAt?: string;
 }
 
+/** Emojis de les reaccions (llista tancada per un CHECK de la BD; ordre i etiquetes a utils/reactions.ts). */
+export type ReactionEmoji = '👍' | '👎' | '❤️' | '🤤' | '🙋';
+
+/** Ítem d'un grup al qual es reacciona. */
+export interface ReactionTarget {
+  type: 'restaurant' | 'wishlist' | 'visit';
+  id: string;
+}
+
+export interface Reaction {
+  id: string;
+  userId: string;
+  emoji: ReactionEmoji;
+  target: ReactionTarget;
+  createdAt?: string;
+}
+
 export type GroupChangeItemType = 'restaurant' | 'wishlist' | 'visit';
 
 /** Entrada de l'historial d'un grup. Les dades són files de la BD (snake_case), tal com les desa el servidor. */

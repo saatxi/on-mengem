@@ -7,6 +7,7 @@ export type ChangedTable =
   | 'restaurant_visits'
   | 'wishlist'
   | 'alerts'
+  | 'reactions'
   | 'group_changes'
   | 'groups'
   | 'group_members'

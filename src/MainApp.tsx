@@ -13,6 +13,7 @@ import { ProfileModal } from './components/ProfileModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Toast } from './components/Toast';
 import { AlertsFeed } from './components/AlertsFeed';
+import { ReactionsProvider } from './context/ReactionsContext';
 import { BottomNav } from './components/BottomNav';
 import { TabButton } from './components/TabButton';
 import { RestaurantsTab } from './components/RestaurantsTab';
@@ -59,6 +60,8 @@ export function MainApp() {
     copyToGroups,
     moveToGroup,
     markAllAlertsAsRead,
+    reactions,
+    toggleReaction,
   } = useRealtimeData();
 
   const [currentTab, setCurrentTab] = usePersistentState<TabType>('tab', 'restaurants', oneOf(...TABS));
@@ -154,269 +157,271 @@ export function MainApp() {
     });
   };
   return (
-    <div className="min-h-screen flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
-      {/* Top Navbar */}
-      <Navbar
-        onOpenCreateGroup={() => setShowCreateGroup(true)}
-        onOpenJoinGroup={() => setShowJoinGroup(true)}
-        onOpenProfile={() => setShowProfile(true)}
-      />
+    <ReactionsProvider reactions={reactions} onToggle={toggleReaction}>
+      <div className="min-h-screen flex flex-col pb-[calc(var(--bottom-nav-h)+5.5rem)] sm:pb-12">
+        {/* Top Navbar */}
+        <Navbar
+          onOpenCreateGroup={() => setShowCreateGroup(true)}
+          onOpenJoinGroup={() => setShowJoinGroup(true)}
+          onOpenProfile={() => setShowProfile(true)}
+        />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
-        {/* Navigation Tabs */}
-        <div className="hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto">
-          <TabButton
-            icon={Utensils}
-            label={`Restaurants (${restaurants.length})`}
-            active={effectiveTab === 'restaurants'}
-            onClick={() => setCurrentTab('restaurants')}
-          />
-          <TabButton
-            icon={BookmarkPlus}
-            label={`Desitjats (${visibleWishlist.length})`}
-            active={effectiveTab === 'wishlist'}
-            onClick={() => setCurrentTab('wishlist')}
-          />
-          {!isPersonal && (
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
+          {/* Navigation Tabs */}
+          <div className="hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto">
             <TabButton
-              icon={Users}
-              label={`Grup (${activeGroup?.memberUids?.length || 1})`}
-              active={effectiveTab === 'group'}
-              onClick={() => setCurrentTab('group')}
+              icon={Utensils}
+              label={`Restaurants (${restaurants.length})`}
+              active={effectiveTab === 'restaurants'}
+              onClick={() => setCurrentTab('restaurants')}
+            />
+            <TabButton
+              icon={BookmarkPlus}
+              label={`Desitjats (${visibleWishlist.length})`}
+              active={effectiveTab === 'wishlist'}
+              onClick={() => setCurrentTab('wishlist')}
+            />
+            {!isPersonal && (
+              <TabButton
+                icon={Users}
+                label={`Grup (${activeGroup?.memberUids?.length || 1})`}
+                active={effectiveTab === 'group'}
+                onClick={() => setCurrentTab('group')}
+              />
+            )}
+            <TabButton icon={BarChart3} label="Resum" active={effectiveTab === 'stats'} onClick={() => setCurrentTab('stats')} />
+            {!isPersonal && (
+              <TabButton
+                icon={Bell}
+                label={unreadAlertCount > 0 ? `Activitat (${unreadAlertCount})` : 'Activitat'}
+                active={effectiveTab === 'alerts'}
+                onClick={() => setCurrentTab('alerts')}
+              />
+            )}
+          </div>
+
+          {effectiveTab === 'restaurants' && (
+            <RestaurantsTab
+              restaurants={restaurants}
+              filters={restaurantFilters}
+              loading={dataLoading}
+              isPersonal={isPersonal}
+              onAdd={() => setShowAddRestaurant(true)}
+              onOpen={(r) => setSelectedRestaurantId(r.id)}
+              onOpenRandom={openRandomRestaurant}
+              onToggleFavorite={toggleFavorite}
+              onRegisterVisit={(r) => setVisitTarget({ restaurant: r })}
+              onLocate={locateRestaurants}
             />
           )}
-          <TabButton icon={BarChart3} label="Resum" active={effectiveTab === 'stats'} onClick={() => setCurrentTab('stats')} />
-          {!isPersonal && (
-            <TabButton
-              icon={Bell}
-              label={unreadAlertCount > 0 ? `Activitat (${unreadAlertCount})` : 'Activitat'}
-              active={effectiveTab === 'alerts'}
-              onClick={() => setCurrentTab('alerts')}
+
+          {effectiveTab === 'wishlist' && (
+            <WishlistTab
+              wishlist={visibleWishlist}
+              loading={dataLoading}
+              isPersonal={isPersonal}
+              onAdd={() => setShowAddWishlist(true)}
+              onCopy={(w) => setShareTarget({ mode: 'copy', type: 'wishlist', id: w.id, name: w.restaurantName })}
+              onMove={isPersonal ? (w) => setShareTarget({ mode: 'move', type: 'wishlist', id: w.id, name: w.restaurantName }) : undefined}
+              onEdit={setEditingWishlist}
+              onDelete={handleDeleteWishlist}
+              onTogglePlanned={(w) => updateWishlistItem(w.id, { status: w.status === 'planned' ? 'pending' : 'planned' })}
+              onMarkVisited={setWishlistToConvert}
             />
           )}
-        </div>
 
-        {effectiveTab === 'restaurants' && (
-          <RestaurantsTab
-            restaurants={restaurants}
-            filters={restaurantFilters}
-            loading={dataLoading}
-            isPersonal={isPersonal}
-            onAdd={() => setShowAddRestaurant(true)}
-            onOpen={(r) => setSelectedRestaurantId(r.id)}
-            onOpenRandom={openRandomRestaurant}
-            onToggleFavorite={toggleFavorite}
-            onRegisterVisit={(r) => setVisitTarget({ restaurant: r })}
-            onLocate={locateRestaurants}
-          />
-        )}
-
-        {effectiveTab === 'wishlist' && (
-          <WishlistTab
-            wishlist={visibleWishlist}
-            loading={dataLoading}
-            isPersonal={isPersonal}
-            onAdd={() => setShowAddWishlist(true)}
-            onCopy={(w) => setShareTarget({ mode: 'copy', type: 'wishlist', id: w.id, name: w.restaurantName })}
-            onMove={isPersonal ? (w) => setShareTarget({ mode: 'move', type: 'wishlist', id: w.id, name: w.restaurantName }) : undefined}
-            onEdit={setEditingWishlist}
-            onDelete={handleDeleteWishlist}
-            onTogglePlanned={(w) => updateWishlistItem(w.id, { status: w.status === 'planned' ? 'pending' : 'planned' })}
-            onMarkVisited={setWishlistToConvert}
-          />
-        )}
-
-        {effectiveTab === 'group' && activeGroup && (
-          <GroupTab group={activeGroup} onJoinGroup={() => setShowJoinGroup(true)} onCreateGroup={() => setShowCreateGroup(true)} />
-        )}
-
-        {effectiveTab === 'stats' && (
-          <StatsTab
-            restaurants={restaurants}
-            wishlist={visibleWishlist}
-            groupName={activeGroup?.name}
-            onSelectRestaurant={setSelectedRestaurantId}
-            onNotice={notify}
-          />
-        )}
-
-        {effectiveTab === 'alerts' && (
-          <AlertsFeed
-            alerts={alerts}
-            restaurants={restaurants}
-            onSelectRestaurant={setSelectedRestaurantId}
-            markAllAlertsAsRead={markAllAlertsAsRead}
-          />
-        )}
-      </main>
-
-      {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}
-      {(effectiveTab === 'restaurants' || effectiveTab === 'wishlist') && (
-        <button
-          onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
-          aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
-          className={cn(
-            'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl active:scale-90 transition-transform animate-scale-in',
-            effectiveTab === 'wishlist' ? 'bg-violet-600 shadow-violet-600/40' : 'bg-brand shadow-accent/40',
+          {effectiveTab === 'group' && activeGroup && (
+            <GroupTab group={activeGroup} onJoinGroup={() => setShowJoinGroup(true)} onCreateGroup={() => setShowCreateGroup(true)} />
           )}
-        >
-          <Plus className="w-7 h-7" />
-        </button>
-      )}
 
-      {/* Modals */}
-      <AddRestaurantModal
-        key={showAddRestaurant ? 'add-restaurant-open' : 'add-restaurant-closed'}
-        isOpen={showAddRestaurant}
-        onClose={() => setShowAddRestaurant(false)}
-        existingNames={restaurants.map((r) => r.name)}
-        onSave={async (data) => {
-          const ok = await addRestaurant(data);
-          if (ok) notify('Restaurant afegit');
-          return ok;
-        }}
-      />
+          {effectiveTab === 'stats' && (
+            <StatsTab
+              restaurants={restaurants}
+              wishlist={visibleWishlist}
+              groupName={activeGroup?.name}
+              onSelectRestaurant={setSelectedRestaurantId}
+              onNotice={notify}
+            />
+          )}
 
-      <WishlistModal
-        key={showAddWishlist ? 'add-wishlist-open' : 'add-wishlist-closed'}
-        isOpen={showAddWishlist}
-        onClose={() => setShowAddWishlist(false)}
-        onSave={async (data) => {
-          const ok = await addWishlistItem(data);
-          if (ok) notify('Desitjat afegit');
-          return ok;
-        }}
-      />
+          {effectiveTab === 'alerts' && (
+            <AlertsFeed
+              alerts={alerts}
+              restaurants={restaurants}
+              onSelectRestaurant={setSelectedRestaurantId}
+              markAllAlertsAsRead={markAllAlertsAsRead}
+            />
+          )}
+        </main>
 
-      <WishlistModal
-        key={editingWishlist?.id ?? 'edit-wishlist'}
-        isOpen={!!editingWishlist}
-        item={editingWishlist}
-        onClose={() => setEditingWishlist(null)}
-        onSave={async (data) => {
-          const ok = editingWishlist ? await updateWishlistItem(editingWishlist.id, data) : false;
-          if (ok) notify('Canvis desats');
-          return ok;
-        }}
-      />
+        {/* Botó flotant del mòbil: afegeix el que toca a la pestanya oberta */}
+        {(effectiveTab === 'restaurants' || effectiveTab === 'wishlist') && (
+          <button
+            onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
+            aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
+            className={cn(
+              'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl active:scale-90 transition-transform animate-scale-in',
+              effectiveTab === 'wishlist' ? 'bg-violet-600 shadow-violet-600/40' : 'bg-brand shadow-accent/40',
+            )}
+          >
+            <Plus className="w-7 h-7" />
+          </button>
+        )}
 
-      <RestaurantDetailModal
-        restaurant={selectedRestaurant}
-        onClose={closeRestaurantDetail}
-        onReroll={selectedRestaurantId !== null && selectedRestaurantId === randomPickId ? openRandomRestaurant : undefined}
-        onEdit={setEditingRestaurant}
-        onToggleFavorite={toggleFavorite}
-        onDelete={deleteRestaurant}
-        onRegisterVisit={(r, v) => setVisitTarget({ restaurant: r, visit: v })}
-        onDeleteVisit={deleteVisit}
-        onCopyToGroup={(r) => {
-          closeRestaurantDetail();
-          setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
-        }}
-        onMoveToGroup={
-          isPersonal
-            ? (r) => {
-                closeRestaurantDetail();
-                setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
-              }
-            : undefined
-        }
-      />
+        {/* Modals */}
+        <AddRestaurantModal
+          key={showAddRestaurant ? 'add-restaurant-open' : 'add-restaurant-closed'}
+          isOpen={showAddRestaurant}
+          onClose={() => setShowAddRestaurant(false)}
+          existingNames={restaurants.map((r) => r.name)}
+          onSave={async (data) => {
+            const ok = await addRestaurant(data);
+            if (ok) notify('Restaurant afegit');
+            return ok;
+          }}
+        />
 
-      <AddRestaurantModal
-        key={editingRestaurant?.id ?? 'edit'}
-        isOpen={!!editingRestaurant}
-        restaurant={editingRestaurant}
-        onClose={() => setEditingRestaurant(null)}
-        onSave={async (data) => {
-          const ok = editingRestaurant ? await updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>) : false;
-          if (ok) notify('Canvis desats');
-          return ok;
-        }}
-      />
+        <WishlistModal
+          key={showAddWishlist ? 'add-wishlist-open' : 'add-wishlist-closed'}
+          isOpen={showAddWishlist}
+          onClose={() => setShowAddWishlist(false)}
+          onSave={async (data) => {
+            const ok = await addWishlistItem(data);
+            if (ok) notify('Desitjat afegit');
+            return ok;
+          }}
+        />
 
-      <ShareToGroupModal
-        isOpen={!!shareTarget}
-        mode={shareTarget?.mode ?? 'copy'}
-        itemName={shareTarget?.name ?? ''}
-        groups={userGroups.filter((g) => g.id !== activeGroup?.id)}
-        onClose={() => setShareTarget(null)}
-        onConfirm={async (groupIds) => {
-          if (!shareTarget) return;
-          if (shareTarget.mode === 'move') {
-            await moveToGroup(shareTarget.type, shareTarget.id, groupIds[0]);
-            notify(`Mogut a «${userGroups.find((g) => g.id === groupIds[0])?.name ?? 'el grup'}»`);
-          } else {
-            await copyToGroups(shareTarget.type, shareTarget.id, groupIds);
-            notify(groupIds.length === 1 ? 'Copiat al grup' : `Copiat a ${groupIds.length} grups`);
+        <WishlistModal
+          key={editingWishlist?.id ?? 'edit-wishlist'}
+          isOpen={!!editingWishlist}
+          item={editingWishlist}
+          onClose={() => setEditingWishlist(null)}
+          onSave={async (data) => {
+            const ok = editingWishlist ? await updateWishlistItem(editingWishlist.id, data) : false;
+            if (ok) notify('Canvis desats');
+            return ok;
+          }}
+        />
+
+        <RestaurantDetailModal
+          restaurant={selectedRestaurant}
+          onClose={closeRestaurantDetail}
+          onReroll={selectedRestaurantId !== null && selectedRestaurantId === randomPickId ? openRandomRestaurant : undefined}
+          onEdit={setEditingRestaurant}
+          onToggleFavorite={toggleFavorite}
+          onDelete={deleteRestaurant}
+          onRegisterVisit={(r, v) => setVisitTarget({ restaurant: r, visit: v })}
+          onDeleteVisit={deleteVisit}
+          onCopyToGroup={(r) => {
+            closeRestaurantDetail();
+            setShareTarget({ mode: 'copy', type: 'restaurant', id: r.id, name: r.name });
+          }}
+          onMoveToGroup={
+            isPersonal
+              ? (r) => {
+                  closeRestaurantDetail();
+                  setShareTarget({ mode: 'move', type: 'restaurant', id: r.id, name: r.name });
+                }
+              : undefined
           }
-        }}
-      />
+        />
 
-      <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+        <AddRestaurantModal
+          key={editingRestaurant?.id ?? 'edit'}
+          isOpen={!!editingRestaurant}
+          restaurant={editingRestaurant}
+          onClose={() => setEditingRestaurant(null)}
+          onSave={async (data) => {
+            const ok = editingRestaurant ? await updateRestaurant(editingRestaurant.id, data as Partial<Restaurant>) : false;
+            if (ok) notify('Canvis desats');
+            return ok;
+          }}
+        />
 
-      <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
+        <ShareToGroupModal
+          isOpen={!!shareTarget}
+          mode={shareTarget?.mode ?? 'copy'}
+          itemName={shareTarget?.name ?? ''}
+          groups={userGroups.filter((g) => g.id !== activeGroup?.id)}
+          onClose={() => setShareTarget(null)}
+          onConfirm={async (groupIds) => {
+            if (!shareTarget) return;
+            if (shareTarget.mode === 'move') {
+              await moveToGroup(shareTarget.type, shareTarget.id, groupIds[0]);
+              notify(`Mogut a «${userGroups.find((g) => g.id === groupIds[0])?.name ?? 'el grup'}»`);
+            } else {
+              await copyToGroups(shareTarget.type, shareTarget.id, groupIds);
+              notify(groupIds.length === 1 ? 'Copiat al grup' : `Copiat a ${groupIds.length} grups`);
+            }
+          }}
+        />
 
-      <ProfileModal
-        key={showProfile ? 'profile-open' : 'profile-closed'}
-        isOpen={showProfile}
-        onClose={() => setShowProfile(false)}
-        onOpenTour={() => {
-          setShowProfile(false);
-          setShowTour(true);
-        }}
-      />
+        <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
 
-      {showTour && <WelcomeTour onClose={() => setShowTour(false)} />}
+        <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
 
-      <VisitModal
-        restaurant={visitTarget?.restaurant ?? null}
-        visit={visitTarget?.visit}
-        onClose={() => setVisitTarget(null)}
-        onSave={async (...args: Parameters<typeof saveVisit>) => {
-          const ok = await saveVisit(...args);
-          if (ok) notify(args[6] ? 'Visita actualitzada' : 'Visita registrada');
-          return ok;
-        }}
-      />
+        <ProfileModal
+          key={showProfile ? 'profile-open' : 'profile-closed'}
+          isOpen={showProfile}
+          onClose={() => setShowProfile(false)}
+          onOpenTour={() => {
+            setShowProfile(false);
+            setShowTour(true);
+          }}
+        />
 
-      <VisitModal
-        restaurant={
-          wishlistToConvert
-            ? {
-                id: '__convert__',
-                name: wishlistToConvert.restaurantName,
-                cuisine: wishlistToConvert.cuisine,
-                priceRange: wishlistToConvert.priceRange,
-                groupId: wishlistToConvert.groupId,
-                createdBy: wishlistToConvert.userId,
-                visits: [],
-              }
-            : null
-        }
-        onClose={() => setWishlistToConvert(null)}
-        onSave={async (_id, visitedOn, rating, notes, attendeeIds, shared) => {
-          if (!wishlistToConvert) return false;
-          await convertWishlistToRestaurant(wishlistToConvert, { visitedOn, rating, notes, attendeeIds, shared });
-          setWishlistToConvert(null);
-          return true;
-        }}
-      />
+        {showTour && <WelcomeTour onClose={() => setShowTour(false)} />}
 
-      <Toast message={dataError} onClose={clearError} />
-      <Toast message={dataError ? null : linkError} onClose={clearLinkError} />
-      <Toast
-        message={dataError || linkError ? null : (notice?.message ?? null)}
-        action={notice?.action}
-        variant="success"
-        onClose={clearNotice}
-      />
+        <VisitModal
+          restaurant={visitTarget?.restaurant ?? null}
+          visit={visitTarget?.visit}
+          onClose={() => setVisitTarget(null)}
+          onSave={async (...args: Parameters<typeof saveVisit>) => {
+            const ok = await saveVisit(...args);
+            if (ok) notify(args[6] ? 'Visita actualitzada' : 'Visita registrada');
+            return ok;
+          }}
+        />
 
-      <BottomNav activeTab={effectiveTab} onTabChange={setCurrentTab} isPersonal={isPersonal} alertCount={unreadAlertCount} />
+        <VisitModal
+          restaurant={
+            wishlistToConvert
+              ? {
+                  id: '__convert__',
+                  name: wishlistToConvert.restaurantName,
+                  cuisine: wishlistToConvert.cuisine,
+                  priceRange: wishlistToConvert.priceRange,
+                  groupId: wishlistToConvert.groupId,
+                  createdBy: wishlistToConvert.userId,
+                  visits: [],
+                }
+              : null
+          }
+          onClose={() => setWishlistToConvert(null)}
+          onSave={async (_id, visitedOn, rating, notes, attendeeIds, shared) => {
+            if (!wishlistToConvert) return false;
+            await convertWishlistToRestaurant(wishlistToConvert, { visitedOn, rating, notes, attendeeIds, shared });
+            setWishlistToConvert(null);
+            return true;
+          }}
+        />
 
-      {/* Non-intrusive Offline Indicator */}
-      <OfflineIndicator />
-    </div>
+        <Toast message={dataError} onClose={clearError} />
+        <Toast message={dataError ? null : linkError} onClose={clearLinkError} />
+        <Toast
+          message={dataError || linkError ? null : (notice?.message ?? null)}
+          action={notice?.action}
+          variant="success"
+          onClose={clearNotice}
+        />
+
+        <BottomNav activeTab={effectiveTab} onTabChange={setCurrentTab} isPersonal={isPersonal} alertCount={unreadAlertCount} />
+
+        {/* Non-intrusive Offline Indicator */}
+        <OfflineIndicator />
+      </div>
+    </ReactionsProvider>
   );
 }

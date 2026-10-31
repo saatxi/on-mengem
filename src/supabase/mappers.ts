@@ -1,4 +1,17 @@
-import { Alert, Group, GroupChange, GroupChangeItemType, Restaurant, UserProfile, Visit, WishlistItem, WishlistStatus } from '../types';
+import {
+  Alert,
+  Group,
+  GroupChange,
+  GroupChangeItemType,
+  Reaction,
+  ReactionEmoji,
+  ReactionTarget,
+  Restaurant,
+  UserProfile,
+  Visit,
+  WishlistItem,
+  WishlistStatus,
+} from '../types';
 import type { Json, Tables, TablesUpdate } from './database';
 
 // Les files de Postgres són snake_case; l'app treballa en camelCase.
@@ -106,6 +119,23 @@ export const toAlert = (r: Tables<'alerts'>): Alert => ({
   message: r.message,
   restaurantId: orUndef(r.restaurant_id),
   readBy: r.read_by ?? [],
+  createdAt: r.created_at,
+});
+
+// Un CHECK de la BD garanteix que la reacció apunta a un sol ítem.
+const reactionTarget = (r: Tables<'reactions'>): ReactionTarget =>
+  r.restaurant_id
+    ? { type: 'restaurant', id: r.restaurant_id }
+    : r.wishlist_id
+      ? { type: 'wishlist', id: r.wishlist_id }
+      : { type: 'visit', id: r.visit_id ?? '' };
+
+export const toReaction = (r: Tables<'reactions'>): Reaction => ({
+  id: r.id,
+  userId: r.user_id,
+  // Com status: llista tancada per un CHECK de la BD.
+  emoji: r.emoji as ReactionEmoji,
+  target: reactionTarget(r),
   createdAt: r.created_at,
 });
 
