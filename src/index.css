@@ -196,6 +196,15 @@
   }
 }
 
+/* Desplaçament horitzontal sense barra visible (al mòbil sortia com una ratlla grisa sota els selectors) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Vora amb un raig de llum de marca que hi dona la volta (restaurant triat a l'atzar) */
 @utility border-beam {
   border: 2px solid transparent;

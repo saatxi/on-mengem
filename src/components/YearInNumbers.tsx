@@ -50,7 +50,7 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
 
       <div className="p-5 sm:p-6 space-y-4">
         {years.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto" role="group" aria-label="Any">
+          <div className="flex gap-2 overflow-x-auto scrollbar-none" role="group" aria-label="Any">
             {years.map((y) => (
               <button
                 key={y}

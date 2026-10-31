@@ -170,7 +170,7 @@ export function MainApp() {
         {/* Main Content Area */}
         <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-5 sm:py-6">
           {/* Navigation Tabs */}
-          <div className="hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto">
+          <div className="hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto scrollbar-none">
             <TabButton
               icon={Utensils}
               label={`Restaurants (${restaurants.length})`}

@@ -19,7 +19,7 @@ export const SegmentedControl = <T extends string>({ label, options, value, onCh
     role="group"
     aria-label={label}
     className={cn(
-      'flex items-center max-w-full overflow-x-auto rounded-full p-1 text-xs',
+      'flex items-center max-w-full overflow-x-auto scrollbar-none rounded-full p-1 text-xs',
       tone === 'card' ? 'bg-stone-100' : 'bg-stone-200/60',
       className,
     )}
