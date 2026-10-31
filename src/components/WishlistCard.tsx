@@ -10,6 +10,8 @@ import { instagramUrl, isInstagramHandle, mapsUrl, safeHttpUrl } from '../utils/
 
 interface Props {
   item: WishlistItem;
+  /** Triat amb «Sorprèn-me»: es destaca uns segons. */
+  highlighted?: boolean;
   onCopy: (item: WishlistItem) => void;
   /** Només a l'espai personal: els ítems de grup no es poden moure. */
   onMove?: (item: WishlistItem) => void;
@@ -23,15 +25,26 @@ interface Props {
 const ICON_BUTTON =
   'p-2 rounded-full text-stone-500 hover:text-stone-900 hover:bg-stone-100 active:scale-[0.9] transition-[background-color,color,transform]';
 
-export const WishlistCard: React.FC<Props> = ({ item, onCopy, onMove, onEdit, onDelete, onTogglePlanned, onMarkVisited }) => {
+export const WishlistCard: React.FC<Props> = ({
+  item,
+  highlighted = false,
+  onCopy,
+  onMove,
+  onEdit,
+  onDelete,
+  onTogglePlanned,
+  onMarkVisited,
+}) => {
   const isPlanned = item.status === 'planned';
   const link = safeHttpUrl(item.link);
 
   return (
     <article
+      id={`wishlist-${item.id}`}
       className={cn(
         CARD,
-        'flex flex-col gap-3 p-5 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+        'flex flex-col gap-3 p-5 scroll-mt-24 hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow] duration-200',
+        highlighted && 'ring-2 ring-violet-600 shadow-card-hover',
       )}
     >
       <div className="flex items-start gap-3">

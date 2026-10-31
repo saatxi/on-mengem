@@ -113,7 +113,7 @@ const buildSlides = (nickname?: string): Slide[] => [
       <>
         Quan algú et recomani un lloc, afegeix-lo a <Mobile>la pestanya Desitjats</Mobile>
         <Desktop>Desitjats</Desktop>. Marca'l com a planificat quan tingueu data i, quan hi aneu, converteix-lo en restaurant amb la primera
-        visita.
+        visita. Si no sabeu quin triar, «Sorprèn-me» en destaca un a l'atzar.
       </>
     ),
     art: (
