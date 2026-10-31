@@ -7,17 +7,26 @@ interface Props {
   className: string;
 }
 
-// Targetes buides mentre arriben les dades: la graella no salta quan es carreguen
+// Targetes buides mentre arriben les dades, amb la forma de les de debò: la graella no salta quan es carreguen
 export const CardSkeletons: React.FC<Props> = ({ count = 6, className }) => (
   <div className={className} aria-busy="true" aria-label="Carregant">
     {Array.from({ length: count }, (_, i) => (
-      <div key={i} className={cn(CARD, 'p-5 space-y-3 animate-pulse')}>
-        <div className="h-4 w-2/3 rounded-md bg-stone-200" />
-        <div className="h-3 w-1/3 rounded-md bg-stone-100" />
-        <div className="h-3 w-1/2 rounded-md bg-stone-100" />
-        <div className="pt-3 border-t border-stone-100 flex justify-between">
-          <div className="h-3 w-1/4 rounded-md bg-stone-100" />
-          <div className="h-7 w-16 rounded-2xl bg-stone-200" />
+      <div key={i} className={cn(CARD, 'p-5 flex flex-col gap-3')}>
+        <div className="flex items-start gap-3">
+          <div className="size-12 shrink-0 rounded-2xl shimmer" />
+          <div className="flex-1 space-y-2 pt-1">
+            <div className="h-4 w-2/3 rounded-full shimmer" />
+            <div className="h-3 w-1/3 rounded-full shimmer" />
+          </div>
+        </div>
+        <div className="flex gap-1.5">
+          <div className="h-6 w-14 rounded-full shimmer" />
+          <div className="h-6 w-20 rounded-full shimmer" />
+        </div>
+        <div className="h-3 w-1/2 rounded-full shimmer" />
+        <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+          <div className="h-3 w-1/4 rounded-full shimmer" />
+          <div className="h-8 w-20 rounded-full shimmer" />
         </div>
       </div>
     ))}

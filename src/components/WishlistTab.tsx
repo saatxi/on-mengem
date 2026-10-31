@@ -5,10 +5,11 @@ import { matchesQuery } from '../utils/restaurantFields';
 import { isString, oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { ALL_AREAS, cityAreas, matchesArea, validAreaFilter } from '../utils/areas';
 import { cn } from '../utils/cn';
-import { CARD, EMPTY_STATE, FIELD } from '../utils/ui';
+import { CARD, FIELD } from '../utils/ui';
 import { AreaSelect } from './AreaSelect';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
+import { EmptyState } from './EmptyState';
 import { SegmentedControl } from './SegmentedControl';
 import { PLACE_VIEWS, ViewToggle, type PlaceView } from './ViewToggle';
 import { WishlistCard } from './WishlistCard';
@@ -160,44 +161,47 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
       {loading ? (
         <CardSkeletons count={4} className="grid grid-cols-1 md:grid-cols-2 gap-4" />
       ) : wishlist.length === 0 ? (
-        <div className={EMPTY_STATE}>
-          <div className="w-16 h-16 rounded-3xl bg-violet-600 text-white shadow-lg shadow-violet-600/30 flex items-center justify-center mx-auto -rotate-6">
-            <Sparkles className="w-7 h-7" />
-          </div>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">No hi ha llocs desitjats pendents</h3>
-          <p className="text-sm text-stone-500 max-w-sm mx-auto">
-            T'han recomanat un restaurant interessant? Afegeix-lo aquí perquè el grup el pugui provar!
-          </p>
-          <Button onClick={onAdd} variant="wish">
-            <Plus className="w-4 h-4" /> Afegir el primer desitjat
-          </Button>
-        </div>
-      ) : allTried ? (
-        <div className={cn(EMPTY_STATE, 'py-12')}>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Ja els heu provat tots!</h3>
-          <p className="text-sm text-stone-500 max-w-sm mx-auto">
-            Els provats són a la llista de restaurants. Afegiu-ne un de nou quan us en recomanin un.
-          </p>
-          <div className="flex flex-wrap justify-center gap-2">
+        <EmptyState
+          title="No hi ha llocs desitjats pendents"
+          icon={Sparkles}
+          tone="wish"
+          actions={
             <Button onClick={onAdd} variant="wish">
-              <Plus className="w-4 h-4" /> Proposar desitjat
+              <Plus className="w-4 h-4" /> Afegir el primer desitjat
             </Button>
-            <Button onClick={() => setFilter('visited')} variant="secondary">
-              Veure els provats
-            </Button>
-          </div>
-        </div>
+          }
+        >
+          T'han recomanat un restaurant interessant? Afegeix-lo aquí perquè el grup el pugui provar!
+        </EmptyState>
+      ) : allTried ? (
+        <EmptyState
+          title="Ja els heu provat tots!"
+          actions={
+            <>
+              <Button onClick={onAdd} variant="wish">
+                <Plus className="w-4 h-4" /> Proposar desitjat
+              </Button>
+              <Button onClick={() => setFilter('visited')} variant="secondary">
+                Veure els provats
+              </Button>
+            </>
+          }
+        >
+          Els provats són a la llista de restaurants. Afegiu-ne un de nou quan us en recomanin un.
+        </EmptyState>
       ) : filtered.length === 0 ? (
-        <div className={cn(EMPTY_STATE, 'py-12')}>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Cap desitjat amb aquests filtres</h3>
-          {hasFilters && (
-            <Button onClick={clearFilters} variant="secondary">
-              <X className="w-4 h-4" /> Netejar filtres
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          title="Cap desitjat amb aquests filtres"
+          actions={
+            hasFilters && (
+              <Button onClick={clearFilters} variant="secondary">
+                <X className="w-4 h-4" /> Netejar filtres
+              </Button>
+            )
+          }
+        />
       ) : view === 'map' ? (
-        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 animate-pulse')} />}>
+        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 shimmer')} />}>
           <PlacesMap
             places={filtered.map((w) => ({ ...w, name: w.restaurantName, details: [w.cuisine ?? '', w.priceRange ?? ''] }))}
             kind="wish"

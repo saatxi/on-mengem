@@ -5,10 +5,11 @@ import { RESTAURANT_SORTS, type RestaurantSort } from '../utils/restaurantFields
 import { VISITED_FILTERS, type RestaurantFilters } from '../hooks/useRestaurantFilters';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { cn } from '../utils/cn';
-import { CARD, CHIP_SELECT, EMPTY_STATE, FIELD } from '../utils/ui';
+import { CARD, CHIP_SELECT, FIELD } from '../utils/ui';
 import { AreaSelect } from './AreaSelect';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
+import { EmptyState } from './EmptyState';
 import { RestaurantCard } from './RestaurantCard';
 import { SegmentedControl } from './SegmentedControl';
 import { PLACE_VIEWS, ViewToggle, type PlaceView } from './ViewToggle';
@@ -137,30 +138,29 @@ export const RestaurantsTab: React.FC<Props> = ({
       {loading ? (
         <CardSkeletons className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" />
       ) : filtered.length === 0 ? (
-        <div className={EMPTY_STATE}>
-          <div className="w-16 h-16 rounded-3xl bg-brand text-white shadow-lg shadow-accent/30 flex items-center justify-center mx-auto -rotate-6">
-            <UtensilsCrossed className="w-7 h-7" />
-          </div>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Cap restaurant trobat</h3>
-          <p className="text-sm text-stone-500 max-w-sm mx-auto">
-            {hasFilters
-              ? 'No hi ha resultats amb els filtres seleccionats.'
-              : isPersonal
-                ? 'El teu espai personal és buit. Afegeix els teus restaurants i després comparteix-los amb els teus grups!'
-                : 'Encara no hi ha restaurants al grup. Sigues el primer a afegir-ne un!'}
-          </p>
-          {hasFilters ? (
-            <Button onClick={clear} variant="secondary">
-              <X className="w-4 h-4" /> Netejar filtres
-            </Button>
-          ) : (
-            <Button onClick={onAdd} variant="brand">
-              <Plus className="w-4 h-4" /> Afegir el primer restaurant
-            </Button>
-          )}
-        </div>
+        <EmptyState
+          title="Cap restaurant trobat"
+          icon={UtensilsCrossed}
+          actions={
+            hasFilters ? (
+              <Button onClick={clear} variant="secondary">
+                <X className="w-4 h-4" /> Netejar filtres
+              </Button>
+            ) : (
+              <Button onClick={onAdd} variant="brand">
+                <Plus className="w-4 h-4" /> Afegir el primer restaurant
+              </Button>
+            )
+          }
+        >
+          {hasFilters
+            ? 'No hi ha resultats amb els filtres seleccionats.'
+            : isPersonal
+              ? 'El teu espai personal és buit. Afegeix els teus restaurants i després comparteix-los amb els teus grups!'
+              : 'Encara no hi ha restaurants al grup. Sigues el primer a afegir-ne un!'}
+        </EmptyState>
       ) : view === 'map' ? (
-        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 animate-pulse')} />}>
+        <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 shimmer')} />}>
           <PlacesMap
             places={filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] }))}
             kind="restaurant"
