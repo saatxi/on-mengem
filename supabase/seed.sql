@@ -355,6 +355,37 @@ select ('5eed0004-0000-0000-0000-0000000000' || lpad(a.visit::text, 2, '0'))::uu
     (27, 3), (27, 4)
   ) as a (visit, member);
 
+-- ---------------------------------------------------------------- Reaccions
+
+-- A «Sopars de divendres». Cada membre reacciona amb la seva sessió: el trigger hi posa el grup i l'usuari.
+create temporary table seed_reactions on commit drop as
+select * from (values
+  -- 🙋 = «M'apunto»: tres membres s'apunten a l'Izakaya
+  ('5eed0000-0000-0000-0000-000000000001'::uuid, null::uuid, '5eed0003-0000-0000-0000-000000000001'::uuid, null::uuid, '🙋'),
+  ('5eed0000-0000-0000-0000-000000000002', null, '5eed0003-0000-0000-0000-000000000001', null, '🙋'),
+  ('5eed0000-0000-0000-0000-000000000003', null, '5eed0003-0000-0000-0000-000000000001', null, '🙋'),
+  ('5eed0000-0000-0000-0000-000000000001', null, '5eed0003-0000-0000-0000-000000000004', null, '👍'),
+  ('5eed0000-0000-0000-0000-000000000003', null, '5eed0003-0000-0000-0000-000000000003', null, '👎'),
+  ('5eed0000-0000-0000-0000-000000000002', '5eed0002-0000-0000-0000-000000000001', null, null, '🤤'),
+  ('5eed0000-0000-0000-0000-000000000004', '5eed0002-0000-0000-0000-000000000001', null, null, '🤤'),
+  ('5eed0000-0000-0000-0000-000000000004', '5eed0002-0000-0000-0000-000000000024', null, null, '👍'),
+  -- La visita de l'aniversari de la Laia
+  ('5eed0000-0000-0000-0000-000000000002', null, null, '5eed0004-0000-0000-0000-000000000002', '❤️'),
+  ('5eed0000-0000-0000-0000-000000000001', null, null, '5eed0004-0000-0000-0000-000000000002', '❤️')
+) as t (user_id, restaurant_id, wishlist_id, visit_id, emoji);
+
+do $$
+declare
+  r record;
+begin
+  for r in select * from seed_reactions loop
+    perform set_config('request.jwt.claims', json_build_object('sub', r.user_id, 'role', 'authenticated')::text, true);
+    insert into public.reactions (restaurant_id, wishlist_id, visit_id, emoji)
+    values (r.restaurant_id, r.wishlist_id, r.visit_id, r.emoji);
+  end loop;
+  perform set_config('request.jwt.claims', '', true);
+end $$;
+
 -- ---------------------------------------------------------------- Historial de canvis
 
 -- Uns quants canvis a «Sopars de divendres», fets amb la sessió de cada membre perquè el trigger i save_visit

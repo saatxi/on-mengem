@@ -14,7 +14,7 @@ select has_column('public', 'restaurants', 'lng', 'els restaurants tenen longitu
 -- authenticated només té les operacions que tenen una política RLS; anon, cap.
 select table_privs_are('public', t, 'anon', array[]::text[], 'anònim: cap privilegi a ' || t)
   from unnest(array['profiles', 'groups', 'group_members', 'restaurants', 'wishlist', 'alerts', 'join_attempts',
-                    'restaurant_visits', 'visit_attendees', 'group_changes']) t;
+                    'restaurant_visits', 'visit_attendees', 'group_changes', 'reactions']) t;
 select table_privs_are('public', t, 'authenticated', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
                        'authenticated: CRUD a ' || t)
   from unnest(array['restaurants', 'wishlist']) t;
@@ -37,6 +37,16 @@ select column_privs_are('public', 'profiles', c, 'authenticated', p,
                ('nickname_changed_at', array[]::text[])) v(c, p);
 select table_privs_are('public', 'join_attempts', 'service_role', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
                        'service_role: CRUD sense TRUNCATE');
+
+-- Reaccions (0003): llegir i esborrar les pròpies; en una alta, el client només tria l'ítem i l'emoji
+select table_privs_are('public', 'reactions', 'authenticated', array['SELECT', 'DELETE'],
+                       'authenticated: llegir i esborrar a reactions (insert només per columnes)');
+select column_privs_are('public', 'reactions', c, 'authenticated', p, 'authenticated: privilegis de reactions.' || c)
+  from (values ('restaurant_id', array['SELECT', 'INSERT']), ('wishlist_id', array['SELECT', 'INSERT']),
+               ('visit_id', array['SELECT', 'INSERT']), ('emoji', array['SELECT', 'INSERT']),
+               ('user_id', array['SELECT']), ('group_id', array['SELECT']), ('id', array['SELECT'])) v(c, p);
+select table_privs_are('public', 'reactions', 'service_role', array['SELECT', 'INSERT', 'UPDATE', 'DELETE'],
+                       'service_role: CRUD a reactions sense TRUNCATE');
 
 -- Les taules noves no s'exposen soles a la Data API (cal grant explícit a la migració)
 create table public.probe_default_privs (id int);
@@ -1299,6 +1309,123 @@ select is((select array[address, lat::text, lng::text] from public.restaurants
             where id = '20000000-0000-0000-0000-000000000071'),
           array['Carrer Gran, 1, Girona', '41.98', '2.82'], 'desfer el canvi d''adreça torna el punt al lloc');
 reset role;
+
+-- ------------------------------------------------------------ Reaccions (G9, propietat d'Uma)
+-- Uma és l'owner de G9, Vic n'és membre i Xavi no hi és.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000aa', 'uma@test.dev', '{"full_name":"Uma"}'),
+  ('00000000-0000-0000-0000-0000000000ab', 'vic@test.dev', '{"full_name":"Vic"}'),
+  ('00000000-0000-0000-0000-0000000000ac', 'xavi@test.dev', '{"full_name":"Xavi"}');
+insert into public.groups (id, name, code, owner_id, owner_name) values
+  ('10000000-0000-0000-0000-000000000009', 'G9', 'UUUUUU', '00000000-0000-0000-0000-0000000000aa', 'Uma');
+insert into public.group_members (group_id, user_id) values
+  ('10000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-0000000000aa'),
+  ('10000000-0000-0000-0000-000000000009', '00000000-0000-0000-0000-0000000000ab');
+insert into public.restaurants (id, group_id, name, created_by) values
+  ('20000000-0000-0000-0000-000000000090', '10000000-0000-0000-0000-000000000009', 'G9 resto', '00000000-0000-0000-0000-0000000000aa'),
+  ('20000000-0000-0000-0000-000000000091', null, 'Uma personal', '00000000-0000-0000-0000-0000000000aa');
+insert into public.restaurant_visits (id, restaurant_id, group_id, created_by) values
+  ('40000000-0000-0000-0000-000000000090', '20000000-0000-0000-0000-000000000090', '10000000-0000-0000-0000-000000000009',
+   '00000000-0000-0000-0000-0000000000aa');
+insert into public.wishlist (id, group_id, restaurant_name, user_id) values
+  ('30000000-0000-0000-0000-000000000090', '10000000-0000-0000-0000-000000000009', 'Desitjat G9', '00000000-0000-0000-0000-0000000000ab');
+
+-- ---- Com a Vic (membre de G9)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ab","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ab', true);
+set local role authenticated;
+select lives_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000090', '👍');
+  insert into public.reactions (wishlist_id, emoji) values ('30000000-0000-0000-0000-000000000090', '❤️');
+  insert into public.reactions (visit_id, emoji) values ('40000000-0000-0000-0000-000000000090', '🙋')
+$$, 'vic reacciona a un restaurant, un desitjat i una visita del seu grup');
+select is((select array_agg(distinct row(group_id, user_id)::text) from public.reactions),
+          array[row('10000000-0000-0000-0000-000000000009'::uuid, '00000000-0000-0000-0000-0000000000ab'::uuid)::text],
+          'el servidor posa el grup de l''ítem i l''usuari de la sessió');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000090', '👍')
+$$, '23505', null, 'no es pot repetir la mateixa reacció al mateix ítem');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000091', '👍')
+$$, 'P0001', 'Només es pot reaccionar als ítems d''un grup on ets membre', 'no es pot reaccionar a un ítem personal');
+select throws_ok($$
+  insert into public.reactions (emoji) values ('👍')
+$$, 'P0001', 'Només es pot reaccionar als ítems d''un grup on ets membre', 'una reacció necessita un ítem');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, wishlist_id, emoji)
+  values ('20000000-0000-0000-0000-000000000090', '30000000-0000-0000-0000-000000000090', '🤤')
+$$, '23514', null, 'una reacció no pot apuntar a dos ítems');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000090', '🍕')
+$$, '23514', null, 'només es poden fer servir els emojis de la llista');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji, user_id)
+  values ('20000000-0000-0000-0000-000000000090', '🤤', '00000000-0000-0000-0000-0000000000aa')
+$$, '42501', null, 'vic no pot reaccionar en nom d''uma');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji, group_id)
+  values ('20000000-0000-0000-0000-000000000090', '🤤', '10000000-0000-0000-0000-000000000001')
+$$, '42501', null, 'vic no pot triar el grup de la reacció');
+select throws_ok($$
+  update public.reactions set emoji = '👎' where restaurant_id = '20000000-0000-0000-0000-000000000090'
+$$, '42501', null, 'les reaccions no es poden editar');
+reset role;
+select ok(exists (select 1 from realtime.messages
+                   where topic = 'group:10000000-0000-0000-0000-000000000009' and payload ->> 'table' = 'reactions'),
+          'reaccionar avisa el canal del grup');
+
+-- ---- Com a Xavi (aliè a G9)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ac","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ac', true);
+set local role authenticated;
+select is((select count(*)::int from public.reactions), 0, 'xavi no veu les reaccions d''un grup on no és');
+select throws_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000090', '👍')
+$$, 'P0001', 'Només es pot reaccionar als ítems d''un grup on ets membre', 'xavi no pot reaccionar en un grup on no és');
+reset role;
+
+-- ---- Com a Uma (propietària de G9)
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000aa","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000aa', true);
+set local role authenticated;
+select is((select count(*)::int from public.reactions), 3, 'uma veu les reaccions de vic al grup');
+delete from public.reactions;
+select is((select count(*)::int from public.reactions), 3, 'uma no pot esborrar les reaccions de vic (ni sent l''owner)');
+select lives_ok($$
+  insert into public.reactions (restaurant_id, emoji) values ('20000000-0000-0000-0000-000000000090', '🤤');
+  delete from public.reactions where user_id = auth.uid()
+$$, 'uma treu la seva pròpia reacció');
+select lives_ok($$
+  insert into public.reactions (wishlist_id, emoji) values ('30000000-0000-0000-0000-000000000090', '❤️');
+  select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000090', current_date, null, '', '{}')
+$$, 'uma converteix en restaurant un desitjat amb reaccions');
+select is((select array_agg(r.user_id order by r.user_id) from public.reactions r join public.restaurants x on x.id = r.restaurant_id
+            where x.name = 'Desitjat G9' and r.emoji = '❤️'),
+          array['00000000-0000-0000-0000-0000000000aa', '00000000-0000-0000-0000-0000000000ab']::uuid[],
+          'les reaccions del desitjat passen al restaurant nou');
+select lives_ok($$
+  delete from public.restaurants where id = '20000000-0000-0000-0000-000000000090'
+$$, 'uma esborra un restaurant amb reaccions i una visita amb reaccions');
+reset role;
+select is((select count(*)::int from public.reactions
+            where restaurant_id = '20000000-0000-0000-0000-000000000090' or visit_id = '40000000-0000-0000-0000-000000000090'), 0,
+          'esborrar un restaurant n''esborra les reaccions i les de les seves visites');
+
+-- ---- Vic surt de G9
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-0000000000ab","role":"authenticated"}', true);
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-0000000000ab', true);
+set local role authenticated;
+select lives_ok($$
+  delete from public.group_members where group_id = '10000000-0000-0000-0000-000000000009' and user_id = auth.uid()
+$$, 'vic surt de G9');
+reset role;
+select is((select count(*)::int from public.reactions where user_id = '00000000-0000-0000-0000-0000000000ab'), 0,
+          'sortir d''un grup n''esborra les reaccions pròpies');
+select ok(exists (select 1 from public.reactions where user_id = '00000000-0000-0000-0000-0000000000aa'),
+          'les reaccions de la resta de membres es mantenen');
+delete from auth.users where id = '00000000-0000-0000-0000-0000000000aa';
+select is((select count(*)::int from public.reactions where user_id = '00000000-0000-0000-0000-0000000000aa'), 0,
+          'esborrar un compte n''esborra les reaccions');
 
 -- ------------------------------------------------------------ Quotes contra l'abús (Eve)
 select is(array[public.quota_limit('personal_items'), public.quota_limit('group_items'),

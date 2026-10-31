@@ -131,6 +131,50 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"reactions": {
+                  Row: {
+                    "created_at": string,"emoji": string,"group_id": string,"id": string,"restaurant_id": string | null,"user_id": string,"visit_id": string | null,"wishlist_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"emoji": string,"group_id": string,"id"?: string,"restaurant_id"?: string | null,"user_id"?: string,"visit_id"?: string | null,"wishlist_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"emoji"?: string,"group_id"?: string,"id"?: string,"restaurant_id"?: string | null,"user_id"?: string,"visit_id"?: string | null,"wishlist_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "reactions_group_id_fkey"
+      columns: ["group_id"]
+isOneToOne: false
+      referencedRelation: "groups"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reactions_restaurant_id_fkey"
+      columns: ["restaurant_id"]
+isOneToOne: false
+      referencedRelation: "restaurants"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reactions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reactions_visit_id_fkey"
+      columns: ["visit_id"]
+isOneToOne: false
+      referencedRelation: "restaurant_visits"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reactions_wishlist_id_fkey"
+      columns: ["wishlist_id"]
+isOneToOne: false
+      referencedRelation: "wishlist"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"restaurant_visits": {
                   Row: {
                     "created_at": string,"created_by": string | null,"created_by_name": string | null,"group_id": string | null,"id": string,"notes": string | null,"rating": number | null,"restaurant_id": string,"shared": boolean,"updated_at": string,"visited_on": string | null
