@@ -16,6 +16,7 @@ import {
   Plus,
   ClipboardList,
   Dices,
+  Lightbulb,
 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Modal } from './Modal';
@@ -220,6 +221,21 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             </div>
           )}
         </div>
+
+        {/* Origen: convertit des d'un desitjat */}
+        {(restaurant.wishFulfilledAt || restaurant.recommendedBy) && (
+          <p className="flex items-start gap-1.5 text-sm text-violet-900 bg-violet-50 px-3 py-2 rounded-2xl">
+            <Lightbulb className="w-4 h-4 shrink-0 mt-px text-violet-700" />
+            <span>
+              Era a la llista de desitjats
+              {restaurant.recommendedBy && (
+                <>
+                  . Ho va recomanar <strong className="font-semibold">{restaurant.recommendedBy}</strong>
+                </>
+              )}
+            </span>
+          </p>
+        )}
 
         {/* Metadades */}
         <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">

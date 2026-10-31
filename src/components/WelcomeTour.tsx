@@ -112,8 +112,8 @@ const buildSlides = (nickname?: string): Slide[] => [
     body: (
       <>
         Quan algú et recomani un lloc, afegeix-lo a <Mobile>la pestanya Desitjats</Mobile>
-        <Desktop>Desitjats</Desktop>. Marca'l com a planificat quan tingueu data i, quan hi aneu, converteix-lo en restaurant amb la primera
-        visita. Si no sabeu quin triar, «Sorprèn-me» en destaca un a l'atzar.
+        <Desktop>Desitjats</Desktop>. Marca'l com a planificat quan tingueu data i, quan hi aneu, prem «Hi he anat»: passa a la llista de
+        restaurants amb la primera visita. Si no sabeu quin triar, «Sorprèn-me» en destaca un a l'atzar.
       </>
     ),
     art: (
@@ -126,7 +126,7 @@ const buildSlides = (nickname?: string): Slide[] => [
           Planificat
         </span>
         <span className="absolute top-12 right-[12%] px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold shadow-card">
-          Provat
+          Hi he anat ✓
         </span>
       </div>
     ),

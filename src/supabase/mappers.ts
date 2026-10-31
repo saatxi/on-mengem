@@ -62,6 +62,8 @@ export const toRestaurant = (r: RestaurantRow): Restaurant => ({
   createdBy: orUndef(r.created_by),
   createdByName: orUndef(r.created_by_name),
   favorite: r.favorite,
+  wishFulfilledAt: orUndef(r.wish_fulfilled_at),
+  recommendedBy: orUndef(r.recommended_by),
   visits: (r.restaurant_visits ?? [])
     .map(toVisit)
     .sort((a, b) => {

@@ -175,6 +175,16 @@ export interface YearSummary {
   wishesFulfilled: number;
 }
 
+const yearOf = (dateStr: string | undefined) => (dateStr ? parseLocalDate(dateStr).getFullYear() : null);
+
+/**
+ * Desitjats convertits en restaurant aquell any. Els restaurants en guarden la data; els desitjats «Provats» que
+ * queden d'abans de la migració 0002 (sense restaurant associat) compten per la data de l'última edició.
+ */
+const wishesFulfilledIn = (restaurants: Restaurant[], wishlist: WishlistItem[], year: number) =>
+  restaurants.filter((r) => yearOf(r.wishFulfilledAt) === year).length +
+  wishlist.filter((w) => w.status === 'visited' && yearOf(w.updatedAt) === year).length;
+
 /** Resum d'un any a partir de les visites amb data d'aquell any. */
 export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[], year: number): YearSummary => {
   const visited = restaurants.flatMap((r) => {
@@ -224,8 +234,7 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
     mostRepeated: repeated && repeated[1] >= 2 ? { name: repeated[0], visits: repeated[1] } : null,
     bestRated: best && { name: best[0], rating: best[1] },
     busiestMonth: busiestMonth && { month: busiestMonth[0], visits: busiestMonth[1] },
-    wishesFulfilled: wishlist.filter((w) => w.status === 'visited' && w.updatedAt && parseLocalDate(w.updatedAt).getFullYear() === year)
-      .length,
+    wishesFulfilled: wishesFulfilledIn(restaurants, wishlist, year),
   };
 };
 

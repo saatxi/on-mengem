@@ -4,8 +4,8 @@ import { cn } from '../utils/cn';
 interface Props<T extends string> {
   /** Nom accessible del grup de botons. */
   label: string;
-  /** Opcions en ordre: valor → text (o text amb icona). */
-  options: Record<T, React.ReactNode>;
+  /** Opcions en ordre: valor → text (o text amb icona). Pot ometre valors que ara no toquen. */
+  options: Partial<Record<T, React.ReactNode>>;
   value: T;
   onChange: (value: T) => void;
   /** 'card' sobre una targeta; 'page' sobre el fons de la pàgina, amb un gris una mica més fosc. */

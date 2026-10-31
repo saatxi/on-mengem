@@ -177,6 +177,8 @@ describe('yearSummary', () => {
     restaurant('Trattoria', { cuisine: 'Italiana', visits: [visit('2026-03-01', 4), visit('2026-03-20', 5), visit('2025-01-01', 2)] }),
     restaurant('Sushi', { cuisine: 'Japonesa', visits: [visit('2026-07-01', 3)] }),
     restaurant('Vell', { cuisine: 'Catalana', visits: [visit('2024-06-01', 5)] }),
+    restaurant('Desitjat complert', { wishFulfilledAt: '2026-02-10T19:00:00Z' }),
+    restaurant('Desitjat antic', { wishFulfilledAt: '2025-12-31T23:30:00Z' }), // 1 de gener a Madrid
   ];
   const wishlist: WishlistItem[] = [
     { id: 'w1', restaurantName: 'X', groupId: null, status: 'visited', updatedAt: '2026-05-01T10:00:00Z' },
@@ -193,7 +195,7 @@ describe('yearSummary', () => {
       mostRepeated: { name: 'Trattoria', visits: 2 },
       bestRated: { name: 'Trattoria', rating: 4.5 },
       busiestMonth: { month: 2, visits: 2 },
-      wishesFulfilled: 1,
+      wishesFulfilled: 3,
     });
   });
 
@@ -224,7 +226,7 @@ describe('yearSummary', () => {
       'Més repetit: Trattoria (2 cops)',
       'Millor nota: Trattoria (4.5 ★)',
       `Mes més actiu: ${new Date(2000, 2, 1).toLocaleDateString('ca', { month: 'long' })}`,
-      '1 desitjat complert',
+      '3 desitjats complerts',
     ]);
     expect(yearSummaryText(yearSummary(list, [], 2020)).split('\n')).toEqual([
       'El 2020 en xifres 🍽️',

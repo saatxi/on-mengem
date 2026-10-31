@@ -10,7 +10,8 @@ import { CardSkeletons } from './CardSkeletons';
 import { SegmentedControl } from './SegmentedControl';
 import { WishlistCard } from './WishlistCard';
 
-// «Tots» vol dir tots els que queden per provar: els provats ja són a la llista de restaurants i queden com a arxiu
+// «Tots» vol dir tots els que queden per provar. Convertir un desitjat l'esborra (migració 0002); «Provats» només
+// apareix si en queden de convertits abans, que no s'han pogut associar al seu restaurant.
 const WISHLIST_FILTERS = { all: 'Tots', pending: 'Pendents', planned: 'Planificats', visited: 'Provats' } as const;
 type WishlistFilter = keyof typeof WISHLIST_FILTERS;
 
@@ -36,10 +37,14 @@ interface Props {
 export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, onAdd, ...cardHandlers }) => {
   // La cerca no es recorda; el filtre d'estat, sí
   const [query, setQuery] = useState('');
-  const [filter, setFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOfKeys(WISHLIST_FILTERS));
+  const [savedFilter, setFilter] = usePersistentState<WishlistFilter>('filter-wishlist', 'all', oneOfKeys(WISHLIST_FILTERS));
 
   const triedCount = wishlist.filter((w) => w.status === 'visited').length;
-  const filterOptions = { ...WISHLIST_FILTERS, visited: triedCount > 0 ? `Provats · ${triedCount}` : WISHLIST_FILTERS.visited };
+  // Sense provats, el filtre «Provats» no es mostra (i, si era el recordat, es torna a «Tots»)
+  const filter = savedFilter === 'visited' && triedCount === 0 ? 'all' : savedFilter;
+  const { visited: _tried, ...activeFilters } = WISHLIST_FILTERS;
+  const filterOptions: Partial<Record<WishlistFilter, string>> =
+    triedCount > 0 ? { ...WISHLIST_FILTERS, visited: `Provats · ${triedCount}` } : activeFilters;
 
   const filtered = wishlist.filter(
     (w) =>

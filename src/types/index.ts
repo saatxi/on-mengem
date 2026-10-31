@@ -51,6 +51,9 @@ export interface Restaurant {
   createdBy?: string; // undefined = l'autor ha esborrat el compte
   createdByName?: string;
   favorite?: boolean;
+  /** Si ve d'un desitjat: quan es va convertir (ISO) i qui l'havia recomanat. Només els posa el servidor. */
+  wishFulfilledAt?: string;
+  recommendedBy?: string;
   visits: Visit[];
   createdAt?: string;
   updatedAt?: string;
