@@ -391,7 +391,8 @@ export function useRealtimeData() {
       p_group_ids: groupIds,
     });
     if (error) {
-      fail('copyToGroups', error);
+      // L'error es mostra dins del modal, que rep l'excepció: sense toast, perquè no surti dues vegades
+      logError('copyToGroups', error);
       throw error;
     }
     return data as number;
@@ -405,7 +406,7 @@ export function useRealtimeData() {
       p_group_id: targetGroupId,
     });
     if (error) {
-      fail('moveToGroup', error);
+      logError('moveToGroup', error);
       throw error;
     }
     await Promise.all([fetchRestaurants(), fetchWishlist()]);

@@ -3,6 +3,7 @@ import { Copy, ArrowRightLeft, Users } from 'lucide-react';
 import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Group } from '../types';
+import { errorMessage } from '../supabase/errors';
 
 interface Props {
   isOpen: boolean;
@@ -42,7 +43,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
       close();
     } catch (e) {
       console.error(e);
-      setError("No s'ha pogut completar l'acció. Torna-ho a provar.");
+      setError(errorMessage(e, "No s'ha pogut completar l'acció. Torna-ho a provar."));
     } finally {
       setBusy(false);
     }
