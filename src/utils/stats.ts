@@ -223,7 +223,7 @@ const wishesFulfilledIn = (restaurants: Restaurant[], wishlist: WishlistItem[], 
 /** Resum d'un any a partir de les visites amb data d'aquell any. */
 export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[], year: number): YearSummary => {
   const visited = restaurants.flatMap((r) => {
-    const visits = r.visits.filter((v) => visitYear(v) === year);
+    const visits = datedVisits(r).filter((v) => parseLocalDate(v.visitedOn).getFullYear() === year);
     return visits.length ? [{ restaurant: r, visits }] : [];
   });
 
@@ -242,7 +242,7 @@ export const yearSummary = (restaurants: Restaurant[], wishlist: WishlistItem[],
     if (area) areaVisits.set(area, (areaVisits.get(area) ?? 0) + visits.length);
     if (restaurant.city) cities.add(restaurant.city);
     for (const v of visits) {
-      const month = parseLocalDate(v.visitedOn!).getMonth();
+      const month = parseLocalDate(v.visitedOn).getMonth();
       monthVisits.set(month, (monthVisits.get(month) ?? 0) + 1);
     }
   }
