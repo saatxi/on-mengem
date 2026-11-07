@@ -6,6 +6,7 @@ import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
 import { areaOf, geocodeAddress, type Coordinates } from '../utils/geocode';
+import { createResponseOrder } from '../utils/responseOrder';
 import { Restaurant, WishlistItem, Alert, Reaction, ReactionEmoji, ReactionTarget } from '../types';
 
 function logError(action: string, error: unknown) {
@@ -15,6 +16,12 @@ function logError(action: string, error: unknown) {
 const ERROR_MESSAGE = "No s'ha pogut completar l'acció. Comprova la connexió i torna-ho a provar.";
 /** Els canvis ràpids consecutius (p. ex. una còpia a varis grups) es resolen amb un sol refresc. */
 const REFRESH_DEBOUNCE_MS = 300;
+
+// Un desat i un avís de Realtime poden llegir alhora la mateixa llista: una resposta vella no trepitja una de més nova.
+const restaurantsOrder = createResponseOrder();
+const wishlistOrder = createResponseOrder();
+const alertsOrder = createResponseOrder();
+const reactionsOrder = createResponseOrder();
 
 type PlaceLocation = Coordinates & { city?: string | null; district?: string | null };
 
@@ -72,20 +79,22 @@ export function useRealtimeData() {
       .select('*, restaurant_visits(*, visit_attendees(user_id))')
       .order('created_at', { ascending: false });
     q = groupId ? q.eq('group_id', groupId) : q.is('group_id', null).eq('created_by', uid);
+    const isFresh = restaurantsOrder();
     const { data, error } = await q;
     if (scopeRef.current !== scope) return;
     if (error) return fail('restaurants', error);
-    setRestaurants((data ?? []).map(toRestaurant));
+    if (isFresh()) setRestaurants((data ?? []).map(toRestaurant));
   }, [uid, groupId, scope]);
 
   const fetchWishlist = useCallback(async () => {
     if (!uid) return;
     let q = supabase.from('wishlist').select('*').order('created_at', { ascending: false });
     q = groupId ? q.eq('group_id', groupId) : q.is('group_id', null).eq('user_id', uid);
+    const isFresh = wishlistOrder();
     const { data, error } = await q;
     if (scopeRef.current !== scope) return;
     if (error) return fail('wishlist', error);
-    setWishlist((data ?? []).map(toWishlistItem));
+    if (isFresh()) setWishlist((data ?? []).map(toWishlistItem));
   }, [uid, groupId, scope]);
 
   const fetchAlerts = useCallback(async () => {
@@ -93,6 +102,7 @@ export function useRealtimeData() {
       setAlerts([]);
       return;
     }
+    const isFresh = alertsOrder();
     const { data, error } = await supabase
       .from('alerts')
       .select('*')
@@ -101,7 +111,7 @@ export function useRealtimeData() {
       .limit(100);
     if (scopeRef.current !== scope) return;
     if (error) return fail('alerts', error);
-    setAlerts((data ?? []).map(toAlert));
+    if (isFresh()) setAlerts((data ?? []).map(toAlert));
   }, [uid, groupId, scope]);
 
   // Reaccions: només n'hi ha als grups
@@ -110,10 +120,11 @@ export function useRealtimeData() {
       setReactions([]);
       return;
     }
+    const isFresh = reactionsOrder();
     const { data, error } = await supabase.from('reactions').select('*').eq('group_id', groupId);
     if (scopeRef.current !== scope) return;
     if (error) return fail('reactions', error);
-    setReactions((data ?? []).map(toReaction));
+    if (isFresh()) setReactions((data ?? []).map(toReaction));
   }, [uid, groupId, scope]);
 
   // Càrrega inicial i Realtime: els avisos del canal de l'espai actiu refresquen la llista que ha canviat.
