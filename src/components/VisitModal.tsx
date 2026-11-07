@@ -92,7 +92,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-5">
         {/* Data */}
         <div>
-          <label className={cn(LABEL, 'mb-2')}>
+          <label htmlFor="visit-date" className={cn(LABEL, 'mb-2')}>
             <Calendar className="w-3.5 h-3.5 text-stone-500" />
             Data de la visita
           </label>
@@ -107,17 +107,33 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
               Data desconeguda
             </label>
             {!unknownDate && (
-              <input type="date" value={visitedOn} max={today} onChange={(e) => setVisitedOn(e.target.value)} className={FIELD} />
+              <input
+                id="visit-date"
+                type="date"
+                value={visitedOn}
+                max={today}
+                onChange={(e) => setVisitedOn(e.target.value)}
+                className={FIELD}
+              />
             )}
           </div>
         </div>
 
         {/* Valoració */}
         <div>
-          <label className={cn(LABEL, 'mb-2')}>Valoració {rating > 0 ? `(${rating} / 5)` : '(opcional)'}</label>
-          <div className="flex items-center gap-1">
+          <p id="visit-rating-label" className={cn(LABEL, 'mb-2')}>
+            Valoració {rating > 0 ? `(${rating} / 5)` : '(opcional)'}
+          </p>
+          <div role="group" aria-labelledby="visit-rating-label" className="flex items-center gap-1">
             {[1, 2, 3, 4, 5].map((val) => (
-              <button key={val} type="button" onClick={() => setRating(rating === val ? 0 : val)} className="focus:outline-none">
+              <button
+                key={val}
+                type="button"
+                onClick={() => setRating(rating === val ? 0 : val)}
+                aria-label={`${val} ${val === 1 ? 'estrella' : 'estrelles'}`}
+                aria-pressed={rating === val}
+                className="rounded-full focus-visible:outline-2 focus-visible:outline-accent"
+              >
                 <Star
                   className={`w-7 h-7 transition ${
                     rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300 hover:text-amber-300'
@@ -130,11 +146,12 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
 
         {/* Notes */}
         <div>
-          <label className={cn(LABEL, 'mb-2')}>
+          <label htmlFor="visit-notes" className={cn(LABEL, 'mb-2')}>
             <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes (opcional)
           </label>
           <textarea
+            id="visit-notes"
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -147,11 +164,11 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {/* Assistents (només en grups) */}
         {isGroup && Object.keys(members).length > 0 && (
           <div>
-            <label className={cn(LABEL, 'mb-2')}>
+            <p id="visit-attendees-label" className={cn(LABEL, 'mb-2')}>
               <Users className="w-3.5 h-3.5 text-stone-500" />
               Qui hi va anar
-            </label>
-            <div className="space-y-1.5">
+            </p>
+            <div role="group" aria-labelledby="visit-attendees-label" className="space-y-1.5">
               {Object.entries(members).map(([id, info]) => (
                 <label key={id} className="flex items-center gap-2.5 cursor-pointer group">
                   <input
@@ -174,11 +191,18 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
         {/* Grupal / privada (només en grups) */}
         {isGroup && canToggleShared && (
           <div>
-            <p className={cn(LABEL, 'mb-2')}>Visibilitat</p>
-            <div className="flex gap-1 p-1 rounded-full bg-stone-100 text-xs font-semibold">
+            <p id="visit-visibility-label" className={cn(LABEL, 'mb-2')}>
+              Visibilitat
+            </p>
+            <div
+              role="group"
+              aria-labelledby="visit-visibility-label"
+              className="flex gap-1 p-1 rounded-full bg-stone-100 text-xs font-semibold"
+            >
               <button
                 type="button"
                 onClick={() => setShared(true)}
+                aria-pressed={shared}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
                   shared ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900'
                 }`}
@@ -189,6 +213,7 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
               <button
                 type="button"
                 onClick={() => setShared(false)}
+                aria-pressed={!shared}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
                   !shared ? 'bg-inverse text-on-inverse shadow-md' : 'text-stone-600 hover:text-stone-900'
                 }`}
