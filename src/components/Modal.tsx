@@ -27,8 +27,47 @@ const FOCUSABLE =
 const openModals: symbol[] = [];
 
 // Cada diàleg afegeix una entrada a l'historial perquè el botó enrere del mòbil el tanqui en lloc de sortir de l'app.
-// Quan es tanca d'una altra manera, es treu la seva entrada amb history.back(), i aquest popstate s'ha d'ignorar.
-let ignoreNextPopState = false;
+// L'entrada porta la profunditat del diàleg (1 = el primer obert), i en tornar enrere es tanquen els diàlegs més profunds
+// que l'entrada d'arribada. Quan un diàleg es tanca d'una altra manera, es treu la seva entrada amb history.back(): a
+// l'entrada d'arribada no hi ha cap diàleg obert més profund, i no cal ignorar cap popstate.
+const DEPTH_KEY = 'modalDepth';
+const depthOf = (state: unknown): number => {
+  const depth = typeof state === 'object' && state !== null ? (state as Record<string, unknown>)[DEPTH_KEY] : undefined;
+  return typeof depth === 'number' ? depth : 0;
+};
+
+// El navegador resol history.back() cap a l'entrada que hi havia en cridar-lo, encara que mentrestant se n'hagi afegit
+// una altra: un diàleg que s'obre quan un altre es tanca (p. ex. «Copiar a un grup» des del detall) perdria la seva.
+// Per això, mentre hi ha un back en curs, el diàleg nou espera que acabi per afegir la seva entrada.
+/** Temps màxim d'espera, per si el navegador no avisa del back (no hauria de passar). */
+const BACK_TIMEOUT_MS = 1000;
+let pendingBacks = 0;
+let afterBacks: (() => void)[] = [];
+let backTimeout: ReturnType<typeof setTimeout> | undefined;
+
+const settleBacks = () => {
+  clearTimeout(backTimeout);
+  pendingBacks = 0;
+  const callbacks = afterBacks;
+  afterBacks = [];
+  callbacks.forEach((callback) => callback());
+};
+
+window.addEventListener('popstate', () => {
+  if (pendingBacks > 0 && --pendingBacks === 0) settleBacks();
+});
+
+const goBack = () => {
+  pendingBacks++;
+  clearTimeout(backTimeout);
+  backTimeout = setTimeout(settleBacks, BACK_TIMEOUT_MS);
+  window.history.back();
+};
+
+const afterPendingBacks = (callback: () => void) => {
+  if (pendingBacks === 0) callback();
+  else afterBacks.push(callback);
+};
 
 // Tancament amb animació de sortida, per als botons de dins del diàleg (vegeu ModalCloseButton)
 const ModalCloseContext = createContext<() => void>(() => {});
@@ -47,6 +86,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
   useEffect(() => {
     const id = Symbol(label);
     openModals.push(id);
+    const depth = openModals.length;
     const previousFocus = document.activeElement as HTMLElement | null;
     panelRef.current?.focus();
     // La pàgina de sota no es desplaça mentre hi ha un diàleg obert
@@ -79,26 +119,28 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
     };
 
     let closedByBack = false;
-    const handlePopState = () => {
-      if (ignoreNextPopState) {
-        ignoreNextPopState = false;
-        return;
-      }
-      if (!isTop()) return;
+    const handlePopState = (e: PopStateEvent) => {
+      if (depthOf(e.state) >= depth) return;
       closedByBack = true;
       setClosing(true);
     };
 
     document.addEventListener('keydown', handleKeyDown);
-    window.history.pushState({ modal: true }, '');
-    window.addEventListener('popstate', handlePopState);
+    let unmounted = false;
+    let inHistory = false;
+    afterPendingBacks(() => {
+      if (unmounted) return;
+      window.history.pushState({ [DEPTH_KEY]: depth }, '');
+      window.addEventListener('popstate', handlePopState);
+      inHistory = true;
+    });
 
     return () => {
+      unmounted = true;
       document.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('popstate', handlePopState);
-      if (!closedByBack) {
-        ignoreNextPopState = true;
-        window.history.back();
+      if (inHistory) {
+        window.removeEventListener('popstate', handlePopState);
+        if (!closedByBack) goBack();
       }
       openModals.splice(openModals.indexOf(id), 1);
       if (openModals.length === 0) document.body.style.overflow = '';
