@@ -141,14 +141,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })();
 
     let timer: ReturnType<typeof setTimeout> | undefined;
-    const refreshGroups = () => {
+    const scheduleGroupsRefresh = () => {
       clearTimeout(timer);
       timer = setTimeout(fetchGroups, GROUPS_REFRESH_DEBOUNCE_MS);
     };
     // El canal de l'usuari avisa dels canvis del perfil propi i dels grups on és (nom, owner, membres, entrades i sortides).
     const unsubscribe = subscribeToChanges(`user:${uid}`, (notice) => {
       if (notice === 'profiles' || notice === 'resync') fetchProfile();
-      if (notice === 'groups' || notice === 'group_members' || notice === 'resync') refreshGroups();
+      if (notice === 'groups' || notice === 'group_members' || notice === 'resync') scheduleGroupsRefresh();
     });
 
     return () => {
@@ -160,6 +160,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Grup actiu derivat del perfil; sense coincidència => espai personal
   const activeGroup = userGroups.find((g) => g.id === userProfile?.activeGroupId) ?? null;
+
+  const clearSession = () => {
+    setAuthUser(null);
+    setUserProfile(null);
+    setUserGroups([]);
+  };
 
   const loginWithGoogle = async () => {
     markLoginTourPending();
@@ -235,7 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
   };
 
-  const refreshGroups = () => Promise.all([fetchGroups(), fetchProfile()]);
+  const refetchGroupsAndProfile = () => Promise.all([fetchGroups(), fetchProfile()]);
 
   // Les polítiques RLS no fallen quan no afecten cap fila: es comprova que s'hagi esborrat alguna cosa.
   const leaveGroup = async (groupId: string) => {
@@ -243,20 +249,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data, error } = await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', uid).select();
     if (error) throw error;
     if (!data?.length) throw new Error("No pots sortir d'aquest grup. Si n'ets el creador, cedeix-lo o esborra'l.");
-    await refreshGroups();
+    await refetchGroupsAndProfile();
   };
 
   const removeMember = async (groupId: string, userId: string) => {
     const { data, error } = await supabase.from('group_members').delete().eq('group_id', groupId).eq('user_id', userId).select();
     if (error) throw error;
     if (!data?.length) throw new Error("No s'ha pogut expulsar el membre.");
-    await refreshGroups();
+    await refetchGroupsAndProfile();
   };
 
   const transferOwnership = async (groupId: string, userId: string) => {
     const { error } = await supabase.rpc('transfer_group_ownership', { p_group_id: groupId, p_new_owner: userId });
     if (error) throw error;
-    await refreshGroups();
+    await refetchGroupsAndProfile();
   };
 
   const regenerateGroupCode = async (groupId: string): Promise<string> => {
@@ -270,15 +276,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data, error } = await supabase.from('groups').delete().eq('id', groupId).select();
     if (error) throw error;
     if (!data?.length) throw new Error("No s'ha pogut esborrar el grup.");
-    await refreshGroups();
+    await refetchGroupsAndProfile();
   };
 
   const logout = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) console.error('Logout error:', error);
-    setAuthUser(null);
-    setUserProfile(null);
-    setUserGroups([]);
+    clearSession();
   };
 
   const deleteAccount = async () => {
@@ -286,9 +290,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
     // L'usuari ja no existeix al servidor: només cal esborrar la sessió local.
     await supabase.auth.signOut({ scope: 'local' });
-    setAuthUser(null);
-    setUserProfile(null);
-    setUserGroups([]);
+    clearSession();
   };
 
   return (

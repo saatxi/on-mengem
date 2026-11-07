@@ -129,21 +129,23 @@ export function useRealtimeData() {
 
   // Càrrega inicial i Realtime: els avisos del canal de l'espai actiu refresquen la llista que ha canviat.
   useEffect(() => {
-    if (!uid) {
+    // Dins de l'efecte perquè, definida fora, exhaustive-deps la demanaria a les dependències
+    const clearData = () => {
       setRestaurants([]);
       setWishlist([]);
       setAlerts([]);
       setReactions([]);
+    };
+
+    if (!uid) {
+      clearData();
       setLoading(false);
       return;
     }
 
     let cancelled = false;
     setLoading(true);
-    setRestaurants([]);
-    setWishlist([]);
-    setAlerts([]);
-    setReactions([]);
+    clearData();
     Promise.all([fetchRestaurants(), fetchWishlist(), fetchAlerts(), fetchReactions()]).then(() => {
       if (!cancelled) setLoading(false);
     });
