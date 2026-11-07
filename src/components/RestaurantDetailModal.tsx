@@ -85,14 +85,18 @@ export const RestaurantDetailModal: React.FC<Props> = ({
   const last = lastVisit(restaurant);
   const visitCount = restaurant.visits.length;
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const text = `T'agrada aquest restaurant? Descobreix "${restaurant.name}" (${restaurant.cuisine || 'Cuina'}) a On mengem?!`;
     const url = restaurantUrl(restaurant.id, window.location.origin);
     if (navigator.share) {
       navigator.share({ title: restaurant.name, text, url }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(`${text} ${url}`);
-      showAlert('Enllaç copiat al porta-retalls!');
+      try {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        showAlert('Enllaç copiat al porta-retalls!');
+      } catch {
+        showAlert("No s'ha pogut copiar l'enllaç");
+      }
     }
   };
 

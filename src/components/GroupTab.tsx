@@ -6,6 +6,7 @@ import { CARD } from '../utils/ui';
 import { Button } from './Button';
 import { GroupHistory } from './GroupHistory';
 import { GroupMembers } from './GroupMembers';
+import { useAlert } from './ConfirmDialog';
 
 interface Props {
   group: Group;
@@ -15,9 +16,15 @@ interface Props {
 
 export const GroupTab: React.FC<Props> = ({ group, onJoinGroup, onCreateGroup }) => {
   const [copiedCode, setCopiedCode] = useState(false);
+  const showAlert = useAlert();
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(group.code);
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(group.code);
+    } catch {
+      showAlert("No s'ha pogut copiar el codi");
+      return;
+    }
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
   };
