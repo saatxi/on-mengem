@@ -338,7 +338,7 @@ export function useRealtimeData() {
   }
 
   const convertWishlistToRestaurant = async (wishlistItem: WishlistItem, visitOverride?: VisitOverride) => {
-    if (!uid || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return;
+    if (!uid || wishlistItem.status === 'visited' || convertingRef.current.has(wishlistItem.id)) return false;
     convertingRef.current.add(wishlistItem.id);
     try {
       const { data: restaurantId, error } = await supabase.rpc('convert_wishlist_to_restaurant', {
@@ -351,18 +351,19 @@ export function useRealtimeData() {
       });
       if (error) {
         fail('convertWishlistToRestaurant', error);
-        return;
+        return false;
       }
       await Promise.all([fetchRestaurants(), fetchWishlist()]);
       // La RPC passa la ubicació del desitjat al restaurant; si no en tenia (p. ex. és d'abans de la migració 0006),
-      // el restaurant nou s'ubica un cop creat.
-      if (wishlistItem.lat !== undefined) return;
+      // el restaurant nou s'ubica un cop creat. Si això falla, la conversió ja s'ha fet igualment.
+      if (wishlistItem.lat !== undefined) return true;
       const match = wishlistItem.address ? await geocodeAddress(wishlistItem.address) : null;
       if (match) {
         const { error: locateError } = await supabase.from('restaurants').update(locationColumns(match)).eq('id', restaurantId);
         if (locateError) logError('convertWishlistToRestaurant', locateError);
         else await fetchRestaurants();
       }
+      return true;
     } finally {
       convertingRef.current.delete(wishlistItem.id);
     }

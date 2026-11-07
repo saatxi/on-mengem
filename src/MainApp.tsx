@@ -406,9 +406,9 @@ export function MainApp() {
           onClose={() => setWishlistToConvert(null)}
           onSave={async (_id, visitedOn, rating, notes, attendeeIds, shared) => {
             if (!wishlistToConvert) return false;
-            await convertWishlistToRestaurant(wishlistToConvert, { visitedOn, rating, notes, attendeeIds, shared });
-            setWishlistToConvert(null);
-            return true;
+            const ok = await convertWishlistToRestaurant(wishlistToConvert, { visitedOn, rating, notes, attendeeIds, shared });
+            if (ok) notify('Desitjat convertit en restaurant');
+            return ok;
           }}
         />
 
