@@ -35,7 +35,14 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
   const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, item?.cuisine));
   const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, item?.priceRange));
   const [recommendedBy, setRecommendedBy] = useState(item?.recommendedBy ?? '');
-  const location = useAddressLocation({ address: item?.address, lat: item?.lat, lng: item?.lng });
+  // Amb la població i la zona: sense, desar l'edició les esborraria
+  const location = useAddressLocation({
+    address: item?.address,
+    lat: item?.lat,
+    lng: item?.lng,
+    city: item?.city,
+    district: item?.district,
+  });
   const [notes, setNotes] = useState(item?.notes ?? '');
   const [link, setLink] = useState(item?.link ?? '');
   const [instagram, setInstagram] = useState(item?.instagram ? `@${item.instagram}` : '');

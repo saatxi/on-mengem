@@ -35,7 +35,14 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
   // Cuina i preu són obligatoris i comencen buits: un valor que no és a la llista (o cap) obliga a triar-ne un
   const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, restaurant?.cuisine));
   const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, restaurant?.priceRange));
-  const location = useAddressLocation({ address: restaurant?.address, lat: restaurant?.lat, lng: restaurant?.lng });
+  // Amb la població i la zona: sense, desar l'edició les esborraria
+  const location = useAddressLocation({
+    address: restaurant?.address,
+    lat: restaurant?.lat,
+    lng: restaurant?.lng,
+    city: restaurant?.city,
+    district: restaurant?.district,
+  });
   const [rating, setRating] = useState<number | null>(restaurant?.rating ?? null);
   const [notes, setNotes] = useState(restaurant?.notes ?? '');
   const [link, setLink] = useState(restaurant?.link ?? '');
