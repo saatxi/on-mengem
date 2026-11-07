@@ -67,7 +67,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
         (w) =>
           (filter === 'all' ? w.status !== 'visited' : (w.status ?? 'pending') === filter) &&
           matchesArea(w, area) &&
-          matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
+          matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes]),
       ),
     [wishlist, filter, area, query],
   );
@@ -118,9 +118,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
             Llista de desitjats
           </h2>
           <p className="mt-1 text-sm text-stone-500">
-            {isPersonal
-              ? 'Llocs que vols provar, només visibles per a tu.'
-              : 'Restaurants pendents que algú del grup ha recomanat o vol anar a provar.'}
+            {isPersonal ? 'Llocs que vols provar, només visibles per a tu.' : 'Restaurants pendents que algú del grup vol anar a provar.'}
           </p>
         </div>
 
@@ -138,7 +136,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Cercar per nom, cuina, qui ho recomana..."
+              placeholder="Cercar per nom, cuina, adreça..."
               aria-label="Cercar desitjats"
               className={cn(FIELD, 'pl-11')}
             />
@@ -180,7 +178,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
             </Button>
           }
         >
-          T'han recomanat un restaurant interessant? Afegeix-lo aquí perquè el grup el pugui provar!
+          Has sentit parlar d'un restaurant interessant? Afegeix-lo aquí perquè el grup el pugui provar!
         </EmptyState>
       ) : allTried ? (
         <EmptyState

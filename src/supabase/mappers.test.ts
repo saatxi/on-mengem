@@ -20,7 +20,6 @@ const restaurantRow = (overrides: Partial<Tables<'restaurants'>> = {}): Tables<'
   favorite: false,
   created_by: 'alice',
   created_by_name: 'Alice',
-  recommended_by: null,
   wish_fulfilled_at: null,
   created_at: '2026-01-01T10:00:00Z',
   updated_at: '2026-01-01T10:00:00Z',
@@ -37,7 +36,6 @@ const visitRow = (id: string, visited_on: string | null, created_at: string) => 
   shared: true,
   created_by: 'alice',
   created_by_name: 'Alice',
-  recommended_by: null,
   wish_fulfilled_at: null,
   created_at,
   updated_at: created_at,
@@ -85,7 +83,6 @@ describe('toWishlistItem', () => {
       restaurant_name: 'Sushi Bar',
       cuisine: 'Japonesa',
       price_range: null,
-      recommended_by: 'Maria',
       address: 'Carrer Gran, 1',
       lat: 41.98,
       lng: 2.82,
@@ -100,7 +97,7 @@ describe('toWishlistItem', () => {
       created_at: '2026-01-01T10:00:00Z',
       updated_at: '2026-01-01T10:00:00Z',
     });
-    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', recommendedBy: 'Maria', status: 'planned', groupId: 'g1', lat: 41.98, lng: 2.82, city: 'Girona' });
+    expect(item).toMatchObject({ restaurantName: 'Sushi Bar', status: 'planned', groupId: 'g1', lat: 41.98, lng: 2.82, city: 'Girona' });
     expect(item.priceRange).toBeUndefined();
     expect(item.district).toBeUndefined();
   });

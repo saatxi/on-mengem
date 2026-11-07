@@ -53,9 +53,8 @@ export interface Restaurant {
   createdBy?: string; // undefined = l'autor ha esborrat el compte
   createdByName?: string;
   favorite?: boolean;
-  /** Si ve d'un desitjat: quan es va convertir (ISO) i qui l'havia recomanat. Només els posa el servidor. */
+  /** Si ve d'un desitjat: quan es va convertir (ISO). Només el posa el servidor. */
   wishFulfilledAt?: string;
-  recommendedBy?: string;
   visits: Visit[];
   createdAt?: string;
   updatedAt?: string;
@@ -68,7 +67,6 @@ export interface WishlistItem {
   restaurantName: string;
   cuisine?: string;
   priceRange?: string;
-  recommendedBy?: string;
   notes?: string;
   address?: string;
   lat?: number; // coordenades de l'adreça (vista de mapa); totes dues o cap

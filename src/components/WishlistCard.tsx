@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, Lightbulb, MapPin, Navigation, Pencil, Trash2 } from 'lucide-react';
+import { ArrowRightLeft, CalendarClock, CheckCircle2, Copy, Globe, MapPin, Navigation, Pencil, Trash2 } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
@@ -118,15 +118,6 @@ export const WishlistCard: React.FC<Props> = ({
             <Navigation className="w-3.5 h-3.5" />
           </a>
         </div>
-      )}
-
-      {item.recommendedBy && (
-        <p className="flex items-start gap-1.5 text-sm text-violet-900 bg-violet-50 px-3 py-2 rounded-2xl">
-          <Lightbulb className="w-4 h-4 shrink-0 mt-px text-violet-700" />
-          <span>
-            Ho recomana <strong className="font-semibold">{item.recommendedBy}</strong>
-          </span>
-        </p>
       )}
 
       {item.notes && <p className="text-sm text-stone-600 leading-relaxed">{item.notes}</p>}

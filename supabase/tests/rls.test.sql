@@ -687,13 +687,13 @@ select isnt((select created_by_name from public.restaurants where name = 'Nom fa
             'el canvi de nickname no toca els registres d''altres usuaris');
 
 -- ------------------------------------------------------------ Conversió de desitjat a restaurant
-insert into public.wishlist (id, group_id, restaurant_name, cuisine, notes, recommended_by, user_id) values
+insert into public.wishlist (id, group_id, restaurant_name, cuisine, notes, user_id) values
   ('30000000-0000-0000-0000-000000000031', '10000000-0000-0000-0000-000000000003', 'Desitjat G3', 'Catalana',
-   'Recomanat per la Maria', 'La Maria', '00000000-0000-0000-0000-0000000000b1'),
+   'Recomanat per la Maria', '00000000-0000-0000-0000-0000000000b1'),
   ('30000000-0000-0000-0000-000000000032', '10000000-0000-0000-0000-000000000003', 'Desitjat G3 bis', '',
-   null, null, '00000000-0000-0000-0000-0000000000b1'),
+   null, '00000000-0000-0000-0000-0000000000b1'),
   ('30000000-0000-0000-0000-000000000033', null, 'Desitjat personal d''Alice2', '',
-   null, null, '00000000-0000-0000-0000-0000000000a1');
+   null, '00000000-0000-0000-0000-0000000000a1');
 -- Desitjat convertit abans de 0002 que no s'ha pogut associar a cap restaurant
 insert into public.wishlist (id, group_id, restaurant_name, status, user_id) values
   ('30000000-0000-0000-0000-000000000034', '10000000-0000-0000-0000-000000000003', 'Provat antic G3', 'visited',
@@ -717,8 +717,8 @@ select lives_ok($$
 $$, 'alice2 converteix un desitjat de G3 (d''un altre membre) en restaurant');
 select is((select count(*)::int from public.wishlist where id = '30000000-0000-0000-0000-000000000031'), 0,
           'el desitjat convertit s''esborra');
-select ok((select wish_fulfilled_at is not null and recommended_by = 'La Maria' from public.restaurants where name = 'Desitjat G3'),
-          'el restaurant guarda quan es va complir el desig i qui el va recomanar');
+select ok((select wish_fulfilled_at is not null from public.restaurants where name = 'Desitjat G3'),
+          'el restaurant guarda quan es va complir el desig');
 reset role;
 select is((select count(*)::int from public.group_changes where item_id = '30000000-0000-0000-0000-000000000031'), 0,
           'esborrar el desitjat en convertir-lo no queda a l''historial (no es pot desfer)');
@@ -738,17 +738,14 @@ select throws_ok($$
   select public.convert_wishlist_to_restaurant('30000000-0000-0000-0000-000000000034', current_date, 4.0, '', '{}')
 $$, 'P0001', 'Aquest desitjat ja s''ha convertit en restaurant', 'un desitjat provat d''abans de 0002 no es pot tornar a convertir');
 select lives_ok($$
-  insert into public.restaurants (group_id, name, created_by, wish_fulfilled_at, recommended_by)
-  values ('10000000-0000-0000-0000-000000000003', 'Origen fals', '00000000-0000-0000-0000-0000000000a1', now(), 'Ningú')
+  insert into public.restaurants (group_id, name, created_by, wish_fulfilled_at)
+  values ('10000000-0000-0000-0000-000000000003', 'Origen fals', '00000000-0000-0000-0000-0000000000a1', now())
 $$, 'alice2 crea un restaurant intentant fixar-ne l''origen');
-select ok((select wish_fulfilled_at is null and recommended_by is null from public.restaurants where name = 'Origen fals'),
+select ok((select wish_fulfilled_at is null from public.restaurants where name = 'Origen fals'),
           'el client no pot fixar l''origen d''un restaurant en crear-lo');
 select throws_ok($$
   update public.restaurants set wish_fulfilled_at = null where name = 'Desitjat G3'
 $$, 'P0001', 'L''origen del restaurant és immutable', 'el client no pot esborrar la data del desig complert');
-select throws_ok($$
-  update public.restaurants set recommended_by = 'Un altre' where name = 'Desitjat G3'
-$$, 'P0001', 'L''origen del restaurant és immutable', 'el client no pot canviar qui el va recomanar');
 select lives_ok($$
   delete from public.wishlist where id = '30000000-0000-0000-0000-000000000034'
 $$, 'alice2 esborra a mà un desitjat del grup');
