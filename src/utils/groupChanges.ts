@@ -1,4 +1,5 @@
 import { GroupChange, GroupChangeItemType, WishlistStatus } from '../types';
+import { parseLocalDate } from './time';
 
 // Noms dels camps que desa l'historial (history_fields a supabase/migrations/0001_schema.sql)
 const FIELD_LABELS: Record<GroupChangeItemType, Record<string, string>> = {
@@ -59,8 +60,7 @@ export const changeTitle = (change: GroupChange): string => {
   return `${who} ${verb} ${ITEM_LABELS[change.itemType]} «${change.itemName ?? 'sense nom'}»`;
 };
 
-const formatDate = (value: string) =>
-  new Date(`${value}T00:00:00`).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' });
+const formatDate = (value: string) => parseLocalDate(value).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' });
 
 /** Valor d'un camp tal com es mostra; `nameOf` tradueix els identificadors d'usuari (assistents) a noms. */
 export const formatFieldValue = (field: string, value: unknown, nameOf: (uid: string) => string): string => {

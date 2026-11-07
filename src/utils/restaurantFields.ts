@@ -109,9 +109,9 @@ export const lastVisit = (r: Restaurant): Visit | undefined => r.visits[0];
 
 /** Mitjana de valoracions de les visites que en tenen. */
 export const visitAverage = (r: Restaurant): number | null => {
-  const rated = r.visits.filter((v) => v.rating != null && v.rating > 0);
-  if (!rated.length) return null;
-  return rated.reduce((sum, v) => sum + v.rating!, 0) / rated.length;
+  const ratings = r.visits.flatMap((v) => (v.rating != null && v.rating > 0 ? [v.rating] : []));
+  if (!ratings.length) return null;
+  return ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
 };
 
 /** Retorna cert si l'usuari pot editar o esborrar la visita.
