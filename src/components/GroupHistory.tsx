@@ -6,6 +6,7 @@ import { useGroupMembers } from '../hooks/useGroupMembers';
 import { useConfirm } from './ConfirmDialog';
 import { Button } from './Button';
 import { Group, GroupChange, GroupChangeItemType } from '../types';
+import { errorMessage } from '../supabase/errors';
 import { changeTitle, deletedSummary, fieldChanges } from '../utils/groupChanges';
 import { timeAgo } from '../utils/time';
 import { cn } from '../utils/cn';
@@ -63,7 +64,7 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
     try {
       await restore(change.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No s'ha pogut desfer el canvi.");
+      setError(errorMessage(err, "No s'ha pogut desfer el canvi."));
     } finally {
       setBusyId(null);
     }

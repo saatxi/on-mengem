@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useGroupMembers } from '../hooks/useGroupMembers';
 import { useConfirm } from './ConfirmDialog';
 import { Group } from '../types';
+import { errorMessage } from '../supabase/errors';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
 
@@ -29,7 +30,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
     try {
       await action();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No s'ha pogut completar l'acció.");
+      setError(errorMessage(err, "No s'ha pogut completar l'acció."));
     } finally {
       setBusy(false);
     }
