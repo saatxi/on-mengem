@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { UserPlus, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
@@ -16,6 +16,10 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // El modal es torna a muntar a cada obertura (key a MainApp): en desmuntar-se, el tancament pendent es cancel·la
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,11 +31,7 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
       const result = await joinGroupByCode(code.trim());
       if (result.success) {
         setFeedback({ type: 'success', message: result.message });
-        setTimeout(() => {
-          onClose();
-          setCode('');
-          setFeedback(null);
-        }, 1500);
+        closeTimer.current = setTimeout(onClose, 1500);
       } else {
         setFeedback({ type: 'error', message: result.message });
       }

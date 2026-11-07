@@ -362,9 +362,17 @@ export function MainApp() {
           }}
         />
 
-        <CreateGroupModal isOpen={showCreateGroup} onClose={() => setShowCreateGroup(false)} />
+        <CreateGroupModal
+          key={showCreateGroup ? 'create-group-open' : 'create-group-closed'}
+          isOpen={showCreateGroup}
+          onClose={() => setShowCreateGroup(false)}
+        />
 
-        <JoinGroupModal isOpen={showJoinGroup} onClose={() => setShowJoinGroup(false)} />
+        <JoinGroupModal
+          key={showJoinGroup ? 'join-group-open' : 'join-group-closed'}
+          isOpen={showJoinGroup}
+          onClose={() => setShowJoinGroup(false)}
+        />
 
         <ProfileModal
           key={showProfile ? 'profile-open' : 'profile-closed'}

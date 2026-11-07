@@ -20,11 +20,6 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleClose = () => {
-    setError(null);
-    onClose();
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
@@ -33,8 +28,6 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
     try {
       await createGroup(name.trim(), description.trim());
       onClose();
-      setName('');
-      setDescription('');
     } catch (err) {
       console.error(err);
       setError(quotaErrorMessage(err) ?? "No s'ha pogut crear el grup. Torna-ho a provar.");
@@ -44,7 +37,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <Modal label="Crear un grup" onClose={handleClose}>
+    <Modal label="Crear un grup" onClose={onClose}>
       <ModalHeader title="Crear un grup" icon={Users} />
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
@@ -91,7 +84,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button type="button" onClick={handleClose} variant="secondary" size="lg" className="flex-1">
+          <Button type="button" onClick={onClose} variant="secondary" size="lg" className="flex-1">
             Cancel·lar
           </Button>
           <Button type="submit" disabled={isSubmitting || !name.trim()} variant="primary" size="lg" className="flex-1">
