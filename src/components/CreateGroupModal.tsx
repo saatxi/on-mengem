@@ -49,8 +49,11 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>Nom del grup *</label>
+          <label htmlFor="create-group-name" className={LABEL}>
+            Nom del grup *
+          </label>
           <input
+            id="create-group-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -62,8 +65,11 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
         </div>
 
         <div>
-          <label className={LABEL}>Descripció o propòsit (opcional)</label>
+          <label htmlFor="create-group-description" className={LABEL}>
+            Descripció o propòsit (opcional)
+          </label>
           <textarea
+            id="create-group-description"
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.target.value)}

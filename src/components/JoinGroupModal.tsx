@@ -48,8 +48,11 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>Codi d'invitació</label>
+          <label htmlFor="join-group-code" className={LABEL}>
+            Codi d'invitació
+          </label>
           <input
+            id="join-group-code"
             type="text"
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}

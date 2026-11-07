@@ -88,8 +88,11 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         <div>
-          <label className={LABEL}>{isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}</label>
+          <label htmlFor="wishlist-name" className={LABEL}>
+            {isEditing ? 'Nom del restaurant *' : 'Nom del restaurant pendent *'}
+          </label>
           <input
+            id="wishlist-name"
             type="text"
             value={restaurantName}
             onChange={(e) => setRestaurantName(e.target.value)}
@@ -102,8 +105,10 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={LABEL}>Cuina</label>
-            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} className={FIELD}>
+            <label htmlFor="wishlist-cuisine" className={LABEL}>
+              Cuina
+            </label>
+            <select id="wishlist-cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} className={FIELD}>
               <option value="">Sense especificar</option>
               {CUISINES.map((c) => (
                 <option key={c} value={c}>
@@ -113,8 +118,10 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
             </select>
           </div>
           <div>
-            <label className={LABEL}>Preu estimat</label>
-            <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className={FIELD}>
+            <label htmlFor="wishlist-price" className={LABEL}>
+              Preu estimat
+            </label>
+            <select id="wishlist-price" value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className={FIELD}>
               <option value="">Sense especificar</option>
               {PRICE_RANGES.map((p) => (
                 <option key={p} value={p}>
@@ -126,11 +133,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         </div>
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="wishlist-recommended-by" className={LABEL}>
             <UserCheck className="w-3.5 h-3.5 text-stone-500" />
             Qui ho ha recomanat?
           </label>
           <input
+            id="wishlist-recommended-by"
             type="text"
             value={recommendedBy}
             onChange={(e) => setRecommendedBy(e.target.value)}
@@ -143,11 +151,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         <AddressField id="wishlist-address" location={location} tone="wish" placeholder="Ex. Carrer de Provença 88, Barcelona" />
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="wishlist-notes" className={LABEL}>
             <MessageSquare className="w-3.5 h-3.5 text-stone-500" />
             Motiu / Per què hi volem anar?
           </label>
           <textarea
+            id="wishlist-notes"
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
@@ -158,11 +167,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         </div>
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="wishlist-link" className={LABEL}>
             <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
           <input
+            id="wishlist-link"
             type="url"
             pattern="https?://.*"
             title="Ha de començar per http:// o https://"
@@ -175,11 +185,12 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         </div>
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="wishlist-instagram" className={LABEL}>
             <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
           <input
+            id="wishlist-instagram"
             type="text"
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}

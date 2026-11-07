@@ -88,8 +88,11 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
       <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
         {/* Nom */}
         <div>
-          <label className={LABEL}>Nom del restaurant *</label>
+          <label htmlFor="restaurant-name" className={LABEL}>
+            Nom del restaurant *
+          </label>
           <input
+            id="restaurant-name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -109,8 +112,10 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Cuina i Preu */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label className={LABEL}>Tipus de cuina *</label>
-            <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} required className={FIELD}>
+            <label htmlFor="restaurant-cuisine" className={LABEL}>
+              Tipus de cuina *
+            </label>
+            <select id="restaurant-cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} required className={FIELD}>
               <option value="" disabled>
                 Tria una cuina...
               </option>
@@ -123,8 +128,10 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           </div>
 
           <div>
-            <label className={LABEL}>Nivell de preu *</label>
-            <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} required className={FIELD}>
+            <label htmlFor="restaurant-price" className={LABEL}>
+              Nivell de preu *
+            </label>
+            <select id="restaurant-price" value={priceRange} onChange={(e) => setPriceRange(e.target.value)} required className={FIELD}>
               <option value="" disabled>
                 Tria un preu...
               </option>
@@ -140,11 +147,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         <AddressField id="restaurant-address" location={location} tone="restaurant" placeholder="Ex. Carrer de Provença, 120, Barcelona" />
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="restaurant-link" className={LABEL}>
             <Link2 className="w-3.5 h-3.5 text-stone-500" />
             Enllaç web o xarxes (opcional)
           </label>
           <input
+            id="restaurant-link"
             type="url"
             pattern="https?://.*"
             title="Ha de començar per http:// o https://"
@@ -157,11 +165,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         </div>
 
         <div>
-          <label className={LABEL}>
+          <label htmlFor="restaurant-instagram" className={LABEL}>
             <InstagramIcon className="w-3.5 h-3.5 text-stone-500" />
             Instagram (opcional)
           </label>
           <input
+            id="restaurant-instagram"
             type="text"
             value={instagram}
             onChange={(e) => setInstagram(e.target.value)}
@@ -177,19 +186,25 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
         {/* Puntuació */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-sm font-semibold text-stone-700">
+            <span id="restaurant-rating-label" className="text-sm font-semibold text-stone-700">
               {rating !== null ? `Puntuació (${rating} de 5)` : 'Puntuació (sense valorar)'}
-            </label>
+            </span>
             <div className="flex items-center gap-2">
-              <div className="flex text-amber-500">
+              <div role="group" aria-labelledby="restaurant-rating-label" className="flex text-amber-500">
                 {[1, 2, 3, 4, 5].map((val) => (
-                  <Star
+                  <button
                     key={val}
-                    className={`w-4 h-4 cursor-pointer transition ${
-                      rating !== null && rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300'
-                    }`}
+                    type="button"
                     onClick={() => setRating(rating === val ? null : val)}
-                  />
+                    aria-label={`${val} ${val === 1 ? 'estrella' : 'estrelles'}`}
+                    className="rounded-full focus-visible:outline-2 focus-visible:outline-accent"
+                  >
+                    <Star
+                      className={`w-4 h-4 cursor-pointer transition ${
+                        rating !== null && rating >= val ? 'fill-amber-400 text-amber-500' : 'text-stone-300'
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
               {rating !== null && (
@@ -207,6 +222,7 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
           {rating !== null && (
             <input
               type="range"
+              aria-labelledby="restaurant-rating-label"
               min="1"
               max="5"
               step="0.5"
@@ -219,11 +235,12 @@ export const AddRestaurantModal: React.FC<Props> = ({ isOpen, onClose, onSave, r
 
         {/* Notes */}
         <div>
-          <label className={LABEL}>
+          <label htmlFor="restaurant-notes" className={LABEL}>
             <FileText className="w-3.5 h-3.5 text-stone-500" />
             Notes i recomanacions de plats
           </label>
           <textarea
+            id="restaurant-notes"
             rows={2}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
