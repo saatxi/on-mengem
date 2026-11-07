@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Restaurant } from '../types';
 import { isVisited, matchesQuery, RESTAURANT_SORTS, sortRestaurants, type RestaurantSort } from '../utils/restaurantFields';
 import { ALL_AREAS, cityAreas, matchesArea, validAreaFilter } from '../utils/areas';
@@ -31,17 +31,22 @@ export function useRestaurantFilters(restaurants: Restaurant[]) {
   const areas = cityAreas(restaurants);
   const area = validAreaFilter(selectedArea, areas);
 
-  const filtered = sortRestaurants(
-    restaurants.filter((r) => {
-      if (!matchesQuery(query, [r.name, r.cuisine, r.address, r.notes])) return false;
-      if (favorite && !r.favorite) return false;
-      if (visited === 'visited' && !isVisited(r)) return false;
-      if (visited === 'not_visited' && isVisited(r)) return false;
-      if (cuisine !== ALL_CUISINES && r.cuisine !== cuisine) return false;
-      if (!matchesArea(r, area)) return false;
-      return true;
-    }),
-    sort,
+  // Llista estable mentre no canviïn les dades ni els filtres: si no, el mapa refaria els marcadors a cada render
+  const filtered = useMemo(
+    () =>
+      sortRestaurants(
+        restaurants.filter((r) => {
+          if (!matchesQuery(query, [r.name, r.cuisine, r.address, r.notes])) return false;
+          if (favorite && !r.favorite) return false;
+          if (visited === 'visited' && !isVisited(r)) return false;
+          if (visited === 'not_visited' && isVisited(r)) return false;
+          if (cuisine !== ALL_CUISINES && r.cuisine !== cuisine) return false;
+          if (!matchesArea(r, area)) return false;
+          return true;
+        }),
+        sort,
+      ),
+    [restaurants, query, favorite, visited, cuisine, area, sort],
   );
 
   const hasFilters = query.trim() !== '' || favorite || visited !== 'all' || cuisine !== ALL_CUISINES || area !== ALL_AREAS;

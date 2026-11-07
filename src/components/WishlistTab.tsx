@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { BookmarkPlus, Dices, Plus, Search, Sparkles, X } from 'lucide-react';
 import { WishlistItem } from '../types';
 import { matchesQuery } from '../utils/restaurantFields';
@@ -60,11 +60,20 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
   const areas = cityAreas(wishlist);
   const area = validAreaFilter(savedArea, areas);
 
-  const filtered = wishlist.filter(
-    (w) =>
-      (filter === 'all' ? w.status !== 'visited' : (w.status ?? 'pending') === filter) &&
-      matchesArea(w, area) &&
-      matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
+  // Llista estable mentre no canviïn les dades ni els filtres: si no, el mapa refaria els marcadors a cada render
+  const filtered = useMemo(
+    () =>
+      wishlist.filter(
+        (w) =>
+          (filter === 'all' ? w.status !== 'visited' : (w.status ?? 'pending') === filter) &&
+          matchesArea(w, area) &&
+          matchesQuery(query, [w.restaurantName, w.cuisine, w.address, w.notes, w.recommendedBy]),
+      ),
+    [wishlist, filter, area, query],
+  );
+  const mapPlaces = useMemo(
+    () => filtered.map((w) => ({ ...w, name: w.restaurantName, details: [w.cuisine ?? '', w.priceRange ?? ''] })),
+    [filtered],
   );
   // Tots els desitjats ja s'han provat: no és un problema de filtres
   const allTried = filter === 'all' && query.trim() === '' && area === ALL_AREAS && filtered.length === 0 && triedCount > 0;
@@ -202,13 +211,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
         />
       ) : view === 'map' ? (
         <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 bg-stone-100 shimmer')} />}>
-          <PlacesMap
-            places={filtered.map((w) => ({ ...w, name: w.restaurantName, details: [w.cuisine ?? '', w.priceRange ?? ''] }))}
-            kind="wish"
-            openLabel="Veure a la llista →"
-            onOpen={showInList}
-            onLocate={onLocate}
-          />
+          <PlacesMap places={mapPlaces} kind="wish" openLabel="Veure a la llista →" onOpen={showInList} onLocate={onLocate} />
         </Suspense>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 stagger">

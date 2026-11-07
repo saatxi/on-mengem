@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { useRealtimeData } from './hooks/useRealtimeData';
 import { useRestaurantFilters } from './hooks/useRestaurantFilters';
@@ -136,7 +136,7 @@ export function MainApp() {
     setRandomPickId(null);
   };
 
-  const visibleWishlist = wishlist.filter((w) => !hiddenWishlistIds.includes(w.id));
+  const visibleWishlist = useMemo(() => wishlist.filter((w) => !hiddenWishlistIds.includes(w.id)), [wishlist, hiddenWishlistIds]);
 
   const unreadAlertCount = alerts.filter((a) => authUser && !a.readBy?.includes(authUser.uid)).length;
 

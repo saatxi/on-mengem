@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useMemo } from 'react';
 import { Dices, Plus, Search, Star, UtensilsCrossed, X } from 'lucide-react';
 import { Restaurant } from '../types';
 import { RESTAURANT_SORTS, type RestaurantSort } from '../utils/restaurantFields';
@@ -49,6 +49,7 @@ export const RestaurantsTab: React.FC<Props> = ({
 }) => {
   const [view, setView] = usePersistentState<PlaceView>('restaurant-view', 'list', oneOfKeys(PLACE_VIEWS));
   const { filtered, hasFilters, clear } = filters;
+  const mapPlaces = useMemo(() => filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] })), [filtered]);
 
   return (
     <div className="space-y-5">
@@ -162,7 +163,7 @@ export const RestaurantsTab: React.FC<Props> = ({
       ) : view === 'map' ? (
         <Suspense fallback={<div className={cn(CARD, 'h-[60vh] min-h-80 bg-stone-100 shimmer')} />}>
           <PlacesMap
-            places={filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] }))}
+            places={mapPlaces}
             kind="restaurant"
             openLabel="Veure detalls →"
             onOpen={(id) => {
