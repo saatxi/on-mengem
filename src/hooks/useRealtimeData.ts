@@ -402,6 +402,8 @@ export function useRealtimeData() {
     if (!uid || !groupId) return;
     const mine = reactions.find((r) => r.userId === uid && r.emoji === emoji && r.target.type === target.type && r.target.id === target.id);
     if (mine) {
+      // Encara no és a la BD (l'id no és un uuid): l'insert en curs la resoldrà
+      if (mine.id.startsWith('pending-')) return;
       setReactions((prev) => prev.filter((r) => r.id !== mine.id));
       const { error } = await supabase.from('reactions').delete().eq('id', mine.id);
       if (error) {
