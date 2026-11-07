@@ -39,7 +39,10 @@ import {
 import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
 import { useReactions } from '../context/ReactionsContext';
+import { parseLocalDate } from '../utils/time';
 import { ReactionBar } from './ReactionBar';
+
+const DATE_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
 
 interface Props {
   restaurant: Restaurant | null;
@@ -95,8 +98,8 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 
   const link = safeHttpUrl(restaurant.link);
 
-  const formatDate = (iso?: string) =>
-    iso ? new Date(iso).toLocaleDateString('ca', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
+  // visitedOn és un dia sense hora (YYYY-MM-DD): s'interpreta en local, no en UTC
+  const formatDate = (day?: string) => (day ? parseLocalDate(day).toLocaleDateString('ca', DATE_FORMAT) : null);
 
   return (
     <Modal label={`Detall de ${restaurant.name}`} onClose={onClose} size="lg" className={onReroll && 'border-beam'}>
@@ -263,7 +266,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
           {restaurant.createdAt && (
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {new Date(restaurant.createdAt).toLocaleDateString()}
+              {new Date(restaurant.createdAt).toLocaleDateString('ca', DATE_FORMAT)}
             </span>
           )}
         </div>
