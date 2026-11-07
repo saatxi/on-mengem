@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Download, Smartphone, X } from 'lucide-react';
+import { Download, Smartphone } from 'lucide-react';
+import { Modal, ModalCloseButton, ModalHeader } from './Modal';
 
 export const PWAInstallButton: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const isAndroid = /android/i.test(window.navigator.userAgent);
+
+  const title = `Instal·la On mengem? a ${isIOS ? 'iOS' : 'Android'}`;
 
   // If already running as an installed PWA, hide the button
   if (isInstalled) {
@@ -45,31 +48,10 @@ export const PWAInstallButton: React.FC = () => {
         {/* Portal a body: el backdrop-filter del header faria que el fixed quedés confinat dins seu */}
         {showIOSGuide &&
           createPortal(
-            <div
-              className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
-              onClick={() => setShowIOSGuide(false)}
-            >
-              <div
-                className="w-full max-w-sm max-h-full overflow-y-auto rounded-2xl bg-surface p-6 shadow-2xl border border-stone-200"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white font-bold text-sm">OM</div>
-                    <h3 className="text-lg font-extrabold tracking-tight text-stone-900">
-                      Instal·la On mengem? a {isIOS ? 'iOS' : 'Android'}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={() => setShowIOSGuide(false)}
-                    aria-label="Tanca"
-                    className="rounded-full p-1 text-stone-500 hover:text-stone-700 hover:bg-stone-100 transition"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="mt-4 space-y-3 text-sm text-stone-600">
+            <Modal label={title} onClose={() => setShowIOSGuide(false)} size="sm">
+              <ModalHeader title={title} icon={Smartphone} />
+              <div className="p-5 sm:p-6">
+                <div className="space-y-3 text-sm text-stone-600">
                   {(isIOS
                     ? [
                         <>
@@ -104,14 +86,11 @@ export const PWAInstallButton: React.FC = () => {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => setShowIOSGuide(false)}
-                  className="mt-5 w-full rounded-2xl bg-inverse py-2.5 text-sm font-semibold text-on-inverse hover:opacity-90 transition"
-                >
+                <ModalCloseButton className="mt-5 w-full rounded-2xl bg-inverse py-2.5 text-sm font-semibold text-on-inverse hover:opacity-90 transition">
                   Entesos
-                </button>
+                </ModalCloseButton>
               </div>
-            </div>,
+            </Modal>,
             document.body,
           )}
       </>
