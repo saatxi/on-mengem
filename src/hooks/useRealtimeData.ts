@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../supabase/client';
 import { toRestaurant, toWishlistItem, toAlert, toReaction, restaurantToRow, wishlistToRow } from '../supabase/mappers';
-import { quotaErrorMessage } from '../supabase/errors';
+import { errorMessage } from '../supabase/errors';
 import { subscribeToChanges, type ChangedTable } from '../supabase/realtime';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
@@ -68,7 +68,7 @@ export function useRealtimeData() {
 
   const fail = (action: string, err: unknown) => {
     logError(action, err);
-    setError(quotaErrorMessage(err) ?? ERROR_MESSAGE);
+    setError(errorMessage(err, ERROR_MESSAGE));
   };
   const clearError = useCallback(() => setError(null), []);
 
