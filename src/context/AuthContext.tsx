@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../supabase/client';
 import { toGroup, toProfile } from '../supabase/mappers';
@@ -92,6 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const uid = authUser?.uid;
+  // Usuari actual: les respostes d'un altre usuari (sessió tancada o compte canviat durant la consulta) s'ignoren
+  const uidRef = useRef(uid);
+  uidRef.current = uid;
 
   const fetchProfile = useCallback(async () => {
     if (!uid) return;
@@ -99,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // get_my_profile(): els camps privats (espai actiu, últim accés) no es poden llegir de la taula.
     for (let attempt = 0; attempt < 5; attempt++) {
       const { data, error } = await supabase.rpc('get_my_profile').maybeSingle();
+      if (uidRef.current !== uid) return;
       if (error) {
         console.error('Error carregant el perfil:', error);
         break;
@@ -108,12 +112,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
       await sleep(400);
+      if (uidRef.current !== uid) return;
     }
   }, [uid]);
 
   const fetchGroups = useCallback(async () => {
     if (!uid) return;
     const { data, error } = await supabase.from('groups').select('*, group_members(user_id)').order('created_at', { ascending: true });
+    if (uidRef.current !== uid) return;
     if (error) {
       console.error('Error carregant els grups:', error);
       return;
@@ -130,7 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await Promise.all([fetchProfile(), fetchGroups()]);
       if (!cancelled) setIsLoading(false);
       // Registra l'últim accés un cop per sessió carregada (no a cada edició del perfil).
-      await supabase.from('profiles').update({ last_login_at: new Date().toISOString() }).eq('id', uid);
+      const { error } = await supabase.from('profiles').update({ last_login_at: new Date().toISOString() }).eq('id', uid);
+      if (error) console.error("Error registrant l'últim accés:", error);
     })();
 
     let timer: ReturnType<typeof setTimeout> | undefined;
