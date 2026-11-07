@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ChevronRight, Sparkles } from 'lucide-react';
 import { Restaurant, WishlistItem } from '../types';
 import { filterByPeriod, yearsWithVisits, type StatsPeriod } from '../utils/stats';
@@ -27,7 +27,7 @@ export const StatsTab: React.FC<Props> = ({ restaurants, wishlist, groupName, on
   const [period, setPeriod] = usePersistentState<StatsPeriod>('stats-period', 'all', oneOfKeys(STATS_PERIODS));
   const [showYearInNumbers, setShowYearInNumbers] = useState(false);
 
-  const periodRestaurants = filterByPeriod(restaurants, period);
+  const periodRestaurants = useMemo(() => filterByPeriod(restaurants, period), [restaurants, period]);
   const latestVisitYear = yearsWithVisits(restaurants)[0];
 
   return (
