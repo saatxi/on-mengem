@@ -248,17 +248,10 @@ export const RestaurantDetailModal: React.FC<Props> = ({
         <ReactionBar target={{ type: 'restaurant', id: restaurant.id }} />
 
         {/* Origen: convertit des d'un desitjat */}
-        {(restaurant.wishFulfilledAt || restaurant.recommendedBy) && (
+        {restaurant.wishFulfilledAt && (
           <p className="flex items-start gap-1.5 text-sm text-violet-900 bg-violet-50 px-3 py-2 rounded-2xl">
             <Lightbulb className="w-4 h-4 shrink-0 mt-px text-violet-700" />
-            <span>
-              Era a la llista de desitjats
-              {restaurant.recommendedBy && (
-                <>
-                  . Ho va recomanar <strong className="font-semibold">{restaurant.recommendedBy}</strong>
-                </>
-              )}
-            </span>
+            <span>Era a la llista de desitjats</span>
           </p>
         )}
 

@@ -190,63 +190,63 @@ update public.restaurants r
 
 -- Restaurant convertit des d'un desitjat (convert_wishlist_to_restaurant): en guarda l'origen.
 update public.restaurants
-   set wish_fulfilled_at = created_at, recommended_by = 'El Jordi'
+   set wish_fulfilled_at = created_at
  where id = '5eed0002-0000-0000-0000-000000000024';
 
 -- ---------------------------------------------------------------- Desitjats
 
-insert into public.wishlist (id, group_id, restaurant_name, cuisine, price_range, address, recommended_by, notes,
+insert into public.wishlist (id, group_id, restaurant_name, cuisine, price_range, address, notes,
                              link, instagram, status, user_id, created_at, updated_at)
-select w.id, w.group_id, w.name, w.cuisine, w.price_range, w.address, w.recommended_by, w.notes,
+select w.id, w.group_id, w.name, w.cuisine, w.price_range, w.address, w.notes,
        w.link, w.instagram, w.status, w.user_id, now() - w.age, now() - w.age
   from (values
     -- Sopars de divendres
     ('5eed0003-0000-0000-0000-000000000001'::uuid, '5eed0001-0000-0000-0000-000000000001'::uuid, 'Izakaya Hoshi', 'Japonesa', '40-50 €',
-     'Carrer de Muntaner, 77, Barcelona', 'Una companya de feina de la Laia', 'Diuen que el ramen de dissabte és brutal.',
+     'Carrer de Muntaner, 77, Barcelona', 'Diuen que el ramen de dissabte és brutal.',
      null::text, 'izakayahoshi', 'planned', '5eed0000-0000-0000-0000-000000000003'::uuid, interval '30 days'),
     ('5eed0003-0000-0000-0000-000000000002', '5eed0001-0000-0000-0000-000000000001', 'La Vermuteria del Mercat', 'Bar', '10-20 €',
-     'Mercat de Sant Antoni, Barcelona', 'Pau', null,
+     'Mercat de Sant Antoni, Barcelona', null,
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000002', interval '22 days'),
     ('5eed0003-0000-0000-0000-000000000003', '5eed0001-0000-0000-0000-000000000001', 'Trattoria Da Gino', 'Italiana', '20-30 €',
-     'Carrer de Provença, 301, Barcelona', 'Instagram', 'Pizza napolitana al forn de llenya.',
+     'Carrer de Provença, 301, Barcelona', 'Pizza napolitana al forn de llenya.',
      'https://example.com/dagino', 'trattoriadagino', 'pending', '5eed0000-0000-0000-0000-000000000004', interval '9 days'),
     ('5eed0003-0000-0000-0000-000000000004', '5eed0001-0000-0000-0000-000000000001', 'Sidreria Gure Etxea', 'Basca', '40-50 €',
-     'Carrer del Rosselló, 210, Barcelona', 'El cunyat de la Marta', 'Menú de sidreria amb txuleta.',
+     'Carrer del Rosselló, 210, Barcelona', 'Menú de sidreria amb txuleta.',
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000001', interval '2 days'),
     -- Família
     ('5eed0003-0000-0000-0000-000000000006', '5eed0001-0000-0000-0000-000000000002', 'Mas Les Oliveres', 'Catalana', '40-50 €',
-     'Camí de Sant Martí, s/n, Peratallada', 'La tieta Rosa', 'Per a l''aniversari dels avis. Tenen menú de grup.',
+     'Camí de Sant Martí, s/n, Peratallada', 'Per a l''aniversari dels avis. Tenen menú de grup.',
      'https://example.com/lesoliveres', null, 'planned', '5eed0000-0000-0000-0000-000000000005', interval '14 days'),
     ('5eed0003-0000-0000-0000-000000000007', '5eed0001-0000-0000-0000-000000000002', 'Gelateria Polo Nord', 'Postres', '10-20 €',
-     'Rambla de la Llibertat, 2, Girona', 'Núria', null,
+     'Rambla de la Llibertat, 2, Girona', null,
      null, 'gelateriapolonord', 'pending', '5eed0000-0000-0000-0000-000000000005', interval '6 days'),
     -- Personal de Marta
     ('5eed0003-0000-0000-0000-000000000008', null, 'Forn de Pa Llevat', 'Fleca', '10-20 €',
-     'Carrer del Torrent de l''Olla, 99, Barcelona', 'Podcast de gastronomia', 'Pa de massa mare.',
+     'Carrer del Torrent de l''Olla, 99, Barcelona', 'Pa de massa mare.',
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000001', interval '40 days'),
     ('5eed0003-0000-0000-0000-000000000009', null, 'Ramen Ya Kenji', 'Japonesa', '20-30 €',
-     'Carrer de Casp, 66, Barcelona', 'Jordi', null,
+     'Carrer de Casp, 66, Barcelona', null,
      null, 'ramenyakenji', 'planned', '5eed0000-0000-0000-0000-000000000001', interval '11 days'),
     ('5eed0003-0000-0000-0000-000000000010', null, 'Xiringuito Cala Fosca', 'Marisc', '20-30 €',
-     'Cala Fosca, Palamós', null, 'Per a l''estiu vinent.',
+     'Cala Fosca, Palamós', 'Per a l''estiu vinent.',
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000001', interval '1 day'),
     -- Personal de Pau
     ('5eed0003-0000-0000-0000-000000000011', null, 'Bar Celoneta Sport', 'Bar', '10-20 €',
-     'Carrer de la Maquinista, 8, Barcelona', 'Un amic del futbol', null,
+     'Carrer de la Maquinista, 8, Barcelona', null,
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000002', interval '33 days'),
     -- Provat d'abans de la migració 0002 que no s'ha pogut associar a cap restaurant (es queda a «Provats»)
     ('5eed0003-0000-0000-0000-000000000012', null, 'Smokehouse Poblenou', 'Graella', '20-30 €',
-     'Rambla del Poblenou, 120, Barcelona', null, 'Costelles a la barbacoa estil Texas.',
+     'Rambla del Poblenou, 120, Barcelona', 'Costelles a la barbacoa estil Texas.',
      'https://example.com/smokehouse', null, 'visited', '5eed0000-0000-0000-0000-000000000002', interval '58 days'),
     -- Personal de Laia
     ('5eed0003-0000-0000-0000-000000000013', null, 'Vegà de Barri', 'Vegetariana', '10-20 €',
-     'Carrer de Torrent de les Flors, 12, Barcelona', 'Instagram', null,
+     'Carrer de Torrent de les Flors, 12, Barcelona', null,
      null, 'vegadebarri', 'pending', '5eed0000-0000-0000-0000-000000000003', interval '5 days'),
     -- Personal de Núria
     ('5eed0003-0000-0000-0000-000000000014', null, 'Cafeteria Les Voltes', 'Cafè', '10-20 €',
-     'Carrer de les Voltes, 4, Girona', null, null,
+     'Carrer de les Voltes, 4, Girona', null,
      null, null, 'pending', '5eed0000-0000-0000-0000-000000000005', interval '8 days')
-  ) as w (id, group_id, name, cuisine, price_range, address, recommended_by, notes, link, instagram, status, user_id, age);
+  ) as w (id, group_id, name, cuisine, price_range, address, notes, link, instagram, status, user_id, age);
 
 -- Coordenades aproximades (0006_wishlist_coordinates.sql). Els que no en tenen serveixen per provar «Ubicar-los».
 update public.wishlist w

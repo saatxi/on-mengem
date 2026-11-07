@@ -18,7 +18,6 @@ const FIELD_LABELS: Record<GroupChangeItemType, Record<string, string>> = {
     restaurant_name: 'Nom',
     cuisine: 'Cuina',
     price_range: 'Preu',
-    recommended_by: 'Recomanat per',
     address: 'Adreça',
     notes: 'Notes',
     link: 'Enllaç',

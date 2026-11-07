@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookmarkPlus, Link2, UserCheck, MessageSquare } from 'lucide-react';
+import { BookmarkPlus, Link2, MessageSquare } from 'lucide-react';
 import { InstagramIcon } from './InstagramIcon';
 import { AddressField } from './AddressField';
 import { Button } from './Button';
@@ -34,7 +34,6 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
   // Cuina i preu són opcionals i comencen buits («Sense especificar»)
   const [cuisine, setCuisine] = useState(optionOrEmpty(CUISINES, item?.cuisine));
   const [priceRange, setPriceRange] = useState(optionOrEmpty(PRICE_RANGES, item?.priceRange));
-  const [recommendedBy, setRecommendedBy] = useState(item?.recommendedBy ?? '');
   // Amb la població i la zona: sense, desar l'edició les esborraria
   const location = useAddressLocation({
     address: item?.address,
@@ -62,7 +61,6 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
         restaurantName: restaurantName.trim().slice(0, 100),
         cuisine,
         priceRange,
-        recommendedBy: recommendedBy.trim().slice(0, 80),
         ...location.values,
         notes: notes.trim().slice(0, 500),
         link: link.trim().slice(0, 300),
@@ -130,22 +128,6 @@ export const WishlistModal: React.FC<Props> = ({ isOpen, onClose, onSave, item }
               ))}
             </select>
           </div>
-        </div>
-
-        <div>
-          <label htmlFor="wishlist-recommended-by" className={LABEL}>
-            <UserCheck className="w-3.5 h-3.5 text-stone-500" />
-            Qui ho ha recomanat?
-          </label>
-          <input
-            id="wishlist-recommended-by"
-            type="text"
-            value={recommendedBy}
-            onChange={(e) => setRecommendedBy(e.target.value)}
-            placeholder="Ex. El meu cosí, Guia Michelin, TikTok..."
-            maxLength={80}
-            className={FIELD}
-          />
         </div>
 
         <AddressField id="wishlist-address" location={location} tone="wish" placeholder="Ex. Carrer de Provença 88, Barcelona" />

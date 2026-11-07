@@ -84,7 +84,6 @@ export const toRestaurant = (r: RestaurantRow): Restaurant => ({
   createdByName: orUndef(r.created_by_name),
   favorite: r.favorite,
   wishFulfilledAt: orUndef(r.wish_fulfilled_at),
-  recommendedBy: orUndef(r.recommended_by),
   visits: (r.restaurant_visits ?? [])
     .map(toVisit)
     .sort((a, b) => {
@@ -104,7 +103,6 @@ export const toWishlistItem = (r: Tables<'wishlist'>): WishlistItem => ({
   restaurantName: r.restaurant_name,
   cuisine: orUndef(r.cuisine),
   priceRange: orUndef(r.price_range),
-  recommendedBy: orUndef(r.recommended_by),
   address: orUndef(r.address),
   lat: orUndef(r.lat),
   lng: orUndef(r.lng),
@@ -195,7 +193,6 @@ export const wishlistToRow = (d: Partial<WishlistItem>): TablesUpdate<'wishlist'
   restaurant_name: d.restaurantName,
   cuisine: d.cuisine,
   price_range: d.priceRange,
-  recommended_by: d.recommendedBy,
   address: d.address,
   lat: d.lat,
   lng: d.lng,
