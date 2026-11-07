@@ -22,6 +22,12 @@ type RestaurantRow = Tables<'restaurants'> & { restaurant_visits?: VisitRow[] };
 
 const orUndef = <T,>(v: T | null | undefined) => (v ?? undefined);
 
+const byCreatedAtDesc = (a: { createdAt?: string }, b: { createdAt?: string }) => {
+  const x = a.createdAt ?? '';
+  const y = b.createdAt ?? '';
+  return y > x ? 1 : y < x ? -1 : 0;
+};
+
 export const toProfile = (r: Tables<'profiles'>): UserProfile => ({
   id: r.id,
   nickname: r.nickname,
@@ -83,10 +89,11 @@ export const toRestaurant = (r: RestaurantRow): Restaurant => ({
     .map(toVisit)
     .sort((a, b) => {
       // Visites sense data al final, ordenades per created_at descendent
-      if (!a.visitedOn && !b.visitedOn) return (b.createdAt ?? '') > (a.createdAt ?? '') ? 1 : -1;
+      if (!a.visitedOn && !b.visitedOn) return byCreatedAtDesc(a, b);
       if (!a.visitedOn) return 1;
       if (!b.visitedOn) return -1;
-      return b.visitedOn > a.visitedOn ? 1 : -1;
+      // Mateix dia: la creada més tard primer, perquè l'ordre no depengui del motor
+      return b.visitedOn > a.visitedOn ? 1 : b.visitedOn < a.visitedOn ? -1 : byCreatedAtDesc(a, b);
     }),
   createdAt: r.created_at,
   updatedAt: r.updated_at,
