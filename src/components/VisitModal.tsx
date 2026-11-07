@@ -3,7 +3,7 @@ import { CalendarCheck, Calendar, Star, FileText, Users, Lock, Globe } from 'luc
 import { Button } from './Button';
 import { Modal, ModalHeader } from './Modal';
 import { Restaurant, Visit } from '../types';
-import { useGroupMembers } from '../hooks/useGroupMembers';
+import { useReactions } from '../context/ReactionsContext';
 import { useAuth } from '../context/AuthContext';
 import { localToday } from '../utils/restaurantFields';
 import { FIELD, LABEL } from '../utils/ui';
@@ -25,9 +25,9 @@ interface Props {
 }
 
 export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave }) => {
-  const { authUser, activeGroup } = useAuth();
+  const { authUser } = useAuth();
   const uid = authUser?.uid ?? '';
-  const members = useGroupMembers(activeGroup ?? null);
+  const { members } = useReactions();
   const isEditing = !!visit;
   const isGroup = restaurant?.groupId != null;
 

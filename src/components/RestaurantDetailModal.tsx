@@ -38,7 +38,7 @@ import {
 } from '../utils/restaurantFields';
 import { restaurantUrl } from '../utils/restaurantLink';
 import { useAuth } from '../context/AuthContext';
-import { useGroupMembers } from '../hooks/useGroupMembers';
+import { useReactions } from '../context/ReactionsContext';
 import { ReactionBar } from './ReactionBar';
 
 interface Props {
@@ -69,7 +69,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
 }) => {
   const { authUser, activeGroup, userProfile } = useAuth();
   const uid = authUser?.uid ?? '';
-  const members = useGroupMembers(activeGroup ?? null);
+  const { members } = useReactions();
   const confirm = useConfirm();
   const showAlert = useAlert();
   // Augmenta cada cop que l'usuari marca el favorit, per tornar a disparar les espurnes

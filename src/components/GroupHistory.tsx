@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { History, Pencil, Trash2, Undo2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useGroupHistory } from '../hooks/useGroupHistory';
-import { useGroupMembers } from '../hooks/useGroupMembers';
+import { useReactions } from '../context/ReactionsContext';
 import { useConfirm } from './ConfirmDialog';
 import { Button } from './Button';
 import { Group, GroupChange, GroupChangeItemType } from '../types';
@@ -42,7 +42,7 @@ const confirmQuestion = (change: GroupChange) => {
 export const GroupHistory: React.FC<Props> = ({ group }) => {
   const { userProfile } = useAuth();
   const { changes, loading, hasMore, loadMore, restore } = useGroupHistory(group.id);
-  const members = useGroupMembers(group);
+  const { members } = useReactions();
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const confirm = useConfirm();

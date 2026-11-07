@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useGroupMembers } from '../hooks/useGroupMembers';
+import { useReactions } from '../context/ReactionsContext';
 import { useConfirm } from './ConfirmDialog';
 import { Group } from '../types';
 import { errorMessage } from '../supabase/errors';
@@ -16,7 +16,7 @@ interface Props {
 
 export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGroup }) => {
   const { userProfile, leaveGroup, removeMember, transferOwnership, regenerateGroupCode, deleteGroup } = useAuth();
-  const members = useGroupMembers(group);
+  const { members } = useReactions();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const confirm = useConfirm();
