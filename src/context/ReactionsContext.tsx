@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 import { Reaction, ReactionEmoji, ReactionTarget } from '../types';
 import { useAuth } from './AuthContext';
 import { useGroupMembers, type MemberInfo } from '../hooks/useGroupMembers';
@@ -37,15 +37,21 @@ export const ReactionsProvider: React.FC<Props> = ({ reactions, onToggle, childr
     return map;
   }, [reactions]);
 
+  // onToggle canvia a cada render de MainApp: amb una funció estable, el context només canvia si canvien les dades
+  const onToggleRef = useRef(onToggle);
+  onToggleRef.current = onToggle;
+  const toggle = useCallback((target: ReactionTarget, emoji: ReactionEmoji) => onToggleRef.current(target, emoji), []);
+
+  const enabled = activeGroup != null;
   const value = useMemo<ReactionsContextType>(
     () => ({
-      enabled: activeGroup != null,
+      enabled,
       uid: authUser?.uid,
       members,
       reactionsFor: (target) => byTarget.get(targetKey(target)) ?? NO_REACTIONS,
-      toggle: onToggle,
+      toggle,
     }),
-    [activeGroup, authUser?.uid, members, byTarget, onToggle],
+    [enabled, authUser?.uid, members, byTarget, toggle],
   );
 
   return <ReactionsContext.Provider value={value}>{children}</ReactionsContext.Provider>;

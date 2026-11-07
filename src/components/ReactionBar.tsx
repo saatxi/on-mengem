@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { SmilePlus, X } from 'lucide-react';
 import { ReactionTarget } from '../types';
 import { useReactions } from '../context/ReactionsContext';
@@ -14,7 +14,7 @@ interface Props {
 const PILL = 'inline-flex items-center justify-center h-8 rounded-full ring-1 transition-[background-color,transform] active:scale-[0.96]';
 
 // Reaccions d'un ítem del grup: un xip per emoji amb el recompte (el propi, ressaltat) i un botó per afegir-ne
-export const ReactionBar: React.FC<Props> = ({ target, className }) => {
+const ReactionBarView: React.FC<Props> = ({ target, className }) => {
   const { enabled, uid, members, reactionsFor, toggle } = useReactions();
   const [picking, setPicking] = useState(false);
 
@@ -95,3 +95,9 @@ export const ReactionBar: React.FC<Props> = ({ target, className }) => {
     </div>
   );
 };
+
+// Es compara el contingut de `target`, perquè qui crida el passa com a objecte nou a cada render
+export const ReactionBar = memo(
+  ReactionBarView,
+  (prev, next) => prev.target.type === next.target.type && prev.target.id === next.target.id && prev.className === next.className,
+);
