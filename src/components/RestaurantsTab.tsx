@@ -201,7 +201,14 @@ export const RestaurantsTab: React.FC<Props> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
           {filtered.map((res) => (
-            <RestaurantCard key={res.id} res={res} onOpen={onOpen} onToggleFavorite={onToggleFavorite} onRegisterVisit={onRegisterVisit} />
+            <RestaurantCard
+              key={res.id}
+              res={res}
+              showAuthor={!isPersonal}
+              onOpen={onOpen}
+              onToggleFavorite={onToggleFavorite}
+              onRegisterVisit={onRegisterVisit}
+            />
           ))}
         </div>
       )}
