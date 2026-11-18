@@ -16,10 +16,10 @@ permissions:
 jobs:
   app:
     name: Lint, tests i build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -35,14 +35,14 @@ jobs:
 
   db:
     name: Tests de la BD (pgTAP)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     env:
       # L'inici de sessió amb Google està activat a config.toml i en llegeix les credencials; als tests no s'usa
       SUPABASE_AUTH_GOOGLE_CLIENT_ID: ci-placeholder
       SUPABASE_AUTH_GOOGLE_SECRET: ci-placeholder
     steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
         with:
           version: 2.122.0
       # Només els serveis que calen per aplicar les migracions i executar els tests
