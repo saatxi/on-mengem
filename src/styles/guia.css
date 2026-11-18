@@ -1,0 +1,83 @@
+/*
+ * Estil «Guia»: guia gastronòmica editorial. Neutres freds amb un punt verd, un únic verd d'accent, títols en serif,
+ * vores fines en lloc d'ombres i angles gairebé rectes.
+ *
+ * Només redefineix el contracte de classic.css sota `:root[data-style='guia']`; no toca cap component. Com que
+ * aquest selector guanya al :root del Clàssic, cal donar aquí també els valors del tema fosc (light-dark()).
+ */
+:root[data-style='guia'] {
+  --color-accent: #1d5c3f;
+  --color-accent-hover: #154a32;
+  --color-accent-2: #1d5c3f;
+  --color-selection: #1d5c3f;
+
+  --radius-card: 0.25rem;
+  --radius-inner: 0.125rem;
+  --radius-control: 0.125rem;
+  --radius-soft: 0.125rem;
+  --radius-tile: 0.125rem;
+
+  --font-sans: 'Hanken Grotesk Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Newsreader Variable', ui-serif, Georgia, serif;
+  --heading-weight: 500;
+  --heading-tracking: -0.015em;
+
+  --shadow-rgb: 23 32 27;
+  --elev-card: 0;
+  --elev-card-hover: 0.4;
+  --elev-raised: 0;
+  --elev-float: 0.5;
+  --elev-popover: 0.5;
+  --elev-modal: 0.8;
+
+  --page-glow: 0%;
+  --cuisine-chroma: 0.012;
+  --cuisine-chroma-dark: 0.02;
+}
+
+@supports (color: light-dark(#000, #fff)) {
+  :root[data-style='guia'] {
+    --color-accent: light-dark(#1d5c3f, #3a9d70);
+    --color-accent-hover: light-dark(#154a32, #2f8a60);
+    --color-accent-2: light-dark(#1d5c3f, #3a9d70);
+    --color-accent-soft: light-dark(#e4efe8, #1d3a2c);
+    --color-accent-soft-hover: light-dark(#d3e5da, #264a38);
+    --color-accent-edge: light-dark(#b8d4c4, #335645);
+    --color-accent-ink: light-dark(#154a32, #8fd6b0);
+    --color-accent-ink-strong: light-dark(#0f3a27, #b5e6cc);
+    --color-selection: light-dark(#1d5c3f, #3a9d70);
+
+    --color-surface: light-dark(#fdfdfb, #151b17);
+    --color-inverse: light-dark(#17201b, #f0f3ef);
+    --color-on-inverse: light-dark(#ffffff, #17201b);
+    --color-card-edge: light-dark(#d8ddd7, #2f3933);
+
+    --color-stone-50: light-dark(#f7f8f5, #0f1411);
+    --color-stone-100: light-dark(#eef0eb, #1a211d);
+    --color-stone-200: light-dark(#e1e5de, #232b26);
+    --color-stone-300: light-dark(#cdd3ca, #2f3933);
+    --color-stone-400: light-dark(#9aa59d, #556059);
+    --color-stone-500: light-dark(#6a746d, #8d988f);
+    --color-stone-600: light-dark(#4f5a53, #aab4ab);
+    --color-stone-700: light-dark(#3a443e, #c5cdc6);
+    --color-stone-800: light-dark(#26302a, #dde2dd);
+    --color-stone-900: light-dark(#17201b, #f0f3ef);
+
+    /* Rols: les estrelles i els avisos conserven el seu to; «desitjat» passa a blau pissarra i «visitat» a un verd blavós, per no confondre'ls amb l'accent */
+    --color-violet-50: light-dark(#eef2f7, #1c2633);
+    --color-violet-100: light-dark(#e0e7f0, #243245);
+    --color-violet-200: light-dark(#c9d4e3, #33465f);
+    --color-violet-600: light-dark(#3d5a80, #3d5a80);
+    --color-violet-700: light-dark(#324b6b, #a9bdd6);
+    --color-violet-800: light-dark(#283d57, #c9d4e3);
+    --color-violet-900: light-dark(#1f2f45, #e0e7f0);
+
+    --color-emerald-50: light-dark(#e6f2ef, #172a26);
+    --color-emerald-100: light-dark(#d3e8e3, #1f3a34);
+    --color-emerald-200: light-dark(#b3d6cf, #2c524a);
+    --color-emerald-600: light-dark(#2b7a6b, #2b7a6b);
+    --color-emerald-700: light-dark(#236558, #7fcfbf);
+    --color-emerald-800: light-dark(#1b5248, #a2dccf);
+    --color-emerald-900: light-dark(#163f38, #c4eae1);
+  }
+}

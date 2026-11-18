@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { StyleProvider } from './context/StyleContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { UpdateProvider } from './context/UpdateContext';
 import { DialogProvider } from './components/ConfirmDialog';
@@ -12,7 +13,7 @@ const MainApp = lazy(() => import('./MainApp').then((m) => ({ default: m.MainApp
 
 const LoadingScreen: React.FC = () => (
   <div className="min-h-screen flex flex-col items-center justify-center p-4">
-    <div className="w-14 h-14 rounded-2xl bg-brand shadow-lg shadow-accent/30 flex items-center justify-center text-white animate-pulse mb-4">
+    <div className="w-14 h-14 rounded-inner bg-brand shadow-float shadow-accent/30 flex items-center justify-center text-white animate-pulse mb-4">
       <Utensils className="w-6 h-6" />
     </div>
     <p className="text-sm font-semibold text-stone-600">Connectant amb On mengem?...</p>
@@ -42,14 +43,16 @@ function AppGate() {
 export function App() {
   return (
     <ThemeProvider>
-      {/* A l'arrel perquè el Service Worker es registri també a la càrrega i a l'onboarding */}
-      <UpdateProvider>
-        <AuthProvider>
-          <DialogProvider>
-            <AppGate />
-          </DialogProvider>
-        </AuthProvider>
-      </UpdateProvider>
+      <StyleProvider>
+        {/* A l'arrel perquè el Service Worker es registri també a la càrrega i a l'onboarding */}
+        <UpdateProvider>
+          <AuthProvider>
+            <DialogProvider>
+              <AppGate />
+            </DialogProvider>
+          </AuthProvider>
+        </UpdateProvider>
+      </StyleProvider>
     </ThemeProvider>
   );
 }

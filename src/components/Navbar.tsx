@@ -37,22 +37,22 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
   }, [showGroupMenu]);
 
   return (
-    <header className="sticky top-0 z-40 pt-[env(safe-area-inset-top)] bg-surface/80 backdrop-blur-xl border-b border-stone-900/5">
+    <header className="sticky top-0 z-40 pt-[env(safe-area-inset-top)] bg-surface/80 backdrop-blur-xl border-b border-card-edge">
       <div ref={menusRef} className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between gap-2">
         {/* Logo and Group Selector */}
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-9 h-9 rounded-2xl bg-brand flex items-center justify-center text-white shadow-md shadow-accent/30">
+            <div className="w-9 h-9 rounded-inner bg-brand flex items-center justify-center text-white shadow-raised shadow-accent/30">
               <Utensils className="w-5 h-5" />
             </div>
-            <span className="font-extrabold text-xl text-stone-900 tracking-tight hidden sm:inline">On mengem?</span>
+            <span className="heading text-xl text-stone-900 hidden sm:inline">On mengem?</span>
           </div>
 
           {/* Group Switcher */}
           <div className="relative min-w-0">
             <button
               onClick={() => setShowGroupMenu(!showGroupMenu)}
-              className="flex items-center gap-1.5 px-3.5 py-2 max-w-full rounded-full bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
+              className="flex items-center gap-1.5 px-3.5 py-2 max-w-full rounded-control bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
             >
               <span className="w-2 h-2 flex-shrink-0 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15" />
               <span className="min-w-0 max-w-[130px] sm:max-w-[180px] truncate">{activeGroup?.name || 'El meu espai'}</span>
@@ -63,7 +63,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
               <div
                 onAnimationEnd={groupMenu.onAnimationEnd}
                 className={cn(
-                  'absolute left-0 mt-2 w-72 rounded-3xl bg-surface shadow-2xl ring-1 ring-stone-900/5 p-2 z-50 text-sm origin-top-left',
+                  'absolute left-0 mt-2 w-72 rounded-card bg-surface shadow-modal ring-1 ring-card-edge p-2 z-50 text-sm origin-top-left',
                   groupMenu.closing ? 'animate-scale-out pointer-events-none' : 'animate-scale-in',
                 )}
               >
@@ -72,8 +72,8 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
                     setActiveGroupId(null);
                     setShowGroupMenu(false);
                   }}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-left transition-colors ${
-                    !activeGroup ? 'bg-accent-soft text-orange-900 font-semibold' : 'text-stone-700 hover:bg-stone-100'
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-inner text-left transition-colors ${
+                    !activeGroup ? 'bg-accent-soft text-accent-ink-strong font-semibold' : 'text-stone-700 hover:bg-stone-100'
                   }`}
                 >
                   <div>
@@ -97,8 +97,8 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
                           setActiveGroupId(group.id);
                           setShowGroupMenu(false);
                         }}
-                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-2xl text-left transition-colors ${
-                          isActive ? 'bg-accent-soft text-orange-900 font-semibold' : 'text-stone-700 hover:bg-stone-100'
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-inner text-left transition-colors ${
+                          isActive ? 'bg-accent-soft text-accent-ink-strong font-semibold' : 'text-stone-700 hover:bg-stone-100'
                         }`}
                       >
                         <div className="truncate">
@@ -119,7 +119,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
                       setShowGroupMenu(false);
                       onOpenCreateGroup();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl text-accent hover:bg-accent-soft font-semibold transition-colors text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-inner text-accent hover:bg-accent-soft font-semibold transition-colors text-left"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Crear un nou grup</span>
@@ -129,7 +129,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
                       setShowGroupMenu(false);
                       onOpenJoinGroup();
                     }}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-2xl text-stone-700 hover:bg-stone-100 font-medium transition-colors text-left"
+                    className="w-full flex items-center gap-2 px-3 py-2.5 rounded-inner text-stone-700 hover:bg-stone-100 font-medium transition-colors text-left"
                   >
                     <UserPlus className="w-4 h-4 text-stone-500" />
                     <span>Unir-se amb codi</span>
@@ -151,7 +151,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
           {/* User Profile Button */}
           <button
             onClick={onOpenProfile}
-            className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 rounded-full bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
+            className="flex items-center gap-2 p-1 sm:pl-1.5 sm:pr-3.5 rounded-control bg-stone-100 hover:bg-stone-200/80 text-stone-800 text-sm font-semibold transition-[background-color,transform] active:scale-[0.96]"
             title="El teu perfil"
             aria-label="El teu perfil"
           >

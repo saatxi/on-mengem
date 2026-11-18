@@ -181,7 +181,7 @@ export const PlacesMap: React.FC<Props> = ({ places, kind, openLabel, onOpen, on
       )}
       <div
         ref={containerRef}
-        className="restaurant-map relative z-0 h-[60vh] min-h-80 rounded-3xl overflow-hidden shadow-card ring-1 ring-stone-200"
+        className="restaurant-map relative z-0 h-[60vh] min-h-80 rounded-card overflow-hidden shadow-card ring-1 ring-stone-200"
         aria-label={mapLabel}
       />
     </div>

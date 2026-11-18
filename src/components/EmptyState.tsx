@@ -46,7 +46,7 @@ export const EmptyState: React.FC<Props> = ({ title, icon: Icon, tone = 'brand',
         <div
           style={{ animationDelay: '-200ms' }}
           className={cn(
-            'w-16 h-16 rounded-3xl text-white shadow-lg flex items-center justify-center -rotate-6 animate-float',
+            'w-16 h-16 rounded-card text-white shadow-float flex items-center justify-center -rotate-6 animate-float',
             ICON_TONES[tone],
           )}
         >
@@ -54,7 +54,7 @@ export const EmptyState: React.FC<Props> = ({ title, icon: Icon, tone = 'brand',
         </div>
       </div>
     )}
-    <h3 className="text-lg font-extrabold tracking-tight text-stone-900">{title}</h3>
+    <h3 className="text-lg heading text-stone-900">{title}</h3>
     {children && <div className="text-sm text-stone-500 max-w-sm mx-auto">{children}</div>}
     {actions && <div className="flex flex-wrap justify-center gap-2">{actions}</div>}
   </div>

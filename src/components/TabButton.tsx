@@ -15,7 +15,7 @@ export const TabButton: React.FC<Props> = ({ icon: Icon, label, active, onClick 
     onClick={onClick}
     data-active={active}
     className={cn(
-      'relative flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap',
+      'relative flex items-center gap-2 px-4 py-2 rounded-control text-sm font-semibold transition-colors whitespace-nowrap',
       active ? 'text-accent' : 'text-stone-600 hover:text-stone-900',
     )}
   >

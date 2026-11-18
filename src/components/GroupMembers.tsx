@@ -37,7 +37,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
   };
 
   const linkBtn =
-    'text-xs font-bold px-2 py-1 rounded-lg border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
+    'text-xs font-bold px-2 py-1 rounded-soft border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
 
   return (
     <div className={cn(CARD, 'p-5 sm:p-7')}>
@@ -50,13 +50,13 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
         <div className="flex gap-2">
           <button
             onClick={onJoinGroup}
-            className="px-3.5 py-1.5 rounded-full ring-1 ring-stone-200 hover:bg-stone-100 text-xs font-semibold text-stone-700 transition-colors"
+            className="px-3.5 py-1.5 rounded-control ring-1 ring-stone-200 hover:bg-stone-100 text-xs font-semibold text-stone-700 transition-colors"
           >
             + Unir-se a un altre grup
           </button>
           <button
             onClick={onCreateGroup}
-            className="px-3 py-1.5 rounded-2xl bg-inverse hover:opacity-90 text-on-inverse text-xs font-bold transition"
+            className="px-3 py-1.5 rounded-inner bg-inverse hover:opacity-90 text-on-inverse text-xs font-bold transition"
           >
             + Crear nou grup
           </button>
@@ -77,7 +77,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
           const name = info?.nickname ?? (isGroupOwner ? group.ownerName : null) ?? `Membre ${index + 1}`;
           return (
             <div key={uid} className="py-3 flex items-center gap-3">
-              <div className="w-10 h-10 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-lg">
+              <div className="w-10 h-10 shrink-0 rounded-inner bg-accent-soft flex items-center justify-center text-lg">
                 {info?.avatar ?? (isCurrent ? userProfile?.avatar : null) ?? '👤'}
               </div>
 
@@ -86,7 +86,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
                 <div className="min-w-0 text-sm font-bold text-stone-900 flex items-center gap-2">
                   <span className="truncate">{isCurrent ? `${name} (Tu)` : name}</span>
                   {isGroupOwner && (
-                    <span className="shrink-0 text-xs uppercase font-bold px-2 py-0.5 rounded-full bg-accent-soft text-orange-800">
+                    <span className="shrink-0 text-xs uppercase font-bold px-2 py-0.5 rounded-control bg-accent-soft text-accent-ink">
                       Creador
                     </span>
                   )}

@@ -59,14 +59,14 @@ export const JoinGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
             placeholder="Ex. 6 caràcters (ex. BCN79X)"
             required
             maxLength={12}
-            className="w-full px-3.5 py-3 rounded-2xl border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-500 focus:border-accent focus:ring-4 focus:ring-accent/15 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
+            className="w-full px-3.5 py-3 rounded-inner border border-stone-200 bg-surface text-lg text-stone-900 placeholder:text-stone-500 focus:border-accent focus:ring-4 focus:ring-accent/15 outline-hidden transition font-mono font-bold tracking-widest text-center uppercase"
           />
           <p className="mt-1 text-xs text-stone-500 text-center">Demana el codi a l'administrador o creador del grup.</p>
         </div>
 
         {feedback && (
           <div
-            className={`p-3 rounded-2xl text-xs font-medium flex items-center gap-2 ${
+            className={`p-3 rounded-inner text-xs font-medium flex items-center gap-2 ${
               feedback.type === 'success'
                 ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                 : 'bg-red-50 text-red-800 border border-red-200'

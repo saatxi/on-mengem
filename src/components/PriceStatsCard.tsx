@@ -20,10 +20,10 @@ export const PriceStatsCard: React.FC<Props> = ({ restaurants }) => {
     <div className={cn(CARD, 'p-5 sm:p-7 space-y-5')}>
       <div className="pb-3 border-b border-stone-100">
         <div className="flex items-center gap-2">
-          <span className="size-9 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center">
+          <span className="size-9 rounded-inner bg-emerald-100 text-emerald-600 flex items-center justify-center">
             <BadgeEuro className="w-4 h-4" />
           </span>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Preu i valoració</h3>
+          <h3 className="text-lg heading text-stone-900">Preu i valoració</h3>
         </div>
         <p className="text-xs text-stone-500 mt-0.5">
           {withPrice === 1 ? '1 restaurant' : `${withPrice} restaurants`} amb preu, i la nota mitjana de cada franja.
@@ -31,11 +31,11 @@ export const PriceStatsCard: React.FC<Props> = ({ restaurants }) => {
       </div>
 
       {bestValue && (
-        <div className="p-4 rounded-3xl bg-emerald-50 flex items-center gap-3">
+        <div className="p-4 rounded-card bg-emerald-50 flex items-center gap-3">
           <ThumbsUp className="w-5 h-5 text-emerald-600 shrink-0" />
           <div>
             <div className="text-xs font-semibold text-emerald-900">Millor qualitat-preu</div>
-            <div className="text-lg font-extrabold tracking-tight text-stone-900">{bestValue}</div>
+            <div className="text-lg heading text-stone-900">{bestValue}</div>
             <div className="text-xs text-stone-600">La franja més barata amb una nota igual o més alta que la mitjana.</div>
           </div>
         </div>

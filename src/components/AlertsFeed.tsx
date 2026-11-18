@@ -72,7 +72,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, wishlist, onS
     <div className={cn(CARD, 'p-5 sm:p-7 space-y-4')}>
       <div className="flex items-center justify-between pb-3 border-b border-stone-100">
         <div>
-          <h2 className="text-lg font-extrabold tracking-tight text-stone-900 flex items-center gap-2">
+          <h2 className="text-lg heading text-stone-900 flex items-center gap-2">
             <Bell className="w-5 h-5 text-accent" />
             Activitat del grup
           </h2>
@@ -81,7 +81,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, wishlist, onS
         {alerts.length > 0 && (
           <button
             onClick={markAllAlertsAsRead}
-            className="px-3 py-1.5 rounded-full ring-1 ring-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+            className="px-3 py-1.5 rounded-control ring-1 ring-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
           >
             Marcar tot com a llegit
           </button>
@@ -137,7 +137,7 @@ const AlertRow: React.FC<RowProps> = ({ alert, onOpen, reactionTarget }) => {
   const Icon = config.icon;
   const content = (
     <>
-      <div className={`size-9 rounded-2xl ${config.iconBg} flex items-center justify-center flex-shrink-0`}>
+      <div className={`size-9 rounded-inner ${config.iconBg} flex items-center justify-center flex-shrink-0`}>
         <Icon className={`size-4 ${config.iconColor}`} />
       </div>
       <div className="flex-1 min-w-0">
@@ -150,9 +150,9 @@ const AlertRow: React.FC<RowProps> = ({ alert, onOpen, reactionTarget }) => {
       {onOpen && <ChevronRight className="size-4 text-stone-400 self-center flex-shrink-0" />}
     </>
   );
-  const className = 'w-full p-4 rounded-2xl flex items-start gap-3 text-left';
+  const className = 'w-full p-4 rounded-inner flex items-start gap-3 text-left';
   return (
-    <div className="rounded-2xl bg-stone-50">
+    <div className="rounded-inner bg-stone-50">
       {onOpen ? (
         <button type="button" onClick={onOpen} className={cn(className, 'hover:bg-accent-soft/50 transition-colors')}>
           {content}

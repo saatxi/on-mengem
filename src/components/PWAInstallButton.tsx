@@ -21,7 +21,7 @@ export const PWAInstallButton: React.FC = () => {
     return (
       <button
         onClick={install}
-        className="flex items-center gap-1.5 rounded-full bg-brand hover:brightness-110 p-2 sm:px-3.5 text-xs font-semibold text-white shadow-md shadow-accent/30 transition-[filter,transform] active:scale-[0.96]"
+        className="flex items-center gap-1.5 rounded-control bg-brand hover:brightness-110 p-2 sm:px-3.5 text-xs font-semibold text-white shadow-raised shadow-accent/30 transition-[filter,transform] active:scale-[0.96]"
         title="Instal·la On mengem? al teu dispositiu"
         aria-label="Instal·lar app"
       >
@@ -37,7 +37,7 @@ export const PWAInstallButton: React.FC = () => {
       <>
         <button
           onClick={() => setShowIOSGuide(true)}
-          className="flex items-center gap-1.5 rounded-full bg-accent-soft p-2 sm:px-3.5 text-xs font-semibold text-orange-800 hover:bg-accent-soft transition-[background-color,transform] active:scale-[0.96]"
+          className="flex items-center gap-1.5 rounded-control bg-accent-soft p-2 sm:px-3.5 text-xs font-semibold text-accent-ink hover:bg-accent-soft transition-[background-color,transform] active:scale-[0.96]"
           title={isIOS ? 'Instal·la a iPhone o iPad' : 'Instal·la a Android'}
           aria-label="Instal·lar app"
         >
@@ -77,7 +77,7 @@ export const PWAInstallButton: React.FC = () => {
                         </>,
                       ]
                   ).map((step, i) => (
-                    <div key={i} className="flex items-start gap-3 p-2.5 rounded-2xl bg-accent-soft/60">
+                    <div key={i} className="flex items-start gap-3 p-2.5 rounded-inner bg-accent-soft/60">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-accent text-white flex items-center justify-center text-xs font-bold">
                         {i + 1}
                       </span>
@@ -86,7 +86,7 @@ export const PWAInstallButton: React.FC = () => {
                   ))}
                 </div>
 
-                <ModalCloseButton className="mt-5 w-full rounded-2xl bg-inverse py-2.5 text-sm font-semibold text-on-inverse hover:opacity-90 transition">
+                <ModalCloseButton className="mt-5 w-full rounded-inner bg-inverse py-2.5 text-sm font-semibold text-on-inverse hover:opacity-90 transition">
                   Entesos
                 </ModalCloseButton>
               </div>

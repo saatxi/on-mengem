@@ -43,14 +43,14 @@ export const GroupTab: React.FC<Props> = ({ group, onJoinGroup, onCreateGroup })
         <div className="flex flex-col md:flex-row justify-between gap-5">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-accent">Grup actiu{group.ownerName ? ` · creat per ${group.ownerName}` : ''}</p>
-            <h2 className="mt-1 text-3xl font-extrabold text-stone-900 tracking-tight break-words">{group.name}</h2>
+            <h2 className="mt-1 text-3xl heading text-stone-900 break-words">{group.name}</h2>
             {group.description && <p className="mt-1 text-sm text-stone-600 max-w-lg">{group.description}</p>}
           </div>
 
-          <div className="w-full md:w-80 shrink-0 p-4 rounded-3xl bg-accent-soft">
-            <p className="text-sm font-semibold text-orange-900 mb-2">Codi d'invitació</p>
+          <div className="w-full md:w-80 shrink-0 p-4 rounded-card bg-accent-soft">
+            <p className="text-sm font-semibold text-accent-ink-strong mb-2">Codi d'invitació</p>
             <div className="flex items-center gap-2">
-              <span className="flex-1 px-3 py-2 rounded-2xl bg-surface font-mono text-xl font-bold tracking-[0.3em] text-stone-900 text-center shadow-card">
+              <span className="flex-1 px-3 py-2 rounded-inner bg-surface font-mono text-xl font-bold tracking-[0.3em] text-stone-900 text-center shadow-card">
                 {group.code}
               </span>
               <Button onClick={copyCode} size="lg" className="px-4">

@@ -19,7 +19,7 @@ export const UpdateButton: React.FC = () => {
     <button
       onClick={handleClick}
       disabled={updating}
-      className="relative flex items-center gap-1.5 rounded-full bg-accent-soft p-2 sm:px-3.5 text-xs font-semibold text-orange-800 hover:bg-orange-100 transition-[background-color,transform] active:scale-[0.96] disabled:opacity-70 animate-scale-in"
+      className="relative flex items-center gap-1.5 rounded-control bg-accent-soft p-2 sm:px-3.5 text-xs font-semibold text-accent-ink hover:bg-accent-soft-hover transition-[background-color,transform] active:scale-[0.96] disabled:opacity-70 animate-scale-in"
       title="Hi ha una versió nova de l'app. Toca per actualitzar."
       aria-label="Actualitzar a la versió nova"
     >

@@ -36,13 +36,13 @@ export const StatsTab: React.FC<Props> = ({ restaurants, wishlist, groupName, on
       {latestVisitYear !== undefined && (
         <button
           onClick={() => setShowYearInNumbers(true)}
-          className="w-full flex items-center gap-4 p-5 rounded-3xl bg-brand text-white text-left shadow-card hover:shadow-card-hover active:scale-[0.99] transition-[box-shadow,transform]"
+          className="w-full flex items-center gap-4 p-5 rounded-card bg-brand text-white text-left shadow-card hover:shadow-card-hover active:scale-[0.99] transition-[box-shadow,transform]"
         >
-          <span className="size-12 shrink-0 rounded-2xl bg-white/20 flex items-center justify-center">
+          <span className="size-12 shrink-0 rounded-inner bg-white/20 flex items-center justify-center">
             <Sparkles className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-lg font-extrabold tracking-tight">El {latestVisitYear} en xifres</span>
+            <span className="block text-lg heading">El {latestVisitYear} en xifres</span>
             <span className="block text-sm opacity-90">L'any resumit, a punt per compartir</span>
           </span>
           <ChevronRight className="size-5 shrink-0 opacity-80" />

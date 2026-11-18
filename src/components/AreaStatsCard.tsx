@@ -25,10 +25,10 @@ export const AreaStatsCard: React.FC<Props> = ({ restaurants }) => {
     <div className={cn(CARD, 'p-5 sm:p-7 space-y-5')}>
       <div className="pb-3 border-b border-stone-100">
         <div className="flex items-center gap-2">
-          <span className="size-9 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center">
+          <span className="size-9 rounded-inner bg-sky-100 text-sky-700 flex items-center justify-center">
             <MapPin className="w-4 h-4" />
           </span>
-          <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Zones</h3>
+          <h3 className="text-lg heading text-stone-900">Zones</h3>
         </div>
         <p className="text-xs text-stone-500 mt-0.5">
           Visites de cada zona, de {withArea === 1 ? '1 restaurant' : `${withArea} restaurants`} amb zona, i la nota mitjana.

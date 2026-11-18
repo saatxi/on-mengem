@@ -111,8 +111,8 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
     <div className="space-y-5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-stone-900 flex items-center gap-2.5">
-            <span className="size-10 rounded-2xl bg-violet-100 text-violet-700 flex items-center justify-center">
+          <h2 className="text-2xl sm:text-3xl heading text-stone-900 flex items-center gap-2.5">
+            <span className="size-10 rounded-inner bg-violet-100 text-violet-700 flex items-center justify-center">
               <BookmarkPlus className="w-5 h-5" />
             </span>
             Llista de desitjats
@@ -156,7 +156,7 @@ export const WishlistTab: React.FC<Props> = ({ wishlist, loading, isPersonal, on
               onClick={pickRandom}
               disabled={pickable.length === 0}
               title="Destaca un dels desitjats pendents de la llista a l'atzar"
-              className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-surface text-stone-700 ring-1 ring-stone-200 font-semibold hover:bg-stone-100 active:scale-[0.96] transition-[background-color,color,transform] disabled:opacity-40"
+              className="shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-control bg-surface text-stone-700 ring-1 ring-stone-200 font-semibold hover:bg-stone-100 active:scale-[0.96] transition-[background-color,color,transform] disabled:opacity-40"
             >
               <Dices className="w-3.5 h-3.5 text-violet-700" />
               <span>Sorprèn-me</span>

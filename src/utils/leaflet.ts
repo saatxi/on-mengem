@@ -21,7 +21,7 @@ export const markerIcon = ({ favorite = false, wish = false, large = false }: Ma
   return L.divIcon({
     className: '',
     html: `<span class="${cn(
-      'block rounded-full shadow-md',
+      'block rounded-full shadow-raised',
       wish ? 'bg-violet-600' : 'bg-brand',
       large ? 'size-6 ring-4' : 'size-4 ring-2',
       favorite ? 'ring-amber-400' : 'ring-white',

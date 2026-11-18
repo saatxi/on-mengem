@@ -1,19 +1,9 @@
 @import 'tailwindcss';
+@import './styles/classic.css';
+@import './styles/guia.css';
 
-/* Tokens de l'app. Els colors semàntics canvien amb el tema; la resta de components fan servir la paleta de Tailwind. */
+/* Mecànica compartida per tots els estils: animacions i utilitats. L'aspecte (colors, formes, fonts, ombres) és a src/styles/. */
 @theme {
-  --color-accent: #f4511e;
-  --color-accent-hover: #d84315;
-  --color-accent-soft: #fff1eb;
-  --color-accent-2: #ec4899;
-  --color-surface: #ffffff;
-  --color-inverse: #1c1917;
-  --color-on-inverse: #ffffff;
-
-  /* Ombres de les targetes: dues capes suaus i lleugerament càlides */
-  --shadow-card: 0 1px 2px rgb(68 32 16 / 0.05), 0 4px 16px -4px rgb(68 32 16 / 0.08);
-  --shadow-card-hover: 0 2px 4px rgb(68 32 16 / 0.06), 0 16px 32px -8px rgb(68 32 16 / 0.16);
-
   /* Corba de les entrades i de la píndola lliscant: arrenca de pressa i frena suau */
   --ease-out-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
 
@@ -140,67 +130,10 @@
   --bottom-nav-h: calc(4rem + env(safe-area-inset-bottom));
 }
 
-/*
- * Tema fosc: cada color té el valor clar i el fosc amb light-dark(), i `color-scheme` decideix quin s'aplica.
- * Sense data-theme segueix el sistema; ThemeContext hi posa "light" o "dark" si l'usuari en tria un.
- * Es redefineixen només els tons que fa servir l'app. Els navegadors sense light-dark() es queden amb el tema clar.
- */
+/* Tema clar, fosc o del sistema: només decideix color-scheme; cada estil dona els valors amb light-dark() (src/styles/) */
 @supports (color: light-dark(#000, #fff)) {
   :root {
     color-scheme: light dark;
-
-    --color-surface: light-dark(#ffffff, oklch(21.6% 0.006 56.043));
-    --color-inverse: light-dark(oklch(21.6% 0.006 56.043), oklch(97% 0.001 106.424));
-    --color-on-inverse: light-dark(#ffffff, oklch(21.6% 0.006 56.043));
-    --color-accent-soft: light-dark(#fff1eb, oklch(30% 0.08 40));
-
-    --color-stone-50: light-dark(oklch(98.5% 0.001 106.423), oklch(14.7% 0.004 49.25));
-    --color-stone-100: light-dark(oklch(97% 0.001 106.424), oklch(26.8% 0.007 34.298));
-    --color-stone-200: light-dark(oklch(92.3% 0.003 48.717), oklch(31% 0.008 50));
-    --color-stone-300: light-dark(oklch(86.9% 0.005 56.366), oklch(37.4% 0.01 67.558));
-    --color-stone-400: light-dark(oklch(70.9% 0.01 56.259), oklch(52% 0.012 60));
-    --color-stone-500: light-dark(oklch(55.3% 0.013 58.071), oklch(70.9% 0.01 56.259));
-    --color-stone-600: light-dark(oklch(44.4% 0.011 73.639), oklch(82% 0.006 56));
-    --color-stone-700: light-dark(oklch(37.4% 0.01 67.558), oklch(90% 0.004 50));
-    --color-stone-800: light-dark(oklch(26.8% 0.007 34.298), oklch(95% 0.002 80));
-    --color-stone-900: light-dark(oklch(21.6% 0.006 56.043), oklch(98.5% 0.001 106.423));
-
-    --color-orange-50: light-dark(oklch(98% 0.016 73.684), oklch(25% 0.045 40));
-    --color-orange-100: light-dark(oklch(95.4% 0.038 75.164), oklch(30% 0.07 40));
-    --color-orange-200: light-dark(oklch(90.1% 0.076 70.697), oklch(38% 0.1 40));
-    --color-orange-700: light-dark(oklch(55.3% 0.195 38.402), oklch(75% 0.183 55.934));
-    --color-orange-800: light-dark(oklch(47% 0.157 37.304), oklch(83.7% 0.128 66.29));
-    --color-orange-900: light-dark(oklch(40.8% 0.123 38.172), oklch(90.1% 0.076 70.697));
-
-    --color-amber-50: light-dark(oklch(98.7% 0.022 95.277), oklch(25% 0.04 70));
-    --color-amber-100: light-dark(oklch(96.2% 0.059 95.617), oklch(30% 0.06 70));
-    --color-amber-800: light-dark(oklch(47.3% 0.137 46.201), oklch(87.9% 0.169 91.605));
-    --color-amber-900: light-dark(oklch(41.4% 0.112 45.904), oklch(92.4% 0.12 95.746));
-
-    --color-emerald-50: light-dark(oklch(97.9% 0.021 166.113), oklch(25% 0.035 165));
-    --color-emerald-100: light-dark(oklch(95% 0.052 163.051), oklch(30% 0.05 165));
-    --color-emerald-200: light-dark(oklch(90.5% 0.093 164.15), oklch(38% 0.07 165));
-    --color-emerald-700: light-dark(oklch(50.8% 0.118 165.612), oklch(76.5% 0.177 163.223));
-    --color-emerald-800: light-dark(oklch(43.2% 0.095 166.913), oklch(84.5% 0.143 164.978));
-    --color-emerald-900: light-dark(oklch(37.8% 0.077 168.94), oklch(90.5% 0.093 164.15));
-
-    --color-red-50: light-dark(oklch(97.1% 0.013 17.38), oklch(25% 0.05 25));
-    --color-red-200: light-dark(oklch(88.5% 0.062 18.334), oklch(38% 0.1 25));
-    --color-red-300: light-dark(oklch(80.8% 0.114 19.571), oklch(45% 0.13 25));
-    --color-red-700: light-dark(oklch(50.5% 0.213 27.518), oklch(70.4% 0.191 22.216));
-    --color-red-800: light-dark(oklch(44.4% 0.177 26.899), oklch(80.8% 0.114 19.571));
-
-    --color-violet-50: light-dark(oklch(96.9% 0.016 293.756), oklch(25% 0.05 293));
-    --color-violet-100: light-dark(oklch(94.3% 0.029 294.588), oklch(30% 0.08 293));
-    --color-violet-200: light-dark(oklch(89.4% 0.057 293.283), oklch(38% 0.12 293));
-    --color-violet-700: light-dark(oklch(49.1% 0.27 292.581), oklch(81.1% 0.111 293.571));
-    --color-violet-800: light-dark(oklch(43.2% 0.232 292.759), oklch(89.4% 0.057 293.283));
-    --color-violet-900: light-dark(oklch(38% 0.189 293.745), oklch(94.3% 0.029 294.588));
-
-    --color-sky-50: light-dark(oklch(97.7% 0.013 236.62), oklch(25% 0.04 240));
-    --color-sky-100: light-dark(oklch(95.1% 0.026 236.824), oklch(30% 0.06 240));
-    --color-sky-700: light-dark(oklch(50% 0.134 242.749), oklch(82.8% 0.111 230.318));
-    --color-sky-800: light-dark(oklch(44.3% 0.11 240.79), oklch(90.1% 0.058 230.902));
   }
 
   :root[data-theme='light'] {
@@ -212,6 +145,63 @@
   }
 }
 
+/*
+ * Ombres semàntiques. La forma és la de Tailwind (shadow-md…, amb --tw-shadow-color perquè shadow-accent/25 hi funcioni) i
+ * cada estil en regula la intensitat amb --elev-* (0 les deixa a zero i no es veuen).
+ */
+@utility shadow-card {
+  --tw-shadow: 0 calc(1px * var(--elev-card)) calc(2px * var(--elev-card)) var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.05)),
+    0 calc(4px * var(--elev-card)) calc(16px * var(--elev-card)) calc(-4px * var(--elev-card))
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.08));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility shadow-card-hover {
+  --tw-shadow: 0 calc(2px * var(--elev-card-hover)) calc(4px * var(--elev-card-hover)) var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.06)),
+    0 calc(16px * var(--elev-card-hover)) calc(32px * var(--elev-card-hover)) calc(-8px * var(--elev-card-hover))
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.16));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Botons i xips elevats (abans shadow-md) */
+@utility shadow-raised {
+  --tw-shadow: 0 calc(4px * var(--elev-raised)) calc(6px * var(--elev-raised)) calc(-1px * var(--elev-raised))
+      var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+    0 calc(2px * var(--elev-raised)) calc(4px * var(--elev-raised)) calc(-2px * var(--elev-raised)) var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Elements que suren una mica (abans shadow-lg) */
+@utility shadow-float {
+  --tw-shadow: 0 calc(10px * var(--elev-float)) calc(15px * var(--elev-float)) calc(-3px * var(--elev-float))
+      var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+    0 calc(4px * var(--elev-float)) calc(6px * var(--elev-float)) calc(-4px * var(--elev-float)) var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Menús i avisos desplegables (abans shadow-xl) */
+@utility shadow-popover {
+  --tw-shadow: 0 calc(20px * var(--elev-popover)) calc(25px * var(--elev-popover)) calc(-5px * var(--elev-popover))
+      var(--tw-shadow-color, rgb(0 0 0 / 0.1)),
+    0 calc(8px * var(--elev-popover)) calc(10px * var(--elev-popover)) calc(-6px * var(--elev-popover))
+      var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Finestres modals (abans shadow-2xl) */
+@utility shadow-modal {
+  --tw-shadow: 0 calc(25px * var(--elev-modal)) calc(50px * var(--elev-modal)) calc(-12px * var(--elev-modal))
+    var(--tw-shadow-color, rgb(0 0 0 / 0.25));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Títols i xifres grans: la lletra, el gruix i l'espaiat els decideix cada estil */
+@utility heading {
+  font-family: var(--font-display);
+  font-weight: var(--heading-weight);
+  letter-spacing: var(--heading-tracking);
+}
+
 /* Degradat de marca (logo, botó flotant, accions destacades) */
 @utility bg-brand {
   background-image: linear-gradient(135deg, var(--color-accent), var(--color-accent-2));
@@ -219,11 +209,14 @@
 
 /* Fons suau del to de cada cuina (--cuisine-hue, vegeu CUISINE_STYLES); sense light-dark() es queda el clar */
 @utility bg-cuisine {
-  background-color: oklch(95% 0.045 var(--cuisine-hue, 40));
+  background-color: oklch(95% var(--cuisine-chroma) var(--cuisine-hue, 40));
 
   /* Dins de @supports perquè Lightning CSS no reescrigui light-dark() (com a :root) */
   @supports (color: light-dark(#000, #fff)) {
-    background-color: light-dark(oklch(95% 0.045 var(--cuisine-hue, 40)), oklch(30% 0.06 var(--cuisine-hue, 40)));
+    background-color: light-dark(
+      oklch(95% var(--cuisine-chroma) var(--cuisine-hue, 40)),
+      oklch(30% var(--cuisine-chroma-dark) var(--cuisine-hue, 40))
+    );
   }
 }
 
@@ -343,10 +336,15 @@
   /* Fons general amb un halo suau de l'accent a dalt */
   body {
     background-color: var(--color-stone-50);
-    background-image: radial-gradient(60rem 28rem at 50% -12rem, color-mix(in oklab, var(--color-accent) 12%, transparent), transparent);
+    background-image: radial-gradient(
+      60rem 28rem at 50% -12rem,
+      color-mix(in oklab, var(--color-accent) var(--page-glow), transparent),
+      transparent
+    );
     background-attachment: fixed;
     background-repeat: no-repeat;
     -webkit-font-smoothing: antialiased;
+    font-family: var(--font-sans);
   }
 
   :focus-visible {
@@ -382,7 +380,7 @@
 }
 
 .restaurant-map .leaflet-popup-content-wrapper {
-  border-radius: 1rem;
+  border-radius: var(--radius-inner);
 }
 
 .restaurant-map.leaflet-container .leaflet-control-attribution {

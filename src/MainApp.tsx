@@ -265,7 +265,7 @@ export function MainApp() {
             onClick={() => (effectiveTab === 'wishlist' ? setShowAddWishlist(true) : setShowAddRestaurant(true))}
             aria-label={effectiveTab === 'wishlist' ? 'Proposar desitjat' : 'Afegir restaurant'}
             className={cn(
-              'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-xl active:scale-90 transition-transform animate-scale-in',
+              'fixed bottom-[calc(var(--bottom-nav-h)+1rem)] right-4 sm:hidden z-40 w-14 h-14 rounded-inner text-white flex items-center justify-center shadow-popover active:scale-90 transition-transform animate-scale-in',
               effectiveTab === 'wishlist' ? 'bg-violet-600 shadow-violet-600/40' : 'bg-brand shadow-accent/40',
             )}
           >

@@ -175,11 +175,11 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
           if (closing && e.target === e.currentTarget) onCloseRef.current();
         }}
         className={cn(
-          'relative w-full flex flex-col overflow-y-auto overscroll-contain bg-surface shadow-2xl outline-hidden',
+          'relative w-full flex flex-col overflow-y-auto overscroll-contain bg-surface shadow-modal outline-hidden',
           fullScreenOnMobile
             ? 'h-dvh max-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:h-auto'
-            : 'max-h-[calc(100dvh-1.5rem)] rounded-t-3xl pb-[env(safe-area-inset-bottom)]',
-          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[2rem] sm:pb-0 sm:ring-1 sm:ring-stone-900/5',
+            : 'max-h-[calc(100dvh-1.5rem)] rounded-t-card pb-[env(safe-area-inset-bottom)]',
+          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[calc(var(--radius-card)+0.5rem)] sm:pb-0 sm:ring-1 sm:ring-card-edge',
           closing
             ? cn(fullScreenOnMobile ? 'animate-fade-out' : 'animate-slide-down', 'sm:animate-scale-out')
             : cn(fullScreenOnMobile ? 'animate-fade-in' : 'animate-slide-up', 'sm:animate-scale-in'),
@@ -215,12 +215,12 @@ export const ModalHeader: React.FC<HeaderProps> = ({ title, subtitle, icon: Icon
   <div className="sticky top-0 z-10 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-surface/90 backdrop-blur-md border-b border-stone-100">
     <div className="flex items-center gap-3 min-w-0">
       {Icon && (
-        <span className={cn('size-11 shrink-0 rounded-2xl flex items-center justify-center bg-accent-soft text-accent', iconClassName)}>
+        <span className={cn('size-11 shrink-0 rounded-inner flex items-center justify-center bg-accent-soft text-accent', iconClassName)}>
           <Icon className="size-5" />
         </span>
       )}
       <div className="min-w-0">
-        <h2 className="text-lg font-extrabold tracking-tight text-stone-900 truncate">{title}</h2>
+        <h2 className="text-lg heading text-stone-900 truncate">{title}</h2>
         {subtitle && <p className="text-sm text-stone-500 truncate">{subtitle}</p>}
       </div>
     </div>

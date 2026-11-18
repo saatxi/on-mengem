@@ -61,7 +61,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
         </p>
 
         {groups.length === 0 ? (
-          <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200 text-xs text-stone-500 text-center">
+          <div className="p-4 rounded-inner bg-stone-50 border border-stone-200 text-xs text-stone-500 text-center">
             Encara no ets membre de cap grup. Crea'n un o uneix-te amb un codi.
           </div>
         ) : (
@@ -71,7 +71,7 @@ export const ShareToGroupModal: React.FC<Props> = ({ isOpen, mode, itemName, gro
               return (
                 <label
                   key={g.id}
-                  className={`flex items-center gap-3 p-3 rounded-2xl border cursor-pointer transition ${
+                  className={`flex items-center gap-3 p-3 rounded-inner border cursor-pointer transition ${
                     checked ? 'border-accent bg-accent-soft' : 'border-stone-200 hover:bg-stone-50'
                   }`}
                 >

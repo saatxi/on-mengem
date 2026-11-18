@@ -39,11 +39,11 @@ export const RestaurantCard: React.FC<Props> = ({ res, showAuthor, onOpen, onTog
       <div className="flex items-start gap-3">
         <CuisineTile cuisine={res.cuisine} />
         <div className="min-w-0 flex-1">
-          <h3 className="text-lg font-extrabold tracking-tight leading-snug text-stone-900 group-hover:text-accent transition-colors">
+          <h3 className="text-lg heading leading-snug text-stone-900 group-hover:text-accent transition-colors">
             <button
               type="button"
               onClick={() => onOpen(res)}
-              className="text-left after:absolute after:inset-0 after:rounded-3xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-accent"
+              className="text-left after:absolute after:inset-0 after:rounded-card focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-accent"
             >
               {res.name}
             </button>
@@ -79,18 +79,18 @@ export const RestaurantCard: React.FC<Props> = ({ res, showAuthor, onOpen, onTog
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
         {/* Valoració: mitjana de les visites o, si no n'hi ha, la del restaurant */}
         {shownRating != null && (
-          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-900">
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded-control bg-amber-50 text-amber-900">
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
             <strong className="font-bold tabular-nums">{shownRating.toFixed(1)}</strong>
           </span>
         )}
         {isVisited(res) ? (
-          <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 font-semibold text-emerald-800">
+          <span className="flex items-center gap-1 px-2.5 py-1 rounded-control bg-emerald-50 font-semibold text-emerald-800">
             <Check className="w-3.5 h-3.5" />
             {visitCount === 1 ? '1 visita' : `${visitCount} visites`}
           </span>
         ) : (
-          <span className="px-2.5 py-1 rounded-full bg-accent-soft font-semibold text-orange-800">Per anar</span>
+          <span className="px-2.5 py-1 rounded-control bg-accent-soft font-semibold text-accent-ink">Per anar</span>
         )}
       </div>
 
