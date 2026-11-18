@@ -33,7 +33,7 @@ export const DevLogin: React.FC = () => {
   };
 
   return (
-    <div className="mt-6 pt-5 border-t border-dashed border-stone-200 text-left">
+    <div className="mt-6 pt-5 border-t border-dashed border-line text-left">
       <p className="flex items-center gap-1.5 text-xs font-semibold text-stone-500 uppercase tracking-wide">
         <FlaskConical className="w-3.5 h-3.5" />
         Només entorn local: usuaris de prova

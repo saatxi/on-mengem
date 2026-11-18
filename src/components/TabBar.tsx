@@ -14,12 +14,12 @@ export const TabBar: React.FC<Props> = ({ activeTab, children }) => {
   return (
     <div
       ref={containerRef}
-      className="relative hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-full mb-6 max-w-full overflow-x-auto scrollbar-none"
+      className="relative hidden sm:flex w-fit items-center gap-1 p-1.5 bg-stone-200/60 rounded-control mb-6 max-w-full overflow-x-auto scrollbar-none"
     >
       <span
         aria-hidden="true"
         style={indicatorStyle}
-        className="absolute top-0 left-0 rounded-full bg-surface shadow-card transition-[transform,width,height] duration-300 ease-out-soft"
+        className="absolute top-0 left-0 rounded-control bg-surface shadow-card transition-[transform,width,height] duration-300 ease-out-soft"
       />
       {children}
     </div>

@@ -100,7 +100,7 @@ export const GroupHistory: React.FC<Props> = ({ group }) => {
             const summary = deletedSummary(change);
             return (
               <li key={change.id} className="py-3 flex items-start gap-3">
-                <span className={cn('size-9 shrink-0 rounded-2xl flex items-center justify-center', ITEM_COLORS[change.itemType])}>
+                <span className={cn('size-9 shrink-0 rounded-inner flex items-center justify-center', ITEM_COLORS[change.itemType])}>
                   <Icon className="size-4" />
                 </span>
                 <div className="flex-1 min-w-0">

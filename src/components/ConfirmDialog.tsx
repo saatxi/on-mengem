@@ -80,7 +80,7 @@ export const DialogProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             <button
               type="button"
               onClick={() => close(true)}
-              className={`flex-1 py-3 rounded-2xl text-sm font-bold text-white shadow-md transition ${
+              className={`flex-1 py-3 rounded-inner text-sm font-bold text-white shadow-raised transition ${
                 request.destructive ? 'bg-red-600 hover:bg-red-700' : 'bg-accent hover:bg-accent-hover'
               }`}
             >

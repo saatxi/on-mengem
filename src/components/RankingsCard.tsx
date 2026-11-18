@@ -49,10 +49,10 @@ export const RankingsCard: React.FC<Props> = ({ restaurants, allRestaurants, onS
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-stone-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="size-9 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
+            <span className="size-9 rounded-inner bg-amber-100 text-amber-600 flex items-center justify-center">
               <Trophy className="w-4 h-4" />
             </span>
-            <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Rànquings</h3>
+            <h3 className="text-lg heading text-stone-900">Rànquings</h3>
           </div>
           <p className="text-xs text-stone-500 mt-0.5">
             {mode === 'forgotten' ? 'Ben valorats que fa temps que no visiteu.' : 'Els cinc primers del període.'}
@@ -70,10 +70,10 @@ export const RankingsCard: React.FC<Props> = ({ restaurants, allRestaurants, onS
             <li key={restaurant.id}>
               <button
                 onClick={() => onSelect(restaurant.id)}
-                className="w-full flex items-center gap-3 p-2 -mx-2 rounded-2xl text-left hover:bg-stone-50 active:scale-[0.99] transition-[background-color,transform]"
+                className="w-full flex items-center gap-3 p-2 -mx-2 rounded-inner text-left hover:bg-stone-50 active:scale-[0.99] transition-[background-color,transform]"
               >
-                <span className="w-5 text-center text-sm font-extrabold tabular-nums text-stone-400">{index + 1}</span>
-                <span className="size-10 shrink-0 rounded-2xl bg-stone-100 flex items-center justify-center text-lg" aria-hidden="true">
+                <span className="w-5 text-center text-sm heading tabular-nums text-stone-400">{index + 1}</span>
+                <span className="size-10 shrink-0 rounded-inner bg-stone-100 flex items-center justify-center text-lg" aria-hidden="true">
                   {cuisineStyle(restaurant.cuisine).emoji}
                 </span>
                 <span className="min-w-0 flex-1">

@@ -16,7 +16,7 @@ export const CuisineTile: React.FC<Props> = ({ cuisine, className }) => {
       aria-hidden="true"
       style={{ '--cuisine-hue': hue } as React.CSSProperties}
       className={cn(
-        'size-12 shrink-0 rounded-2xl bg-cuisine flex items-center justify-center text-2xl leading-none select-none',
+        'size-12 shrink-0 rounded-inner bg-cuisine flex items-center justify-center text-2xl leading-none select-none',
         className,
       )}
     >

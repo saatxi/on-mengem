@@ -197,14 +197,14 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
             <div
               role="group"
               aria-labelledby="visit-visibility-label"
-              className="flex gap-1 p-1 rounded-full bg-stone-100 text-xs font-semibold"
+              className="flex gap-1 p-1 rounded-control bg-stone-100 text-xs font-semibold"
             >
               <button
                 type="button"
                 onClick={() => setShared(true)}
                 aria-pressed={shared}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
-                  shared ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900'
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-control transition-colors ${
+                  shared ? 'bg-emerald-600 text-white shadow-raised shadow-emerald-600/20' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -214,8 +214,8 @@ export const VisitModal: React.FC<Props> = ({ restaurant, visit, onClose, onSave
                 type="button"
                 onClick={() => setShared(false)}
                 aria-pressed={!shared}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-full transition-colors ${
-                  !shared ? 'bg-inverse text-on-inverse shadow-md' : 'text-stone-600 hover:text-stone-900'
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-control transition-colors ${
+                  !shared ? 'bg-inverse text-on-inverse shadow-raised' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
                 <Lock className="w-3.5 h-3.5" />

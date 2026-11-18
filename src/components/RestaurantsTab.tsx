@@ -20,8 +20,8 @@ const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.Pla
 
 // Botons i selectors petits de la barra de filtres
 const CHIP =
-  'flex items-center gap-1.5 min-h-11 sm:min-h-0 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
-const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
+  'flex items-center gap-1.5 min-h-11 sm:min-h-0 px-3.5 py-2 rounded-control font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
+const CHIP_IDLE = 'bg-surface text-stone-700 ring-thin ring-line hover:bg-stone-100';
 
 interface Props {
   restaurants: Restaurant[];
@@ -90,7 +90,11 @@ export const RestaurantsTab: React.FC<Props> = ({
           <button
             onClick={() => setShowMore(!showMore)}
             aria-expanded={showMore}
-            className={cn(CHIP, 'sm:hidden', showMore || moreActive > 0 ? 'bg-accent-soft text-accent ring-1 ring-accent/30' : CHIP_IDLE)}
+            className={cn(
+              CHIP,
+              'sm:hidden',
+              showMore || moreActive > 0 ? 'bg-accent-soft text-accent ring-thin ring-accent/30' : CHIP_IDLE,
+            )}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span>Filtres{moreActive > 0 ? ` (${moreActive})` : ''}</span>
@@ -100,7 +104,7 @@ export const RestaurantsTab: React.FC<Props> = ({
             <button
               onClick={() => filters.setFavorite(!filters.favorite)}
               aria-pressed={filters.favorite}
-              className={cn(CHIP, filters.favorite ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' : CHIP_IDLE)}
+              className={cn(CHIP, filters.favorite ? 'bg-amber-500 text-white shadow-raised shadow-amber-500/25' : CHIP_IDLE)}
             >
               <Star className={cn('w-3.5 h-3.5', filters.favorite ? 'fill-white' : 'fill-amber-400 text-amber-500')} />
               <span>Favorits</span>

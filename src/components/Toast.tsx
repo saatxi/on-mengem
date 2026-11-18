@@ -36,7 +36,7 @@ export const Toast: React.FC<Props> = ({ message, onClose, variant = 'error', ac
       role={isError ? 'alert' : 'status'}
       onAnimationEnd={onAnimationEnd}
       className={cn(
-        'fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 w-max max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl px-4 py-3 text-sm font-medium shadow-xl',
+        'fixed top-[calc(1rem+env(safe-area-inset-top))] left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 w-max max-w-[calc(100vw-2rem)] overflow-hidden rounded-inner px-4 py-3 text-sm font-medium shadow-popover',
         closing ? 'animate-fade-out pointer-events-none' : 'animate-fade-in',
         isError ? 'bg-red-600 text-white' : 'bg-inverse text-on-inverse',
       )}
@@ -49,12 +49,12 @@ export const Toast: React.FC<Props> = ({ message, onClose, variant = 'error', ac
             shown.action?.onClick();
             onClose();
           }}
-          className="ml-1 px-2 py-1 rounded-lg font-bold underline underline-offset-2 hover:opacity-80 transition"
+          className="ml-1 px-2 py-1 rounded-soft font-bold underline underline-offset-2 hover:opacity-80 transition"
         >
           {shown.action.label}
         </button>
       )}
-      <button onClick={onClose} className="ml-1 p-1 rounded-lg opacity-80 hover:opacity-100 transition" aria-label="Tanca">
+      <button onClick={onClose} className="ml-1 p-1 rounded-soft opacity-80 hover:opacity-100 transition" aria-label="Tanca">
         <X className="w-4 h-4" />
       </button>
       {/* Temps que queda abans que es tanqui sol; es reinicia amb cada missatge nou */}

@@ -69,13 +69,11 @@ const StatTile: React.FC<TileProps> = ({ label, value, decimals = 0, trend, icon
 
   return (
     <div className={cn(CARD, 'p-4 sm:p-5 flex items-center gap-3')}>
-      <div className={cn('size-12 rounded-2xl flex items-center justify-center flex-shrink-0', iconClassName)}>
+      <div className={cn('size-12 rounded-inner flex items-center justify-center flex-shrink-0', iconClassName)}>
         <Icon className="size-5" />
       </div>
       <div className="min-w-0">
-        <p className="text-3xl font-extrabold tracking-tight tabular-nums text-stone-900 leading-none">
-          {value === null ? '—' : shown.toFixed(decimals)}
-        </p>
+        <p className="text-3xl heading tabular-nums text-stone-900 leading-none">{value === null ? '—' : shown.toFixed(decimals)}</p>
         <p className="text-sm font-medium text-stone-500 mt-1">{label}</p>
         {!!trend && <p className="text-xs font-bold text-emerald-700 mt-0.5">+{trend} aquest mes</p>}
       </div>

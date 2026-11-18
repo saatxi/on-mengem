@@ -13,20 +13,20 @@ export const CardSkeletons: React.FC<Props> = ({ count = 6, className }) => (
     {Array.from({ length: count }, (_, i) => (
       <div key={i} className={cn(CARD, 'p-5 flex flex-col gap-3 shimmer')}>
         <div className="flex items-start gap-3">
-          <div className="size-12 shrink-0 rounded-2xl bg-stone-100" />
+          <div className="size-12 shrink-0 rounded-inner bg-stone-100" />
           <div className="flex-1 space-y-2 pt-1">
             <div className="h-4 w-2/3 rounded-full bg-stone-100" />
             <div className="h-3 w-1/3 rounded-full bg-stone-100" />
           </div>
         </div>
         <div className="flex gap-1.5">
-          <div className="h-6 w-14 rounded-full bg-stone-100" />
-          <div className="h-6 w-20 rounded-full bg-stone-100" />
+          <div className="h-6 w-14 rounded-control bg-stone-100" />
+          <div className="h-6 w-20 rounded-control bg-stone-100" />
         </div>
         <div className="h-3 w-1/2 rounded-full bg-stone-100" />
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
           <div className="h-3 w-1/4 rounded-full bg-stone-100" />
-          <div className="h-8 w-20 rounded-full bg-stone-100" />
+          <div className="h-8 w-20 rounded-control bg-stone-100" />
         </div>
       </div>
     ))}

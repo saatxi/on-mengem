@@ -30,13 +30,13 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
   return (
     <nav
       ref={containerRef}
-      className="fixed bottom-0 inset-x-0 z-40 flex sm:hidden bg-surface/85 backdrop-blur-xl border-t border-stone-900/5 h-(--bottom-nav-h) pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-40 flex sm:hidden bg-surface/85 backdrop-blur-xl border-t border-card-edge h-(--bottom-nav-h) pb-[env(safe-area-inset-bottom)]"
     >
       {/* Fons de la icona activa, que llisca de pestanya a pestanya */}
       <span
         aria-hidden="true"
         style={indicatorStyle}
-        className="absolute top-0 left-0 rounded-full bg-accent-soft transition-[transform,width,height] duration-300 ease-out-soft"
+        className="absolute top-0 left-0 rounded-control bg-accent-soft transition-[transform,width,height] duration-300 ease-out-soft"
       />
       {tabs.map(({ id, label, icon: Icon }) => {
         const isActive = activeTab === id;
@@ -46,7 +46,7 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
             onClick={() => onTabChange(id)}
             className="flex-1 flex flex-col items-center justify-center gap-1 transition-transform active:scale-[0.94]"
           >
-            <div data-active={isActive} className="relative flex items-center justify-center w-14 h-8 rounded-full">
+            <div data-active={isActive} className="relative flex items-center justify-center w-14 h-8 rounded-control">
               <Icon className={cn('size-5', isActive ? 'text-accent' : 'text-stone-500')} />
               {id === 'alerts' && alertCount > 0 && (
                 <span className="absolute top-0 right-2.5 min-w-[1rem] h-4 rounded-full bg-brand text-white text-[10px] font-bold ring-2 ring-surface flex items-center justify-center px-0.5">

@@ -4,7 +4,7 @@ PWA en català per guardar restaurants i llistes de desitjos, amb espai personal
 
 ## Stack
 
-React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), Leaflet (mapes), `lucide-react`, `clsx` + `tailwind-merge`, `@fontsource-variable/plus-jakarta-sans`. Node >=24 (`.nvmrc`).
+React 19 + TypeScript, Vite 8, Tailwind 4 (`@tailwindcss/vite`), `vite-plugin-pwa`, Supabase (Google OAuth, Postgres, Realtime), Leaflet (mapes), `lucide-react`, `clsx` + `tailwind-merge`, fonts autoallotjades `@fontsource-variable/*` (Plus Jakarta Sans per al Clàssic; Newsreader i Hanken Grotesk per a Guia). Node >=24 (`.nvmrc`).
 
 ## Ordres
 
@@ -26,7 +26,7 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 
 - `src/App.tsx`: proveïdors i porta d'entrada (càrrega, onboarding o pantalla principal). `src/MainApp.tsx`: pantalla principal (pestanyes i estat dels modals), carregada amb `lazy()` perquè l'inici de sessió no la descarregui.
 - `src/components/`: components i modals. Cada pestanya té el seu component (`RestaurantsTab`, `WishlistTab`, `GroupTab`, `StatsTab`); `MainApp` hi connecta les dades i els modals. `SegmentedControl` és el selector de píndoles (filtres, vistes, períodes).
-- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`).
+- `src/context/AuthContext.tsx`: sessió, perfil, grups (`useAuth()`). `ThemeContext.tsx`: tema clar, fosc o del sistema (`useTheme()`). `StyleContext.tsx`: estil visual triat (`useStyle()`; vegeu «Convencions de codi»). `src/styles/`: definició de l'aspecte de cada estil.
 - `src/hooks/useRestaurantFilters.ts`: cerca, filtres i ordre dels restaurants (a `MainApp`, perquè «Sorprèn-me» del detall tria d'entre els filtrats).
 - `src/hooks/useRealtimeData.ts`: dades de l'espai actiu, Realtime i RPCs (`copyToGroups`, `moveToGroup`…).
 - `src/supabase/client.ts` i `mappers.ts`: client tipat i conversió fila BD ↔ tipus de l'app.
@@ -44,8 +44,10 @@ npm test                  # Vitest, amb TZ=Europe/Madrid (vegeu el test de local
 - Text d'UI, errors, comentaris i documentació **en català**; identificadors (components, funcions, tipus, fitxers) **en anglès**.
 - Components: funcions `React.FC<Props>` amb `interface Props` local i export nomenat (sense `default`). Fitxers en PascalCase.
 - Hooks: `useXxx`, export nomenat, netegen listeners i subscripcions al `return` de l'`useEffect`.
-- Estils amb classes Tailwind inline; icones de `lucide-react`. Colors semàntics de `src/index.css` (`accent` = `#f4511e`, `accent-soft` per a fons suaus, `surface`, `inverse`) en lloc de `orange-600` o `bg-white`; degradat de marca amb `bg-brand` (accent → `accent-2` rosa); el violeta és el color dels desitjats i l'ambre, el de les estrelles i favorits. Classes condicionals amb `cn()` (`src/utils/cn.ts`).
-- Peces compartides: `Button` (`src/components/Button.tsx`, botó en píndola amb variants), `SegmentedControl` i les classes `FIELD`, `LABEL`, `CARD` i `EMPTY_STATE` de `src/utils/ui.ts` per a camps, etiquetes i targetes. Targetes i modals `rounded-3xl`, camps `rounded-2xl`, botons i xips `rounded-full`; ombres amb `shadow-card` / `shadow-card-hover`. El mode fosc redefineix a `src/index.css` (amb `light-dark()`) només els tons de la paleta que fa servir l'app: si n'uses un de nou (p. ex. `bg-violet-50`), afegeix-hi el valor fosc.
+- Estils amb classes Tailwind inline; icones de `lucide-react`. Classes condicionals amb `cn()` (`src/utils/cn.ts`, que coneix els tokens `rounded-card|inner|control|soft|tile` i les ombres `shadow-*`).
+- **Aspecte separat dels components (estils visuals).** L'usuari tria l'estil al perfil; `StyleContext` posa `<html data-style="…">` (el Clàssic no en posa) i es desa a `localStorage`. Els components **no saben quin estil hi ha** (res de `style === 'guia'`): només fan servir tokens semàntics. Tota la definició de l'aspecte és a `src/styles/`: `classic.css` (estil per defecte i contracte complet de tokens, documentat a la capçalera), un fitxer per estil (`guia.css`: només redefineix tokens sota `:root[data-style='guia']`, amb valors clar/fosc via `light-dark()`) i `registry.ts` (llista d'estils amb etiqueta, color de la barra i fonts de càrrega diferida; les fonts d'un estil nou van a `<id>-fonts.ts` i es carreguen amb `import()`). `index.css` només té la mecànica comuna (animacions, utilitats, Leaflet). Per afegir un estil: un CSS nou, importar-lo a `index.css` i una entrada a `registry.ts`.
+- Tokens que han de fer servir els components, en lloc de valors fixos: colors `accent`, `accent-soft`, `accent-ink`, `surface`, `inverse` i la rampa `stone-*`; forma `rounded-card` (targetes i modals), `rounded-inner` (camps i peces dins d'una targeta) i `rounded-control` (botons i xips), `rounded-soft` (botons petits) i `rounded-tile` (requadres d'icona); els cercles reals, com avatars i punts, continuen amb `rounded-full`; ombres `shadow-card`, `shadow-card-hover`, `shadow-raised`, `shadow-float`, `shadow-popover`, `shadow-modal` (mai `shadow-md|lg|xl`); `heading` per a títols i xifres grans (no `font-extrabold tracking-tight`); `ring-card-edge` per a la vora de les targetes; degradat de marca `bg-brand`. Els colors de rol continuen sent els de Tailwind i cada estil els pot remapar: violeta = desitjats, ambre = estrelles i favorits, esmeralda = visitat. El mode fosc es defineix a cada estil amb `light-dark()`: si uses un to nou de la paleta (p. ex. `bg-violet-50`), afegeix-hi el valor fosc a `classic.css` i als estils que el remapin.
+- Peces compartides: `Button` (`src/components/Button.tsx`, botó amb variants), `SegmentedControl` i les classes `FIELD`, `LABEL`, `CARD` i `EMPTY_STATE` de `src/utils/ui.ts` per a camps, etiquetes i targetes.
 - Imports relatius (no hi ha àlies de camí).
 - El format el decideix Prettier (`.prettierrc.json`: cometes simples, punt i coma, 140 columnes; sagnat de `.editorconfig`). Passa `npm run format` abans de fer commit. No formata Markdown, SQL ni `supabase/` (`.prettierignore`): allà imita l'estil dels fitxers veïns.
 

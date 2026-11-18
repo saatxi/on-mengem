@@ -1,0 +1,102 @@
+/*
+ * Estil «Neó»: nit de barri. Fons de tinta blava, rètols de neó (corall, rosa i cian) i títols amb una llum suau.
+ * És un estil només fosc: força color-scheme: dark i dona els mateixos valors al clar i al fosc, així el selector
+ * d'aparença del perfil no el pot deixar clar.
+ *
+ * Només redefineix el contracte de classic.css sota `:root[data-style='neo']`; no toca cap component.
+ */
+:root[data-style='neo'] {
+  --color-accent: #ff5a3c;
+  --color-accent-hover: #ff7a5f;
+  --color-accent-2: #ff4fa3;
+  --color-selection: #ff5a3c;
+
+  --radius-card: 1.25rem;
+  --radius-inner: 0.875rem;
+
+  --font-sans: 'Bricolage Grotesque Variable', ui-sans-serif, system-ui, sans-serif;
+  --heading-weight: 800;
+  --heading-tracking: -0.02em;
+  --heading-glow: 0 0 14px color-mix(in oklab, var(--color-accent) 55%, transparent);
+
+  /* Les targetes fan una llum de l'accent en comptes d'una ombra */
+  --shadow-color: rgb(255 90 60);
+  --shadow-alpha: 4;
+
+  --page-glow: 16%;
+  --cuisine-chroma: 0.09;
+  --cuisine-chroma-dark: 0.09;
+}
+
+/* Més específic que el color-scheme de data-theme (index.css) */
+html:root[data-style='neo'] {
+  color-scheme: dark;
+}
+
+@supports (color: light-dark(#000, #fff)) {
+  :root[data-style='neo'] {
+    --color-accent: #ff5a3c;
+    --color-accent-hover: #ff7a5f;
+    --color-accent-2: #ff4fa3;
+    --color-accent-soft: #2e1722;
+    --color-accent-soft-hover: #40202e;
+    --color-accent-edge: #5f2c3a;
+    --color-accent-ink: #ff9d88;
+    --color-accent-ink-strong: #ffc1b3;
+    --color-selection: #ff5a3c;
+
+    --color-surface: #141730;
+    --color-inverse: #eceef9;
+    --color-on-inverse: #0b0d1a;
+    --color-card-edge: #2a2f5c;
+
+    --color-stone-50: #0b0d1a;
+    --color-stone-100: #171a38;
+    --color-stone-200: #202549;
+    --color-stone-300: #2a2f5c;
+    --color-stone-400: #5b6190;
+    --color-stone-500: #9097bd;
+    --color-stone-600: #aab0d3;
+    --color-stone-700: #c6cae6;
+    --color-stone-800: #dfe2f3;
+    --color-stone-900: #eceef9;
+
+    /* Desitjats: rosa neó (el violeta de la resta d'estils) */
+    --color-violet-50: #2e1226;
+    --color-violet-100: #401a35;
+    --color-violet-200: #5f2650;
+    --color-violet-600: #c2307a;
+    --color-violet-700: #ff8fc6;
+    --color-violet-800: #ffb3d9;
+    --color-violet-900: #ffd1e8;
+
+    /* Els tons clars de la resta de rols, donats com a fosc en els dos temes */
+    --color-amber-50: #2d2410;
+    --color-amber-100: #3d3014;
+    --color-amber-800: #ffd466;
+    --color-amber-900: #ffe29a;
+
+    --color-emerald-50: #112a24;
+    --color-emerald-100: #173a31;
+    --color-emerald-200: #1f5445;
+    --color-emerald-700: #5fe3b4;
+    --color-emerald-800: #8aeccb;
+    --color-emerald-900: #b5f3dd;
+
+    --color-red-50: #2e1219;
+    --color-red-200: #5f2535;
+    --color-red-300: #7d3045;
+    --color-red-700: #ff8a9b;
+    --color-red-800: #ffb0bc;
+
+    --color-sky-50: #0f2433;
+    --color-sky-100: #143247;
+    --color-sky-700: #7fd3ff;
+    --color-sky-800: #a9e1ff;
+  }
+}
+
+/* Les tessel·les del mapa només són clares: aquí sempre es posen en fosc */
+:root[data-style='neo'] .restaurant-map .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9);
+}

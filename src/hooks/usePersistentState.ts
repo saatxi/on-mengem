@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 
 const PREFIX = 'on-mengem:';
 
-const read = <T>(key: string, initial: T, isValid: (value: unknown) => value is T): T => {
+/** Llegeix un valor desat (o `initial` si no n'hi ha, no és vàlid o l'emmagatzematge no està disponible). */
+export const readPersistent = <T>(key: string, initial: T, isValid: (value: unknown) => value is T): T => {
   try {
     const raw = localStorage.getItem(PREFIX + key);
     if (raw === null) return initial;
@@ -18,7 +19,7 @@ const read = <T>(key: string, initial: T, isValid: (value: unknown) => value is 
  * `isValid` descarta valors antics o manipulats; si l'emmagatzematge no està disponible, funciona com un useState normal.
  */
 export function usePersistentState<T>(key: string, initial: T, isValid: (value: unknown) => value is T) {
-  const [value, setValue] = useState<T>(() => read(key, initial, isValid));
+  const [value, setValue] = useState<T>(() => readPersistent(key, initial, isValid));
 
   useEffect(() => {
     try {

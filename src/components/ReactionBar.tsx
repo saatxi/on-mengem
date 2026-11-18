@@ -11,7 +11,8 @@ interface Props {
   className?: string;
 }
 
-const PILL = 'inline-flex items-center justify-center h-8 rounded-full ring-1 transition-[background-color,transform] active:scale-[0.96]';
+const PILL =
+  'inline-flex items-center justify-center h-8 rounded-control ring-thin transition-[background-color,transform] active:scale-[0.96]';
 
 // Reaccions d'un ítem del grup: un xip per emoji amb el recompte (el propi, ressaltat) i un botó per afegir-ne
 const ReactionBarView: React.FC<Props> = ({ target, className }) => {
@@ -38,7 +39,7 @@ const ReactionBarView: React.FC<Props> = ({ target, className }) => {
           className={cn(
             PILL,
             'gap-1 px-2.5 text-sm',
-            s.mine ? 'bg-accent-soft ring-accent text-stone-900' : 'bg-surface ring-stone-200 text-stone-700 hover:bg-stone-100',
+            s.mine ? 'bg-accent-soft ring-accent text-stone-900' : 'bg-surface ring-line text-stone-700 hover:bg-stone-100',
           )}
         >
           <span aria-hidden="true">{s.emoji}</span>
@@ -51,7 +52,7 @@ const ReactionBarView: React.FC<Props> = ({ target, className }) => {
           role="group"
           aria-label="Tria una reacció"
           onKeyDown={(e) => e.key === 'Escape' && setPicking(false)}
-          className="inline-flex items-center gap-0.5 p-0.5 rounded-full bg-surface ring-1 ring-stone-200 shadow-card"
+          className="inline-flex items-center gap-0.5 p-0.5 rounded-control bg-surface ring-thin ring-line shadow-card"
         >
           {REACTION_EMOJIS.map(({ emoji, label }) => (
             <button
@@ -87,7 +88,7 @@ const ReactionBarView: React.FC<Props> = ({ target, className }) => {
           onClick={() => setPicking(true)}
           aria-label="Afegir una reacció"
           title="Afegir una reacció"
-          className={cn(PILL, 'w-8 bg-surface ring-stone-200 text-stone-500 hover:bg-stone-100 hover:text-stone-900')}
+          className={cn(PILL, 'w-8 bg-surface ring-line text-stone-500 hover:bg-stone-100 hover:text-stone-900')}
         >
           <SmilePlus className="size-4" />
         </button>

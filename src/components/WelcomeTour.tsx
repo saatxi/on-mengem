@@ -24,9 +24,10 @@ const Desktop: React.FC<{ children: React.ReactNode }> = ({ children }) => <span
 // Arrossegament mínim (px) perquè un lliscament canviï de diapositiva
 const SWIPE_THRESHOLD = 50;
 
-const ART_FRAME = 'relative h-44 sm:h-48 rounded-3xl overflow-hidden flex items-center justify-center';
-const ART_ICON = 'size-16 rounded-3xl flex items-center justify-center shadow-card';
-const ART_CHIP = 'absolute flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface text-xs font-semibold text-stone-800 shadow-card';
+const ART_FRAME = 'relative h-44 sm:h-48 rounded-card overflow-hidden flex items-center justify-center';
+const ART_ICON = 'size-16 rounded-card flex items-center justify-center shadow-card';
+const ART_CHIP =
+  'absolute flex items-center gap-1.5 px-3 py-1.5 rounded-control bg-surface text-xs font-semibold text-stone-800 shadow-card';
 
 const buildSlides = (nickname?: string): Slide[] => [
   {
@@ -59,24 +60,24 @@ const buildSlides = (nickname?: string): Slide[] => [
     ),
     art: (
       <div className={cn(ART_FRAME, 'bg-accent-soft')}>
-        <div className="w-60 rounded-3xl bg-surface p-4 shadow-card space-y-3 rotate-[-2deg]">
+        <div className="w-60 rounded-card bg-surface p-4 shadow-card space-y-3 rotate-[-2deg]">
           <div className="flex items-center gap-3">
             <CuisineTile cuisine="Catalana" className="size-10 text-xl" />
             <div className="min-w-0 flex-1">
-              <p className="font-extrabold tracking-tight text-stone-900">Can Pere</p>
+              <p className="heading text-stone-900">Can Pere</p>
               <p className="text-xs text-stone-500">Catalana · 20-30 €</p>
             </div>
             <Star className="size-5 fill-amber-400 text-amber-500" />
           </div>
           <div className="flex gap-1.5 text-xs">
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-900">
+            <span className="flex items-center gap-1 px-2.5 py-1 rounded-control bg-amber-50 text-amber-900">
               <Star className="size-3.5 fill-amber-400 text-amber-500" />
               <strong>4.5</strong>
             </span>
-            <span className="px-2.5 py-1 rounded-full bg-accent-soft font-semibold text-orange-800">Per anar</span>
+            <span className="px-2.5 py-1 rounded-control bg-accent-soft font-semibold text-accent-ink">Per anar</span>
           </div>
         </div>
-        <span className="absolute bottom-5 right-[12%] size-11 rounded-full bg-brand text-white flex items-center justify-center shadow-lg shadow-accent/30">
+        <span className="absolute bottom-5 right-[12%] size-11 rounded-full bg-brand text-white flex items-center justify-center shadow-float shadow-accent/30">
           <Plus className="size-5" />
         </span>
       </div>
@@ -101,7 +102,7 @@ const buildSlides = (nickname?: string): Slide[] => [
         <span className={cn(ART_CHIP, 'bottom-7 right-[10%]')}>
           <Star className="size-3.5 fill-amber-400 text-amber-500" /> 4,7 de mitjana
         </span>
-        <span className="absolute top-8 right-[14%] flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-600 text-white text-xs font-bold shadow-card">
+        <span className="absolute top-8 right-[14%] flex items-center gap-1 px-3 py-1.5 rounded-control bg-emerald-600 text-white text-xs font-bold shadow-card">
           <Plus className="size-3.5" /> Visita
         </span>
       </div>
@@ -122,10 +123,10 @@ const buildSlides = (nickname?: string): Slide[] => [
           <BookmarkPlus className="size-8" />
         </div>
         <span className={cn(ART_CHIP, 'top-7 left-[10%]')}>💡 Recomanat per la Laia</span>
-        <span className="absolute bottom-8 left-[16%] px-3 py-1.5 rounded-full bg-sky-50 text-sky-800 text-xs font-semibold shadow-card">
+        <span className="absolute bottom-8 left-[16%] px-3 py-1.5 rounded-control bg-sky-50 text-sky-800 text-xs font-semibold shadow-card">
           Planificat
         </span>
-        <span className="absolute top-12 right-[12%] px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold shadow-card">
+        <span className="absolute top-12 right-[12%] px-3 py-1.5 rounded-control bg-emerald-50 text-emerald-800 text-xs font-semibold shadow-card">
           Hi he anat ✓
         </span>
       </div>
@@ -147,7 +148,7 @@ const buildSlides = (nickname?: string): Slide[] => [
         <span className={cn(ART_CHIP, 'top-7 left-[10%]')}>
           <span className="size-2 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15" /> Sopars de divendres
         </span>
-        <span className="absolute bottom-7 right-[12%] px-3 py-1.5 rounded-2xl bg-surface font-mono text-base font-bold tracking-[0.3em] text-stone-900 shadow-card">
+        <span className="absolute bottom-7 right-[12%] px-3 py-1.5 rounded-inner bg-surface font-mono text-base font-bold tracking-[0.3em] text-stone-900 shadow-card">
           TAPES2
         </span>
       </div>
@@ -236,7 +237,7 @@ export const WelcomeTour: React.FC<Props> = ({ onClose }) => {
               <X className="size-5" />
             </ModalCloseButton>
           ) : (
-            <ModalCloseButton className="px-3 py-1.5 -mr-2 rounded-full text-sm font-semibold text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors">
+            <ModalCloseButton className="px-3 py-1.5 -mr-2 rounded-control text-sm font-semibold text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors">
               Saltar
             </ModalCloseButton>
           )}
@@ -269,7 +270,7 @@ export const WelcomeTour: React.FC<Props> = ({ onClose }) => {
               >
                 {slide.art}
                 <div className="space-y-2">
-                  <h2 className="text-2xl font-extrabold tracking-tight text-stone-900 text-balance">{slide.title}</h2>
+                  <h2 className="text-2xl heading text-stone-900 text-balance">{slide.title}</h2>
                   <p className="text-[15px] leading-relaxed text-stone-600 text-pretty">{slide.body}</p>
                 </div>
               </section>

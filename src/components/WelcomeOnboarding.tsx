@@ -28,20 +28,20 @@ export const WelcomeOnboarding: React.FC = () => {
         <div className="absolute -bottom-28 right-[8%] size-80 rounded-full bg-accent-2 blur-3xl animate-drift-2" />
         <div className="absolute top-1/3 left-[55%] size-56 rounded-full bg-amber-400 blur-3xl animate-drift-3" />
       </div>
-      <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[2rem] p-6 sm:p-9 shadow-2xl shadow-accent/10 ring-1 ring-stone-900/5 text-center">
+      <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[calc(var(--radius-card)+0.5rem)] p-6 sm:p-9 shadow-modal shadow-accent/10 ring-thin ring-card-edge text-center">
         {/* Brand Icon */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-brand text-white shadow-xl shadow-accent/30 mb-5">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-card bg-brand text-white shadow-popover shadow-accent/30 mb-5">
           <Utensils className="w-10 h-10" />
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl font-extrabold text-stone-900 tracking-tight">On mengem?</h1>
+        <h1 className="text-4xl heading text-stone-900">On mengem?</h1>
         <p className="mt-2 text-sm text-stone-600 leading-relaxed">
           L'aplicació per organitzar els teus restaurants preferits, la llista de desitjats i compartir-ho amb els teus grups en temps real.
         </p>
 
         {/* Features Checklist */}
-        <div className="mt-6 mb-7 text-left space-y-2.5 p-4 rounded-3xl bg-stone-50 text-sm text-stone-700">
+        <div className="mt-6 mb-7 text-left space-y-2.5 p-4 rounded-card bg-stone-50 text-sm text-stone-700">
           <div className="flex items-center gap-2.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
             <span>Catàleg de restaurants amb valoracions, notes i preus</span>
@@ -58,7 +58,7 @@ export const WelcomeOnboarding: React.FC = () => {
 
         {/* Error message if any */}
         {loginError && (
-          <div className="mb-4 p-3 rounded-2xl bg-red-50 border border-red-200 text-xs text-red-600 font-medium">{loginError}</div>
+          <div className="mb-4 p-3 rounded-inner bg-red-50 border border-red-200 text-xs text-red-600 font-medium">{loginError}</div>
         )}
 
         {/* Google Sign-In Button */}
@@ -66,7 +66,7 @@ export const WelcomeOnboarding: React.FC = () => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-full font-semibold text-stone-800 bg-surface hover:bg-stone-50 ring-1 ring-stone-200 shadow-card hover:shadow-card-hover transition-[background-color,box-shadow,transform] active:scale-[0.98] text-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-control font-semibold text-stone-800 bg-surface hover:bg-stone-50 ring-thin ring-line shadow-card hover:shadow-card-hover transition-[background-color,box-shadow,transform] active:scale-[0.98] text-sm"
         >
           {googleLoading ? (
             <span className="text-stone-500">Iniciant sessió...</span>

@@ -52,7 +52,7 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
                 onClick={() => setYear(y)}
                 aria-pressed={year === y}
                 className={cn(
-                  'shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold tabular-nums transition-[background-color,color]',
+                  'shrink-0 px-3.5 py-1.5 rounded-control text-xs font-semibold tabular-nums transition-[background-color,color]',
                   year === y ? 'bg-inverse text-on-inverse' : 'bg-stone-100 text-stone-600 hover:text-stone-900',
                 )}
               >
@@ -62,7 +62,7 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
           </div>
         )}
 
-        <div className="rounded-3xl bg-brand p-6 text-white">
+        <div className="rounded-card bg-brand p-6 text-white">
           <p className="text-sm font-semibold opacity-90">Visites</p>
           <BigNumber value={summary.visits} className="text-6xl" />
           <p className="text-sm font-medium opacity-90 mt-1">
@@ -112,7 +112,7 @@ export const YearInNumbers: React.FC<Props> = ({ restaurants, wishlist, spaceNam
         </div>
 
         {summary.wishesFulfilled > 0 && (
-          <div className="rounded-3xl bg-violet-50 p-4 flex items-baseline gap-2">
+          <div className="rounded-card bg-violet-50 p-4 flex items-baseline gap-2">
             <BigNumber value={summary.wishesFulfilled} className="text-3xl text-violet-700" />
             <span className="text-sm font-semibold text-stone-700">
               {summary.wishesFulfilled === 1 ? 'desitjat complert' : 'desitjats complerts'}
@@ -133,7 +133,7 @@ const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1
 
 const BigNumber: React.FC<{ value: number; className?: string }> = ({ value, className }) => {
   const shown = useCountUp(value);
-  return <span className={cn('block font-extrabold tracking-tight tabular-nums leading-none', className)}>{Math.round(shown)}</span>;
+  return <span className={cn('block heading tabular-nums leading-none', className)}>{Math.round(shown)}</span>;
 };
 
 interface FactProps {
@@ -144,9 +144,9 @@ interface FactProps {
 }
 
 const Fact: React.FC<FactProps> = ({ label, value, detail, className }) => (
-  <div className={cn('p-4 rounded-3xl min-w-0', className)}>
+  <div className={cn('p-4 rounded-card min-w-0', className)}>
     <div className="text-xs font-semibold text-stone-600 mb-1">{label}</div>
-    <div className="text-lg font-extrabold tracking-tight text-stone-900 truncate" title={value ?? undefined}>
+    <div className="text-lg heading text-stone-900 truncate" title={value ?? undefined}>
       {value ?? '—'}
     </div>
     {detail && <div className="text-xs text-stone-600 mt-0.5">{detail}</div>}

@@ -5,6 +5,8 @@ import { useAlert, useConfirm } from './ConfirmDialog';
 import { useAuth } from '../context/AuthContext';
 import { quotaErrorMessage } from '../supabase/errors';
 import { useTheme, type ThemePreference } from '../context/ThemeContext';
+import { useStyle } from '../context/StyleContext';
+import { isStyleId, STYLES } from '../styles/registry';
 import { cn } from '../utils/cn';
 import { FIELD, LABEL } from '../utils/ui';
 import { Button } from './Button';
@@ -26,6 +28,7 @@ const FOOD_AVATARS = ['🍕', '🍣', '🥘', '🍷', '🌮', '🍔', '🥗', '�
 export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) => {
   const { userProfile, updateProfile, logout, deleteAccount, authUser } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { style, setStyle } = useStyle();
   const [nickname, setNickname] = useState(userProfile?.nickname || '');
   const [avatar, setAvatar] = useState(userProfile?.avatar || '🍕');
   const [isSaving, setIsSaving] = useState(false);
@@ -84,7 +87,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
 
       <div className="p-5 sm:p-6 space-y-6">
         {/* Compte de Google */}
-        <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-stone-50 border border-stone-200">
+        <div className="flex items-center gap-3 p-3.5 rounded-inner bg-stone-50 border-thin border-line">
           {authUser?.photoURL ? (
             <img src={authUser.photoURL} referrerPolicy="no-referrer" alt="" className="size-10 rounded-full object-cover shrink-0" />
           ) : (
@@ -120,7 +123,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         {/* Com et veuen els altres membres: nom i avatar */}
         <form onSubmit={handleSave} className="space-y-4">
           <div className="flex items-center gap-3">
-            <span className="size-12 shrink-0 rounded-2xl bg-accent-soft flex items-center justify-center text-2xl">{avatar}</span>
+            <span className="size-12 shrink-0 rounded-inner bg-accent-soft flex items-center justify-center text-2xl">{avatar}</span>
             <div className="min-w-0">
               <p className="text-sm font-bold text-stone-900 truncate">{nickname.trim() || 'El teu nom'}</p>
               <p className="text-xs text-stone-500">Així et veuen els altres membres dels grups</p>
@@ -154,7 +157,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
                   onClick={() => setAvatar(emoji)}
                   aria-pressed={avatar === emoji}
                   className={cn(
-                    'h-10 rounded-2xl text-xl flex items-center justify-center transition',
+                    'h-10 rounded-inner text-xl flex items-center justify-center transition',
                     avatar === emoji ? 'bg-accent-soft ring-2 ring-accent' : 'bg-stone-100 hover:bg-stone-200',
                   )}
                 >
@@ -184,7 +187,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         {/* Tema (només en aquest navegador) */}
         <div>
           <p className={LABEL}>Aparença</p>
-          <div className="grid grid-cols-3 gap-1 rounded-2xl bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Aparença">
+          <div className="grid grid-cols-3 gap-1 rounded-inner bg-stone-100 p-1 text-xs font-semibold" role="group" aria-label="Aparença">
             {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -192,7 +195,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
                 onClick={() => setTheme(value)}
                 aria-pressed={theme === value}
                 className={cn(
-                  'flex items-center justify-center gap-1.5 py-2 rounded-lg transition',
+                  'flex items-center justify-center gap-1.5 py-2 rounded-soft transition',
                   theme === value ? 'bg-surface text-stone-900 shadow-card' : 'text-stone-600 hover:text-stone-900',
                 )}
               >
@@ -203,13 +206,34 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
           </div>
         </div>
 
+        {/* Estil visual (només en aquest navegador) */}
+        <div>
+          <label htmlFor="profile-style" className={LABEL}>
+            Estil
+          </label>
+          <select
+            id="profile-style"
+            value={style}
+            onChange={(e) => {
+              if (isStyleId(e.target.value)) setStyle(e.target.value);
+            }}
+            className={FIELD}
+          >
+            {STYLES.map(({ id, label }) => (
+              <option key={id} value={id}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Guia de benvinguda */}
         <button
           type="button"
           onClick={onOpenTour}
-          className="w-full flex items-center gap-3 p-3 rounded-2xl bg-stone-50 hover:bg-stone-100 text-left transition-colors"
+          className="w-full flex items-center gap-3 p-3 rounded-inner bg-stone-50 hover:bg-stone-100 text-left transition-colors"
         >
-          <span className="size-9 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
+          <span className="size-9 shrink-0 rounded-tile bg-accent-soft text-accent flex items-center justify-center">
             <Compass className="size-4" />
           </span>
           <span className="min-w-0">
@@ -219,13 +243,13 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         </button>
 
         {/* Peu: versió i eliminar el compte (el diàleg de confirmació n'explica les conseqüències) */}
-        <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-3 text-xs">
+        <div className="pt-4 border-t border-line flex items-center justify-between gap-3 text-xs">
           <span className="text-stone-500">Versió {__APP_VERSION__}</span>
           <button
             type="button"
             onClick={handleDeleteAccount}
             disabled={isDeleting}
-            className="inline-flex items-center gap-1.5 px-2 py-1 -mr-2 rounded-full text-stone-500 hover:text-red-600 hover:bg-red-50 font-semibold disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-1.5 px-2 py-1 -mr-2 rounded-control text-stone-500 hover:text-red-600 hover:bg-red-50 font-semibold disabled:opacity-50 transition-colors"
           >
             <Trash2 className="size-3.5" />
             {isDeleting ? 'Eliminant...' : 'Eliminar el compte'}

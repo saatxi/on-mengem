@@ -56,11 +56,11 @@ export const WishlistCard: React.FC<Props> = ({
         <CuisineTile cuisine={item.cuisine} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-lg font-extrabold tracking-tight leading-snug text-stone-900">{item.restaurantName}</h3>
+            <h3 className="text-lg heading leading-snug text-stone-900">{item.restaurantName}</h3>
             {item.status === 'visited' && (
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800">Provat</span>
+              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-control bg-emerald-50 text-emerald-800">Provat</span>
             )}
-            {isPlanned && <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-50 text-sky-800">Planificat</span>}
+            {isPlanned && <span className="text-xs font-semibold px-2.5 py-0.5 rounded-control bg-sky-50 text-sky-800">Planificat</span>}
           </div>
           <p className="mt-0.5 text-sm text-stone-500 truncate">
             {[item.cuisine || 'Sense cuina', item.priceRange].filter(Boolean).join(' · ')}

@@ -70,10 +70,10 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName, col
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-stone-100">
         <div>
           <div className="flex items-center gap-2">
-            <span className="size-9 rounded-2xl bg-accent-soft text-accent flex items-center justify-center">
+            <span className="size-9 rounded-inner bg-accent-soft text-accent flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </span>
-            <h3 className="text-lg font-extrabold tracking-tight text-stone-900">Cuines</h3>
+            <h3 className="text-lg heading text-stone-900">Cuines</h3>
           </div>
           <p className="text-xs text-stone-500 mt-0.5">
             {groupName ? `Les cuines del grup «${groupName}»` : 'Les cuines del teu espai'}
@@ -85,34 +85,34 @@ export const CuisineStatsChart: React.FC<Props> = ({ restaurants, groupName, col
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="p-4 rounded-3xl bg-accent-soft">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-orange-800 mb-1">
+        <div className="p-4 rounded-card bg-accent-soft">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-accent-ink mb-1">
             <Flame className="w-4 h-4 text-accent" />
             <span>La més visitada</span>
           </div>
-          <div className="text-xl font-extrabold tracking-tight text-stone-900">{topVisited?.cuisine ?? 'Cap encara'}</div>
+          <div className="text-xl heading text-stone-900">{topVisited?.cuisine ?? 'Cap encara'}</div>
           <div className="text-xs text-stone-600 mt-0.5">
             {topVisited ? (topVisited.visits === 1 ? '1 visita' : `${topVisited.visits} visites`) : 'Sense visites registrades'}
           </div>
         </div>
 
-        <div className="p-4 rounded-3xl bg-amber-50">
+        <div className="p-4 rounded-card bg-amber-50">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-900 mb-1">
             <Award className="w-4 h-4 text-amber-600" />
             <span>La més preferida</span>
           </div>
-          <div className="text-xl font-extrabold tracking-tight text-stone-900">{topFavorite?.cuisine ?? 'Cap encara'}</div>
+          <div className="text-xl heading text-stone-900">{topFavorite?.cuisine ?? 'Cap encara'}</div>
           <div className="text-xs text-stone-600 mt-0.5">
             {topFavorite ? (topFavorite.favorites === 1 ? '1 favorit' : `${topFavorite.favorites} favorits`) : 'Sense favorits'}
           </div>
         </div>
 
-        <div className="p-4 rounded-3xl bg-emerald-50">
+        <div className="p-4 rounded-card bg-emerald-50">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-900 mb-1">
             <CheckCircle className="w-4 h-4 text-emerald-600" />
             <span>Restaurants visitats</span>
           </div>
-          <div className="text-xl font-extrabold tracking-tight text-stone-900 tabular-nums">
+          <div className="text-xl heading text-stone-900 tabular-nums">
             {totalVisited} de {collectionSize}
           </div>
           <div className="text-xs text-stone-600 mt-0.5">

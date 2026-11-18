@@ -72,7 +72,7 @@ export const CreateGroupModal: React.FC<Props> = ({ isOpen, onClose }) => {
           />
         </div>
 
-        <div className="p-3 rounded-2xl bg-accent-soft text-xs text-orange-900 border border-orange-200">
+        <div className="p-3 rounded-inner bg-accent-soft text-xs text-accent-ink-strong border border-accent-edge">
           Es generarà automàticament un <strong>codi d'invitació de 6 caràcters</strong> que podràs compartir per WhatsApp o missatgeria amb
           els teus amics perquè s'hi uneixin a l'instant.
         </div>

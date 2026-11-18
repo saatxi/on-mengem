@@ -11,7 +11,7 @@ const LocationPicker = lazy(() => import('./LocationPicker').then((m) => ({ defa
 
 // Colors de cada formulari: taronja per als restaurants i violeta per als desitjats
 const TONES = {
-  restaurant: { icon: 'text-accent', selected: 'bg-accent-soft text-orange-900', review: 'text-accent' },
+  restaurant: { icon: 'text-accent', selected: 'bg-accent-soft text-accent-ink-strong', review: 'text-accent' },
   wish: { icon: 'text-violet-700', selected: 'bg-violet-50 text-violet-900', review: 'text-violet-700' },
 };
 
@@ -86,7 +86,7 @@ export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder 
                   onClick={() => choose(m)}
                   aria-pressed={i === selectedMatch}
                   className={cn(
-                    'w-full text-left px-3 py-2 rounded-2xl text-xs transition-colors',
+                    'w-full text-left px-3 py-2 rounded-inner text-xs transition-colors',
                     i === selectedMatch ? cn(colors.selected, 'font-semibold') : 'text-stone-600 hover:bg-stone-100',
                   )}
                 >
@@ -100,7 +100,7 @@ export const AddressField: React.FC<Props> = ({ id, location, tone, placeholder 
 
       {located && (
         <div className="mt-2 space-y-1.5">
-          <Suspense fallback={<div className="h-48 rounded-2xl bg-stone-100 shimmer" />}>
+          <Suspense fallback={<div className="h-48 rounded-inner bg-stone-100 shimmer" />}>
             <LocationPicker value={located} onChange={setLocation} wish={tone === 'wish'} />
           </Suspense>
           <p className="text-xs text-stone-500">
