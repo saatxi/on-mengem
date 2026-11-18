@@ -12,7 +12,7 @@ const VARIANTS = {
   wish: 'bg-violet-600 hover:bg-violet-700 text-white shadow-raised shadow-violet-600/25',
   success: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-raised shadow-emerald-600/20',
   danger: 'bg-red-600 hover:bg-red-700 text-white shadow-raised shadow-red-600/20',
-  secondary: 'bg-surface text-stone-800 ring-1 ring-stone-200 hover:bg-stone-100',
+  secondary: 'bg-surface text-stone-800 ring-thin ring-line hover:bg-stone-100',
   ghost: 'text-stone-600 hover:text-stone-900 hover:bg-stone-100',
 };
 

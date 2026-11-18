@@ -28,7 +28,7 @@ export const WelcomeOnboarding: React.FC = () => {
         <div className="absolute -bottom-28 right-[8%] size-80 rounded-full bg-accent-2 blur-3xl animate-drift-2" />
         <div className="absolute top-1/3 left-[55%] size-56 rounded-full bg-amber-400 blur-3xl animate-drift-3" />
       </div>
-      <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[calc(var(--radius-card)+0.5rem)] p-6 sm:p-9 shadow-modal shadow-accent/10 ring-1 ring-card-edge text-center">
+      <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[calc(var(--radius-card)+0.5rem)] p-6 sm:p-9 shadow-modal shadow-accent/10 ring-thin ring-card-edge text-center">
         {/* Brand Icon */}
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-card bg-brand text-white shadow-popover shadow-accent/30 mb-5">
           <Utensils className="w-10 h-10" />
@@ -66,7 +66,7 @@ export const WelcomeOnboarding: React.FC = () => {
           type="button"
           onClick={handleGoogleLogin}
           disabled={googleLoading}
-          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-control font-semibold text-stone-800 bg-surface hover:bg-stone-50 ring-1 ring-stone-200 shadow-card hover:shadow-card-hover transition-[background-color,box-shadow,transform] active:scale-[0.98] text-sm"
+          className="w-full flex items-center justify-center gap-3 py-3.5 px-5 rounded-control font-semibold text-stone-800 bg-surface hover:bg-stone-50 ring-thin ring-line shadow-card hover:shadow-card-hover transition-[background-color,box-shadow,transform] active:scale-[0.98] text-sm"
         >
           {googleLoading ? (
             <span className="text-stone-500">Iniciant sessió...</span>

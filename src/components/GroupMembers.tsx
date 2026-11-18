@@ -37,7 +37,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
   };
 
   const linkBtn =
-    'text-xs font-bold px-2 py-1 rounded-soft border border-stone-200 hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
+    'text-xs font-bold px-2 py-1 rounded-soft border-thin border-line hover:bg-stone-50 text-stone-700 transition disabled:opacity-50';
 
   return (
     <div className={cn(CARD, 'p-5 sm:p-7')}>
@@ -50,7 +50,7 @@ export const GroupMembers: React.FC<Props> = ({ group, onJoinGroup, onCreateGrou
         <div className="flex gap-2">
           <button
             onClick={onJoinGroup}
-            className="px-3.5 py-1.5 rounded-control ring-1 ring-stone-200 hover:bg-stone-100 text-xs font-semibold text-stone-700 transition-colors"
+            className="px-3.5 py-1.5 rounded-control ring-thin ring-line hover:bg-stone-100 text-xs font-semibold text-stone-700 transition-colors"
           >
             + Unir-se a un altre grup
           </button>

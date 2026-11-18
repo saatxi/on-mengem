@@ -77,7 +77,7 @@ export const LocationPicker: React.FC<Props> = ({ value, onChange, wish = false 
   return (
     <div
       ref={containerRef}
-      className="restaurant-map relative z-0 h-48 rounded-inner overflow-hidden ring-1 ring-stone-200"
+      className="restaurant-map relative z-0 h-48 rounded-inner overflow-hidden ring-thin ring-line"
       aria-label="Mapa amb la ubicació del restaurant"
     />
   );

@@ -87,7 +87,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
 
       <div className="p-5 sm:p-6 space-y-6">
         {/* Compte de Google */}
-        <div className="flex items-center gap-3 p-3.5 rounded-inner bg-stone-50 border border-stone-200">
+        <div className="flex items-center gap-3 p-3.5 rounded-inner bg-stone-50 border-thin border-line">
           {authUser?.photoURL ? (
             <img src={authUser.photoURL} referrerPolicy="no-referrer" alt="" className="size-10 rounded-full object-cover shrink-0" />
           ) : (
@@ -243,7 +243,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
         </button>
 
         {/* Peu: versió i eliminar el compte (el diàleg de confirmació n'explica les conseqüències) */}
-        <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-3 text-xs">
+        <div className="pt-4 border-t border-line flex items-center justify-between gap-3 text-xs">
           <span className="text-stone-500">Versió {__APP_VERSION__}</span>
           <button
             type="button"

@@ -81,7 +81,7 @@ export const AlertsFeed: React.FC<Props> = ({ alerts, restaurants, wishlist, onS
         {alerts.length > 0 && (
           <button
             onClick={markAllAlertsAsRead}
-            className="px-3 py-1.5 rounded-control ring-1 ring-stone-200 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
+            className="px-3 py-1.5 rounded-control ring-thin ring-line text-xs font-semibold text-stone-700 hover:bg-stone-100 transition-colors"
           >
             Marcar tot com a llegit
           </button>

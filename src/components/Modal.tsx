@@ -179,7 +179,7 @@ export const Modal: React.FC<Props> = ({ label, onClose, children, size = 'md', 
           fullScreenOnMobile
             ? 'h-dvh max-h-dvh pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] sm:h-auto'
             : 'max-h-[calc(100dvh-1.5rem)] rounded-t-card pb-[env(safe-area-inset-bottom)]',
-          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[calc(var(--radius-card)+0.5rem)] sm:pb-0 sm:ring-1 sm:ring-card-edge',
+          'sm:max-h-[calc(100dvh-2rem)] sm:rounded-[calc(var(--radius-card)+0.5rem)] sm:pb-0 sm:ring-thin sm:ring-card-edge',
           closing
             ? cn(fullScreenOnMobile ? 'animate-fade-out' : 'animate-slide-down', 'sm:animate-scale-out')
             : cn(fullScreenOnMobile ? 'animate-fade-in' : 'animate-slide-up', 'sm:animate-scale-in'),

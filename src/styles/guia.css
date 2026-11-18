@@ -22,7 +22,7 @@
   --heading-weight: 500;
   --heading-tracking: -0.015em;
 
-  --shadow-rgb: 23 32 27;
+  --shadow-color: rgb(23 32 27);
   --elev-card: 0;
   --elev-card-hover: 0.4;
   --elev-raised: 0;

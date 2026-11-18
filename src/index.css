@@ -2,6 +2,7 @@
 @import './styles/classic.css';
 @import './styles/guia.css';
 @import './styles/neo.css';
+@import './styles/sticker.css';
 
 /* Mecànica compartida per tots els estils: animacions i utilitats. L'aspecte (colors, formes, fonts, ombres) és a src/styles/. */
 @theme {
@@ -151,18 +152,22 @@
  * cada estil en regula la intensitat amb --elev-* (0 les deixa a zero i no es veuen).
  */
 @utility shadow-card {
-  --tw-shadow: 0 calc(1px * var(--elev-card)) calc(2px * var(--elev-card))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.05 * var(--shadow-alpha)))),
-    0 calc(4px * var(--elev-card)) calc(16px * var(--elev-card)) calc(-4px * var(--elev-card))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.08 * var(--shadow-alpha))));
+  --tw-shadow: calc(var(--shadow-x-card) * var(--shadow-soft)) calc(1px * var(--elev-card) * var(--shadow-soft))
+      calc(2px * var(--elev-card) * var(--shadow-soft) * var(--shadow-blur))
+      var(--tw-shadow-color, color-mix(in oklab, var(--shadow-color) calc(5% * var(--shadow-alpha)), transparent)),
+    var(--shadow-x-card) calc(4px * var(--elev-card)) calc(16px * var(--elev-card) * var(--shadow-blur))
+      calc(-4px * var(--elev-card) * var(--shadow-blur))
+      var(--tw-shadow-color, color-mix(in oklab, var(--shadow-color) calc(8% * var(--shadow-alpha)), transparent));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
 @utility shadow-card-hover {
-  --tw-shadow: 0 calc(2px * var(--elev-card-hover)) calc(4px * var(--elev-card-hover))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.06 * var(--shadow-alpha)))),
-    0 calc(16px * var(--elev-card-hover)) calc(32px * var(--elev-card-hover)) calc(-8px * var(--elev-card-hover))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.16 * var(--shadow-alpha))));
+  --tw-shadow: calc(var(--shadow-x-card-hover) * var(--shadow-soft)) calc(2px * var(--elev-card-hover) * var(--shadow-soft))
+      calc(4px * var(--elev-card-hover) * var(--shadow-soft) * var(--shadow-blur))
+      var(--tw-shadow-color, color-mix(in oklab, var(--shadow-color) calc(6% * var(--shadow-alpha)), transparent)),
+    var(--shadow-x-card-hover) calc(16px * var(--elev-card-hover)) calc(32px * var(--elev-card-hover) * var(--shadow-blur))
+      calc(-8px * var(--elev-card-hover) * var(--shadow-blur))
+      var(--tw-shadow-color, color-mix(in oklab, var(--shadow-color) calc(16% * var(--shadow-alpha)), transparent));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
@@ -196,6 +201,16 @@
   --tw-shadow: 0 calc(25px * var(--elev-modal)) calc(50px * var(--elev-modal)) calc(-12px * var(--elev-modal))
     var(--tw-shadow-color, rgb(0 0 0 / 0.25));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+/* Gruix de les vores (anell i vora): 1px al Clàssic i més gruixut en estils de contorns marcats */
+@utility ring-thin {
+  --tw-ring-shadow: 0 0 0 calc(var(--edge-width) + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility border-thin {
+  border-width: var(--edge-width);
 }
 
 /* Títols i xifres grans: la lletra, el gruix i l'espaiat els decideix cada estil */

@@ -287,7 +287,7 @@ export const RestaurantDetailModal: React.FC<Props> = ({
             }}
             className={`relative py-3 px-3 rounded-control text-sm font-semibold flex items-center justify-center gap-1.5 active:scale-[0.96] transition-[background-color,transform] ${
               restaurant.favorite
-                ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-500/40'
+                ? 'bg-amber-100 text-amber-800 ring-thin ring-amber-500/40'
                 : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
             }`}
           >

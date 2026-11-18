@@ -20,7 +20,7 @@
   --heading-glow: 0 0 14px color-mix(in oklab, var(--color-accent) 55%, transparent);
 
   /* Les targetes fan una llum de l'accent en comptes d'una ombra */
-  --shadow-rgb: 255 90 60;
+  --shadow-color: rgb(255 90 60);
   --shadow-alpha: 4;
 
   --page-glow: 16%;

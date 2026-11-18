@@ -63,7 +63,7 @@ export const Navbar: React.FC<Props> = ({ onOpenCreateGroup, onOpenJoinGroup, on
               <div
                 onAnimationEnd={groupMenu.onAnimationEnd}
                 className={cn(
-                  'absolute left-0 mt-2 w-72 rounded-card bg-surface shadow-modal ring-1 ring-card-edge p-2 z-50 text-sm origin-top-left',
+                  'absolute left-0 mt-2 w-72 rounded-card bg-surface shadow-modal ring-thin ring-card-edge p-2 z-50 text-sm origin-top-left',
                   groupMenu.closing ? 'animate-scale-out pointer-events-none' : 'animate-scale-in',
                 )}
               >

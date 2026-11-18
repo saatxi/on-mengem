@@ -1,0 +1,80 @@
+/*
+ * Estil «Sticker»: pop d'adhesius. Contorns negres gruixuts, ombres dures desplaçades, colors plans (menta, cobalt, rosa)
+ * i títols en Lilita One. Pensat per a un grup d'amics: desenfadat i molt marcat.
+ *
+ * Només redefineix el contracte de classic.css sota `:root[data-style='sticker']`; no toca cap component. Les ombres dures
+ * es fan amb --shadow-blur: 0 i --shadow-soft: 0 (una sola capa), i els contorns amb --edge-width.
+ */
+:root[data-style='sticker'] {
+  --color-accent: #2340ff;
+  --color-accent-hover: #1a30cc;
+  --color-accent-2: #ff4d8d;
+  --color-selection: #2340ff;
+
+  --radius-card: 1.375rem;
+  --radius-inner: 1rem;
+  --radius-soft: 0.625rem;
+  --radius-tile: 0.875rem;
+
+  --font-sans: 'Outfit Variable', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Lilita One', ui-rounded, 'Arial Rounded MT Bold', ui-sans-serif, sans-serif;
+  --heading-weight: 400;
+  --heading-tracking: 0.005em;
+
+  --edge-width: 2.5px;
+  --shadow-color: #111111;
+  --shadow-alpha: 12.5;
+  --shadow-soft: 0;
+  --shadow-blur: 0;
+  --shadow-x-card: 5px;
+  --shadow-x-card-hover: 7px;
+  --elev-card: 1.25;
+  --elev-card-hover: 0.4375;
+  --elev-raised: 0;
+
+  --page-glow: 0%;
+  --cuisine-chroma: 0.06;
+  --cuisine-chroma-dark: 0.07;
+}
+
+@supports (color: light-dark(#000, #fff)) {
+  :root[data-style='sticker'] {
+    --color-accent: light-dark(#2340ff, #5470ff);
+    --color-accent-hover: light-dark(#1a30cc, #7b90ff);
+    --color-accent-2: light-dark(#ff4d8d, #ff6fa5);
+    --color-accent-soft: light-dark(#dfe4ff, #1c2354);
+    --color-accent-soft-hover: light-dark(#cdd5ff, #252e6b);
+    --color-accent-edge: light-dark(#9aa8ff, #4a5bd6);
+    --color-accent-ink: light-dark(#1a2fc7, #aab6ff);
+    --color-accent-ink-strong: light-dark(#11209a, #cdd4ff);
+    --color-selection: light-dark(#2340ff, #5470ff);
+
+    --color-surface: light-dark(#ffffff, #16231d);
+    --color-inverse: light-dark(#111111, #f2faf6);
+    --color-on-inverse: light-dark(#ffffff, #0f1a16);
+    --color-line: light-dark(#111111, #e4f3ec);
+    --color-card-edge: light-dark(#111111, #e4f3ec);
+    --shadow-color: light-dark(#111111, #05100c);
+
+    /* Neutres amb un punt de menta; el 900 és el negre dels contorns */
+    --color-stone-50: light-dark(#cdf3e5, #0f1a16);
+    --color-stone-100: light-dark(#bfead9, #17261f);
+    --color-stone-200: light-dark(#a8dfc9, #20352c);
+    --color-stone-300: light-dark(#8fcfb6, #2d4a3d);
+    --color-stone-400: light-dark(#5a8f7d, #5f8f7c);
+    --color-stone-500: light-dark(#3f6a5b, #93bfad);
+    --color-stone-600: light-dark(#2f5144, #b3d6c8);
+    --color-stone-700: light-dark(#223b32, #cfe7dd);
+    --color-stone-800: light-dark(#172a23, #e4f3ec);
+    --color-stone-900: light-dark(#111111, #f2faf6);
+
+    /* Desitjats: rosa (el violeta de la resta d'estils) */
+    --color-violet-50: light-dark(#ffe3ee, #3a1527);
+    --color-violet-100: light-dark(#ffcde0, #4d1b33);
+    --color-violet-200: light-dark(#ffb0ce, #6d2748);
+    --color-violet-600: #e0306f;
+    --color-violet-700: light-dark(#b81f58, #ff9cc4);
+    --color-violet-800: light-dark(#8f1745, #ffbcd8);
+    --color-violet-900: light-dark(#6b1034, #ffd8e8);
+  }
+}
