@@ -13,8 +13,8 @@
  *  - Colors de rol (violet = desitjats, ambre = estrelles, esmeralda = visitat, vermell = perill, cel = planificat).
  *  - Forma: rounded-card (targetes i modals), rounded-inner (camps i peces dins d'una targeta), rounded-control (botons i xips),
  *    rounded-soft (botons petits i botons de segment) i rounded-tile (requadres d'icona).
- *  - Ombres: shadow-card, shadow-card-hover, shadow-raised, shadow-float, shadow-popover, shadow-modal (--elev-*: intensitat, 0 = res).
- *  - Lletra: font-sans, font-display i la utilitat heading (títols i xifres grans); --heading-weight i --heading-tracking.
+ *  - Ombres (--shadow-rgb i --shadow-alpha: to i opacitat de les de targeta): shadow-card, shadow-card-hover, shadow-raised, shadow-float, shadow-popover, shadow-modal (--elev-*: intensitat, 0 = res).
+ *  - Lletra: font-sans, font-display i la utilitat heading (títols i xifres grans); --heading-weight, --heading-tracking i --heading-glow (ombra del text).
  *  - Ambient: --page-glow (halo del fons), --cuisine-chroma i --cuisine-chroma-dark (intensitat del fons de cada cuina).
  */
 @theme {
@@ -45,6 +45,7 @@
 :root {
   /* Ombres: la forma és a index.css (shadow-*); cada estil en dona la intensitat (0 = sense ombra) i el to de les targetes */
   --shadow-rgb: 68 32 16;
+  --shadow-alpha: 1;
   --elev-card: 1;
   --elev-card-hover: 1;
   --elev-raised: 1;
@@ -54,6 +55,7 @@
 
   --heading-weight: 800;
   --heading-tracking: -0.025em;
+  --heading-glow: none;
   --page-glow: 12%;
   --cuisine-chroma: 0.045;
   --cuisine-chroma-dark: 0.06;

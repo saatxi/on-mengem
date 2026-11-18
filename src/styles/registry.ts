@@ -14,6 +14,7 @@ export interface StyleDefinition {
 export const STYLES = [
   { id: 'classic', label: 'Clàssic', themeColor: '#f4511e' },
   { id: 'guia', label: 'Guia', themeColor: '#1d5c3f', loadFonts: () => import('./guia-fonts') },
+  { id: 'neo', label: 'Neó', themeColor: '#0b0d1a', loadFonts: () => import('./neo-fonts') },
 ] as const satisfies readonly StyleDefinition[];
 
 export type StyleId = (typeof STYLES)[number]['id'];

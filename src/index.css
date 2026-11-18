@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './styles/classic.css';
 @import './styles/guia.css';
+@import './styles/neo.css';
 
 /* Mecànica compartida per tots els estils: animacions i utilitats. L'aspecte (colors, formes, fonts, ombres) és a src/styles/. */
 @theme {
@@ -150,16 +151,18 @@
  * cada estil en regula la intensitat amb --elev-* (0 les deixa a zero i no es veuen).
  */
 @utility shadow-card {
-  --tw-shadow: 0 calc(1px * var(--elev-card)) calc(2px * var(--elev-card)) var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.05)),
+  --tw-shadow: 0 calc(1px * var(--elev-card)) calc(2px * var(--elev-card))
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.05 * var(--shadow-alpha)))),
     0 calc(4px * var(--elev-card)) calc(16px * var(--elev-card)) calc(-4px * var(--elev-card))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.08));
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.08 * var(--shadow-alpha))));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
 @utility shadow-card-hover {
-  --tw-shadow: 0 calc(2px * var(--elev-card-hover)) calc(4px * var(--elev-card-hover)) var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.06)),
+  --tw-shadow: 0 calc(2px * var(--elev-card-hover)) calc(4px * var(--elev-card-hover))
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.06 * var(--shadow-alpha)))),
     0 calc(16px * var(--elev-card-hover)) calc(32px * var(--elev-card-hover)) calc(-8px * var(--elev-card-hover))
-      var(--tw-shadow-color, rgb(var(--shadow-rgb) / 0.16));
+      var(--tw-shadow-color, rgb(var(--shadow-rgb) / calc(0.16 * var(--shadow-alpha))));
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
@@ -200,6 +203,7 @@
   font-family: var(--font-display);
   font-weight: var(--heading-weight);
   letter-spacing: var(--heading-tracking);
+  text-shadow: var(--heading-glow);
 }
 
 /* Degradat de marca (logo, botó flotant, accions destacades) */
