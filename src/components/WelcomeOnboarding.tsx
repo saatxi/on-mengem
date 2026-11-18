@@ -30,7 +30,7 @@ export const WelcomeOnboarding: React.FC = () => {
       </div>
       <div className="w-full max-w-md bg-surface/85 backdrop-blur-xl rounded-[2rem] p-6 sm:p-9 shadow-2xl shadow-accent/10 ring-1 ring-stone-900/5 text-center">
         {/* Brand Icon */}
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-brand text-white shadow-xl shadow-accent/30 mb-5 -rotate-6">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-brand text-white shadow-xl shadow-accent/30 mb-5">
           <Utensils className="w-10 h-10" />
         </div>
 
