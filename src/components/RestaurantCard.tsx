@@ -63,8 +63,8 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
           title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
           className={cn(
             OVER,
-            'p-2 -m-1 shrink-0 rounded-full',
-            res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-amber-400 hover:bg-stone-100',
+            'p-3 -m-2 shrink-0 rounded-full',
+            res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-400 hover:text-amber-400 hover:bg-stone-100',
             'active:scale-[0.9] transition-[background-color,color,transform]',
           )}
         >
@@ -125,7 +125,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
               rel="noopener noreferrer"
               aria-label={`Obrir @${res.instagram} a Instagram`}
               title={`Obrir @${res.instagram} a Instagram`}
-              className={cn(OVER, 'p-2 rounded-full text-pink-600 hover:bg-stone-100 transition-colors')}
+              className={cn(OVER, 'p-3.5 -m-1.5 rounded-full text-pink-600 hover:bg-stone-100 transition-colors')}
             >
               <InstagramIcon className="w-4 h-4" />
             </a>
@@ -137,7 +137,7 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
               rel="noopener noreferrer"
               aria-label="Obrir el web"
               title="Obrir el web"
-              className={cn(OVER, 'p-2 rounded-full text-stone-600 hover:bg-stone-100 transition-colors')}
+              className={cn(OVER, 'p-3.5 -m-1.5 rounded-full text-stone-600 hover:bg-stone-100 transition-colors')}
             >
               <Globe className="w-4 h-4" />
             </a>

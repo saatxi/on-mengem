@@ -49,12 +49,12 @@ export const BottomNav: React.FC<Props> = ({ activeTab, onTabChange, isPersonal,
             <div data-active={isActive} className="relative flex items-center justify-center w-14 h-8 rounded-full">
               <Icon className={cn('size-5', isActive ? 'text-accent' : 'text-stone-500')} />
               {id === 'alerts' && alertCount > 0 && (
-                <span className="absolute top-0 right-2.5 min-w-[1rem] h-4 rounded-full bg-brand text-white text-[9px] font-bold ring-2 ring-surface flex items-center justify-center px-0.5">
+                <span className="absolute top-0 right-2.5 min-w-[1rem] h-4 rounded-full bg-brand text-white text-[10px] font-bold ring-2 ring-surface flex items-center justify-center px-0.5">
                   {alertCount > 9 ? '9+' : alertCount}
                 </span>
               )}
             </div>
-            <span className={cn('text-[11px]', isActive ? 'font-bold text-accent' : 'font-medium text-stone-500')}>{label}</span>
+            <span className={cn('text-xs', isActive ? 'font-bold text-accent' : 'font-medium text-stone-500')}>{label}</span>
           </button>
         );
       })}

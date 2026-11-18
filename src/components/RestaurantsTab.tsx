@@ -19,7 +19,7 @@ const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.Pla
 
 // Botons i selectors petits de la barra de filtres
 const CHIP =
-  'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
+  'flex items-center gap-1.5 min-h-11 sm:min-h-0 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
 const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
 
 interface Props {

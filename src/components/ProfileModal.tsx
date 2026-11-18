@@ -220,7 +220,7 @@ export const ProfileModal: React.FC<Props> = ({ isOpen, onClose, onOpenTour }) =
 
         {/* Peu: versió i eliminar el compte (el diàleg de confirmació n'explica les conseqüències) */}
         <div className="pt-4 border-t border-stone-200 flex items-center justify-between gap-3 text-xs">
-          <span className="text-stone-400">Versió {__APP_VERSION__}</span>
+          <span className="text-stone-500">Versió {__APP_VERSION__}</span>
           <button
             type="button"
             onClick={handleDeleteAccount}
