@@ -28,3 +28,4 @@ audits/
 # Configuració local de l'agent
 .agents/
 .claude/
+skills-lock.json
