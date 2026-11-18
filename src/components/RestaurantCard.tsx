@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Globe, MapPin, Plus, Star } from 'lucide-react';
-import { InstagramIcon } from './InstagramIcon';
+import { Check, MapPin, Plus, Star } from 'lucide-react';
 import { Button } from './Button';
 import { CuisineTile } from './CuisineTile';
 import { FavoriteBurst } from './FavoriteBurst';
@@ -8,10 +7,12 @@ import { Restaurant } from '../types';
 import { cn } from '../utils/cn';
 import { CARD } from '../utils/ui';
 import { trackSpotlight } from '../utils/spotlight';
-import { cuisineStyle, instagramUrl, isInstagramHandle, isVisited, mapsUrl, safeHttpUrl, visitAverage } from '../utils/restaurantFields';
+import { cuisineStyle, isVisited, mapsUrl, visitAverage } from '../utils/restaurantFields';
 
 interface Props {
   res: Restaurant;
+  /** Mostra qui ha afegit el restaurant (només té sentit en un grup). */
+  showAuthor: boolean;
   onOpen: (r: Restaurant) => void;
   onToggleFavorite: (r: Restaurant) => void;
   onRegisterVisit: (r: Restaurant) => void;
@@ -20,9 +21,8 @@ interface Props {
 // Els elements interactius de dins de la targeta van per sobre del botó del títol, que la cobreix sencera
 const OVER = 'relative z-10';
 
-export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite, onRegisterVisit }) => {
+export const RestaurantCard: React.FC<Props> = ({ res, showAuthor, onOpen, onToggleFavorite, onRegisterVisit }) => {
   const shownRating = visitAverage(res) ?? res.rating;
-  const link = safeHttpUrl(res.link);
   const visitCount = res.visits.length;
   // Augmenta cada cop que l'usuari marca el favorit, per tornar a disparar les espurnes
   const [burstKey, setBurstKey] = useState(0);
@@ -63,8 +63,8 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
           title={res.favorite ? 'Treure de favorits' : 'Afegir a favorits'}
           className={cn(
             OVER,
-            'p-2 -m-1 shrink-0 rounded-full',
-            res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-300 hover:text-amber-400 hover:bg-stone-100',
+            'p-3 -m-2 shrink-0 rounded-full',
+            res.favorite ? 'text-amber-500 bg-amber-50' : 'text-stone-400 hover:text-amber-400 hover:bg-stone-100',
             'active:scale-[0.9] transition-[background-color,color,transform]',
           )}
         >
@@ -113,35 +113,13 @@ export const RestaurantCard: React.FC<Props> = ({ res, onOpen, onToggleFavorite,
       {res.notes && <p className="text-sm text-stone-600 leading-relaxed line-clamp-2">{res.notes}</p>}
 
       <div className="mt-auto pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
-        <span className="text-xs text-stone-500 truncate">
-          Per <strong className="font-semibold text-stone-700">{res.createdByName || 'Membre'}</strong>
-        </span>
+        {showAuthor && (
+          <span className="text-xs text-stone-500 truncate">
+            Per <strong className="font-semibold text-stone-700">{res.createdByName || 'Membre'}</strong>
+          </span>
+        )}
 
-        <div className="flex items-center gap-1 shrink-0">
-          {isInstagramHandle(res.instagram) && (
-            <a
-              href={instagramUrl(res.instagram)}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Obrir @${res.instagram} a Instagram`}
-              title={`Obrir @${res.instagram} a Instagram`}
-              className={cn(OVER, 'p-2 rounded-full text-pink-600 hover:bg-stone-100 transition-colors')}
-            >
-              <InstagramIcon className="w-4 h-4" />
-            </a>
-          )}
-          {link && (
-            <a
-              href={link}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Obrir el web"
-              title="Obrir el web"
-              className={cn(OVER, 'p-2 rounded-full text-stone-600 hover:bg-stone-100 transition-colors')}
-            >
-              <Globe className="w-4 h-4" />
-            </a>
-          )}
+        <div className="flex items-center gap-1 shrink-0 ml-auto">
           <Button onClick={() => onRegisterVisit(res)} variant="success" size="sm" className={cn(OVER, 'ml-1 gap-1')}>
             <Plus className="w-3.5 h-3.5" />
             <span>Visita</span>

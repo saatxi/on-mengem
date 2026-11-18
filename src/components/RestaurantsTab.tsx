@@ -1,11 +1,12 @@
-import React, { lazy, Suspense, useMemo } from 'react';
-import { Dices, Plus, Search, Star, UtensilsCrossed, X } from 'lucide-react';
+import React, { lazy, Suspense, useMemo, useState } from 'react';
+import { Dices, Plus, Search, SlidersHorizontal, Star, UtensilsCrossed, X } from 'lucide-react';
 import { Restaurant } from '../types';
 import { RESTAURANT_SORTS, type RestaurantSort } from '../utils/restaurantFields';
 import { VISITED_FILTERS, type RestaurantFilters } from '../hooks/useRestaurantFilters';
 import { oneOfKeys, usePersistentState } from '../hooks/usePersistentState';
 import { cn } from '../utils/cn';
 import { CARD, CHIP_SELECT, FIELD } from '../utils/ui';
+import { ALL_AREAS } from '../utils/areas';
 import { AreaSelect } from './AreaSelect';
 import { Button } from './Button';
 import { CardSkeletons } from './CardSkeletons';
@@ -19,7 +20,7 @@ const PlacesMap = lazy(() => import('./PlacesMap').then((m) => ({ default: m.Pla
 
 // Botons i selectors petits de la barra de filtres
 const CHIP =
-  'flex items-center gap-1.5 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
+  'flex items-center gap-1.5 min-h-11 sm:min-h-0 px-3.5 py-2 rounded-full font-semibold transition-[background-color,color,transform] active:scale-[0.96]';
 const CHIP_IDLE = 'bg-surface text-stone-700 ring-1 ring-stone-200 hover:bg-stone-100';
 
 interface Props {
@@ -49,6 +50,14 @@ export const RestaurantsTab: React.FC<Props> = ({
 }) => {
   const [view, setView] = usePersistentState<PlaceView>('restaurant-view', 'list', oneOfKeys(PLACE_VIEWS));
   const { filtered, hasFilters, clear } = filters;
+  // Al mòbil, els filtres secundaris es pleguen darrere del botó «Filtres»; a partir de `sm` sempre es veuen
+  const [showMore, setShowMore] = useState(false);
+  const moreActive = [
+    filters.favorite,
+    filters.cuisine !== filters.allCuisines,
+    filters.area !== ALL_AREAS,
+    filters.sort !== 'recent',
+  ].filter(Boolean).length;
   const mapPlaces = useMemo(() => filtered.map((r) => ({ ...r, details: [r.cuisine ?? '', r.priceRange ?? ''] })), [filtered]);
 
   return (
@@ -79,26 +88,55 @@ export const RestaurantsTab: React.FC<Props> = ({
           <SegmentedControl label="Estat de visita" options={VISITED_FILTERS} value={filters.visited} onChange={filters.setVisited} />
 
           <button
-            onClick={() => filters.setFavorite(!filters.favorite)}
-            aria-pressed={filters.favorite}
-            className={cn(CHIP, filters.favorite ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' : CHIP_IDLE)}
+            onClick={() => setShowMore(!showMore)}
+            aria-expanded={showMore}
+            className={cn(CHIP, 'sm:hidden', showMore || moreActive > 0 ? 'bg-accent-soft text-accent ring-1 ring-accent/30' : CHIP_IDLE)}
           >
-            <Star className={cn('w-3.5 h-3.5', filters.favorite ? 'fill-white' : 'fill-amber-400 text-amber-500')} />
-            <span>Favorits</span>
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            <span>Filtres{moreActive > 0 ? ` (${moreActive})` : ''}</span>
           </button>
 
-          {filters.cuisines.length > 1 && (
-            <select value={filters.cuisine} onChange={(e) => filters.setCuisine(e.target.value)} aria-label="Cuina" className={CHIP_SELECT}>
-              <option value={filters.allCuisines}>Totes les cuines</option>
-              {filters.cuisines.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+          <div className={cn('w-full flex-wrap items-center gap-2 sm:contents', showMore ? 'flex' : 'hidden')}>
+            <button
+              onClick={() => filters.setFavorite(!filters.favorite)}
+              aria-pressed={filters.favorite}
+              className={cn(CHIP, filters.favorite ? 'bg-amber-500 text-white shadow-md shadow-amber-500/25' : CHIP_IDLE)}
+            >
+              <Star className={cn('w-3.5 h-3.5', filters.favorite ? 'fill-white' : 'fill-amber-400 text-amber-500')} />
+              <span>Favorits</span>
+            </button>
+
+            {filters.cuisines.length > 1 && (
+              <select
+                value={filters.cuisine}
+                onChange={(e) => filters.setCuisine(e.target.value)}
+                aria-label="Cuina"
+                className={CHIP_SELECT}
+              >
+                <option value={filters.allCuisines}>Totes les cuines</option>
+                {filters.cuisines.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            <AreaSelect areas={filters.areas} value={filters.area} onChange={filters.setArea} />
+
+            <select
+              value={filters.sort}
+              onChange={(e) => filters.setSort(e.target.value as RestaurantSort)}
+              aria-label="Ordena per"
+              className={CHIP_SELECT}
+            >
+              {(Object.keys(RESTAURANT_SORTS) as RestaurantSort[]).map((key) => (
+                <option key={key} value={key}>
+                  {RESTAURANT_SORTS[key]}
                 </option>
               ))}
             </select>
-          )}
-
-          <AreaSelect areas={filters.areas} value={filters.area} onChange={filters.setArea} />
+          </div>
 
           <button
             onClick={onOpenRandom}
@@ -109,19 +147,6 @@ export const RestaurantsTab: React.FC<Props> = ({
             <Dices className="w-3.5 h-3.5 text-accent" />
             <span>Sorprèn-me</span>
           </button>
-
-          <select
-            value={filters.sort}
-            onChange={(e) => filters.setSort(e.target.value as RestaurantSort)}
-            aria-label="Ordena per"
-            className={CHIP_SELECT}
-          >
-            {(Object.keys(RESTAURANT_SORTS) as RestaurantSort[]).map((key) => (
-              <option key={key} value={key}>
-                {RESTAURANT_SORTS[key]}
-              </option>
-            ))}
-          </select>
 
           {hasFilters && (
             <button onClick={clear} className={cn(CHIP, 'gap-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100')}>
@@ -176,7 +201,14 @@ export const RestaurantsTab: React.FC<Props> = ({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger">
           {filtered.map((res) => (
-            <RestaurantCard key={res.id} res={res} onOpen={onOpen} onToggleFavorite={onToggleFavorite} onRegisterVisit={onRegisterVisit} />
+            <RestaurantCard
+              key={res.id}
+              res={res}
+              showAuthor={!isPersonal}
+              onOpen={onOpen}
+              onToggleFavorite={onToggleFavorite}
+              onRegisterVisit={onRegisterVisit}
+            />
           ))}
         </div>
       )}
